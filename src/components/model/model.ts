@@ -1,68 +1,88 @@
 import Event from './../observer/observer';
-import { IModel, IMOptions } from './namespace';
+import { IModel, IOptions } from './namespace';
+
+interface IMandatoryOptions {
+  range: boolean;
+  segment: [number, number];  
+  values: [number, number];
+}
 
 export default class Model implements IModel {
   
-  private events = {
+  public events = {
     rangeChanged: new Event(),
     maxChanged: new Event(),
     minChanged: new Event(),
     disabledChanged: new Event(),
-    valuesChanged: new Event()
+    valuesChanged: new Event(),
+    stepChangerd: new Event()
   }
 
-  private options: IMOptions = {
+  private options: IMandatoryOptions = {
     range: false,
-    min: 0,
-    max: 100,
-    disabled: false,
+    segment: [0,100],
     values: [0, 0],
-    step: 1
   }
 
-  public constructor(options: IMOptions = {}) {
+  public constructor(options: IOptions = {}) {
     
   }
 
   // accessors
 
-  get values() {
-    return <[number, number]>this.options.values;
-  }
-
-  set values(newValues: [number, number]) {
-
-  }
-
-  get max() {
-    return <number>this.options.max;
-  }
-
-  set max(newValue: number) {
-
-  }
-
-  get min() {
-    return <number>this.options.min;
-  }
-
-  set min(newValue: number) {
-    
-  }
-
   get range() {
-    return <boolean>this.options.range;
+    return false;
   }
 
   set range(newValue: boolean) {
+    return
+  }
 
+  get value() {
+    return this.options.values[0];
+  }
+
+  set value(newValue: number) {
+    return
+  }
+
+  get valueAlt() {
+    return this.options.values[1];
+  }
+
+  set valueAlt(newValue: number) {
+    return
+  }
+
+  get values() {
+    return this.options.values;
+  }
+
+  set values(newValue: [number, number]) {
+    return
+  }
+
+  get max() {
+    return <number>this.options.segment[1];
+  }
+
+  set max(newValue: number) {
+    return
+  }
+
+  get min() {
+    return <number>this.options.segment[0];
+  }
+
+  set min(newValue: number) {
+    return
   }
 
   // public methods
 
   // private methods
 
-  private init() {
+  private init(options: IOptions) {
 
   }
 }

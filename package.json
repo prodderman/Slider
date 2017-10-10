@@ -7,11 +7,18 @@
     "dev": "better-npm-run dev",
     "demo": "better-npm-run dev:demo",
     "prod": "better-npm-run prod",
-    "test": "better-npm-run test"
+    "test": "better-npm-run test",
+    "singleTest": "better-npm-run test:single"
   },
   "betterScripts": {
     "test": {
       "command": "karma start karma.confing.js",
+      "env": {
+        "NODE_ENV": "testing"
+      }
+    },
+    "test:single": {
+      "command": "karma start karma.confing.js --single-run --browsers PhantomJS",
       "env": {
         "NODE_ENV": "testing"
       }

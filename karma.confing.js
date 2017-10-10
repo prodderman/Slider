@@ -4,11 +4,11 @@ module.exports = function (config) {
   config.set({
     basePath: "",
     frameworks: [
-      'mocha', 'chai', 'sinon'
+      'mocha', 'chai'
     ],
 
     coverageReporter: {
-      dir:'build/coverage/',
+      dir:'coverage/',
       reporters: [
         { type:'html', subdir: 'report-html' },
         { type:'lcov', subdir: 'report-lcov' }
@@ -31,7 +31,6 @@ module.exports = function (config) {
 
     plugins: [
       'karma-chai',
-      'karma-sinon',
       'karma-mocha',
       'karma-coverage',
       'karma-webpack', 
