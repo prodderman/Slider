@@ -49,7 +49,7 @@ module.exports = {
             presets: ['es2015', 'stage-0']
           }
         },
-        exclude: /node_modules/
+        exclude: /node_modules/,
       }, {
         test: /\.ts$/,
         use: [
@@ -59,7 +59,7 @@ module.exports = {
           },
           'ts-loader',
         ],
-        exclude: /node_modules/
+        exclude: [/node_modules/, /-test\.ts$/],
       }, {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({use: 'css-loader'})

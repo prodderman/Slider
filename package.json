@@ -12,13 +12,13 @@
   },
   "betterScripts": {
     "test": {
-      "command": "karma start karma.confing.js",
+      "command": "karma start karma.config.js",
       "env": {
         "NODE_ENV": "testing"
       }
     },
     "test:single": {
-      "command": "karma start karma.confing.js --single-run --browsers PhantomJS",
+      "command": "karma start karma.config.js --single-run",
       "env": {
         "NODE_ENV": "testing"
       }
@@ -72,6 +72,7 @@
     "file-loader": "^0.11.2",
     "html-webpack-harddisk-plugin": "^0.1.0",
     "html-webpack-plugin": "^2.30.1",
+    "istanbul-instrumenter-loader": "^3.0.0",
     "jquery": "^3.2.1",
     "karma": "^1.7.1",
     "karma-chai": "^0.1.0",

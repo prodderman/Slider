@@ -25,33 +25,36 @@ export default class Model implements IModel {
   }
 
   public constructor(options: IOptions = {}) {
-    
+    this.init(options);
+    console.log(options);
+    console.log(this.options);
   }
 
   // accessors
 
   get range() {
-    return false;
+    return this.options.range;
   }
 
   set range(newValue: boolean) {
-    return
+    this.options.range = newValue;
+    this.setValues([this.min, this.max]);
   }
 
   get value() {
-    return this.options.values[0];
+      return <number>this.options.values[1];
   }
 
   set value(newValue: number) {
-    return
-  }
-
-  get valueAlt() {
-    return this.options.values[1];
-  }
-
-  set valueAlt(newValue: number) {
-    return
+    if (this.range) {
+      if (newValue < this.min) {
+        this.options.values[1] = this.min;
+      } else if (newValue > this.max) {
+        this.options.values[1] = this.max;
+      } else  {
+        this.options.values[1] = newValue;
+      }
+    }
   }
 
   get values() {
@@ -59,7 +62,7 @@ export default class Model implements IModel {
   }
 
   set values(newValue: [number, number]) {
-    return
+    
   }
 
   get max() {
@@ -67,7 +70,14 @@ export default class Model implements IModel {
   }
 
   set max(newValue: number) {
-    return
+    if (newValue < this.options.segment[0]) {
+      this.options.segment[0] = this.options.segment[1] = newValue;
+    } else  {
+      this.options.segment[1] = newValue;
+    }    
+    if (newValue < this.options.values[1]) {
+      this.values = [this.options.values[0], newValue];
+    }
   }
 
   get min() {
@@ -75,14 +85,45 @@ export default class Model implements IModel {
   }
 
   set min(newValue: number) {
-    return
+    this.options.segment[0] = newValue;
   }
+
+  get segment() {
+    return this.options.segment;
+  }
+
+  set segment(newValue: [number, number]) {
+    this.options.segment = newValue;
+  }
+  
 
   // public methods
 
   // private methods
 
   private init(options: IOptions) {
+    if (options.range) {
+      this.range = options.range
+    }
+    if (options.max) {
+      this.max = options.max;
+    }
+    if (options.min) {
+      this.min = options.min;
+    } 
+    if (options.value) {
+      this.value = options.value
+    } else {
+      this.value = this.options.values[1];
+    }
+    if (options.values) {
+      this.values = options.values
+    } else {
+      this.values = this.options.values;
+    }
+  }
 
+  private setValues(vals: [number, number]) {
+    this.options.values = vals;
   }
 }

@@ -23,7 +23,7 @@ module.exports = {
       {
         test: /\.ts$/,
         loader: 'awesome-typescript-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
       }, {
         test: /\.css$/,
         loader: ['style-loader', 'css-loader']

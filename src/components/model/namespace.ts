@@ -9,6 +9,5 @@ export interface IOptions {
   min?: number;
   max?: number;
   value?: number;
-  valueAlt?: number;
   values?: [number, number];
 }
