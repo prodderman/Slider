@@ -4,10 +4,11 @@ export interface IModel {
 
 }
 
-export interface IOptions {
+export interface IModelOptions {
   range?: boolean;
   min?: number;
   max?: number;
-  value?: number;
-  values?: [number, number];
+  from?: number;
+  to?: number;
+  step?: number;
 }
