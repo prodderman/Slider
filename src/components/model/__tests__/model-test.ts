@@ -172,7 +172,7 @@ describe('( class Model )', () => {
     }
 
     function onStepInRange(step: number, value: number) {
-      const model = new Model({ min: 10 });
+      const model = new Model({ min: 10, step: step });
       const supposedValue = Math.round(( value - model.min ) / step) * step + model.min;
       if ( value < model.min ) {
 
@@ -181,7 +181,7 @@ describe('( class Model )', () => {
           assert.equal(model.from, model.min);
         });
 
-      } else if (value > model.max) {
+      } else if ( value > model.max ) {
 
         it('at a value greater then maximum, must return maximum', () => {
           model.calcFromWithStep(124);
@@ -201,6 +201,43 @@ describe('( class Model )', () => {
       model.calcFromWithStep(88);
       assert.equal(model.from, model.to);
     });
+
+    for (let i = 0; i < 15; i++) {
+      onStepInRange(+r(0.001,10).toFixed(2),+r(-180,180).toFixed(2));
+    }
+  });
+
+  describe('( method calcToWithStep)', () => {
+    
+    function r(min:number, max:number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function onStepInRange(step: number, value: number) {
+      const model = new Model({type: true, from: 10, step: step });
+      const supposedValue = Math.round(( value - model.min ) / step) * step + model.min;
+      if ( value < model.from ) {
+
+        it('at a value less then model.from, must return model.from', () => {
+          model.calcToWithStep(-435);
+          assert.equal(model.to, model.from);
+        });
+
+      } else if ( value > model.max ) {
+
+        it('at a value greater then maximum, must return maximum', () => {
+          model.calcToWithStep(124);
+          assert.equal(model.to, model.max);
+        });
+
+      } else {
+
+        it(`at a value of ${value} with step ${step}, must return ${supposedValue}`, () => {
+          model.calcToWithStep(value);
+          assert.equal(model.to, supposedValue);
+        });
+      }
+    }
 
     for (let i = 0; i < 15; i++) {
       onStepInRange(+r(0.001,10).toFixed(2),+r(-180,180).toFixed(2));
