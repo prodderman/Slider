@@ -4,6 +4,6 @@ import Controller from './components/controller/controller';
 
 export default class Slider {
     constructor(rootObject: HTMLElement, options = {}) {
-
+      
     }
 }
