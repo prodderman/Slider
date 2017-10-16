@@ -2,7 +2,7 @@ import Model from './../model';
 import { assert, expect } from 'chai';
 
 interface supposedOptions {
-  range: boolean;
+  type: boolean;
   min: number;
   max: number;
   from: number;
@@ -12,15 +12,14 @@ interface supposedOptions {
 
 describe('( class Model )', () => {
   describe('( method validate )', () => {
-    const model = new Model();
-
     it('test validate parameters 1', () => {
+      const model = new Model();
       const options: supposedOptions = {
-        range: false,
+        type: false,
         min: 50,
         max: 100,
         from: 50,
-        to: 50,
+        to: 0,
         step: 3
       }
 
@@ -33,12 +32,13 @@ describe('( class Model )', () => {
     });
 
     it('test validate parameters 2', () => {
+      const model = new Model();
       const options: supposedOptions = {
-        range: false,
+        type: false,
         min: 150,
         max: 150,
         from: 150,
-        to: 150,
+        to: 0,
         step: 1
       }
 
@@ -50,16 +50,18 @@ describe('( class Model )', () => {
     });
 
     it('test validate parameters 3', () => {
+      const model = new Model();
       const options: supposedOptions = {
-        range: true,
-        min: 0,
+        type: true,
+        min: 150,
         max: 150,
-        from: 0,
+        from: 150,
         to: 150,
         step: 1
       }
 
       model.validate({
+        type: true,
         min: 150,
         from: -341,
         to: 231,
@@ -69,8 +71,9 @@ describe('( class Model )', () => {
     });
 
     it('test validate parameters 4', () => {
+      const model = new Model();
       const options: supposedOptions = {
-        range: true,
+        type: true,
         min: 0,
         max: 150,
         from: 0,
@@ -79,8 +82,9 @@ describe('( class Model )', () => {
       }
 
       model.validate({
+        type: true,
         min: 0,
-        max: 1,
+        max: 150,
         from: -341,
         to: 231,
       })
@@ -89,8 +93,9 @@ describe('( class Model )', () => {
     });
 
     it('test validate parameters 5', () => {
+      const model = new Model();
       const options: supposedOptions = {
-        range: true,
+        type: true,
         min: 0,
         max: 150,
         from: 100,
@@ -99,6 +104,7 @@ describe('( class Model )', () => {
       }
 
       model.validate({
+        type: true,
         min: 0,
         max: 150,
         from: 100,
@@ -108,13 +114,14 @@ describe('( class Model )', () => {
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
-    it('test validate parameters 5', () => {
+    it('test validate parameters 6', () => {
+      const model = new Model();
       const options: supposedOptions = {
-        range: true,
+        type: false,
         min: 0,
         max: 150,
         from: 150,
-        to: 150,
+        to: -30,
         step: 1
       }
 
@@ -126,6 +133,52 @@ describe('( class Model )', () => {
       })
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
+    });
+
+    it('validate with changes and with update parameter should call notify', () => {
+      const model = new Model();
+      let checkEvent = false;
+      model.sliderChanged.attach(() => {
+        checkEvent = true;
+      });
+
+      const options: supposedOptions = {
+        type: false,
+        min: 0,
+        max: 150,
+        from: 0,
+        to: 0,
+        step: 1
+      }
+
+      model.validate({
+        max: 150,
+      }, true);
+
+      expect(checkEvent).to.be.true;
+    });
+
+    it('validate with update parameter, but without changes should not call notify', () => {
+      const model = new Model();
+      let checkEvent = false;
+      model.sliderChanged.attach(() => {
+        checkEvent = true;
+      });
+
+      const options: supposedOptions = {
+        type: false,
+        min: 0,
+        max: 150,
+        from: 0,
+        to: 0,
+        step: 1
+      }
+
+      model.validate({
+        max: 100,
+      }, true);
+
+      expect(checkEvent).to.be.false;
     });
   });
 })

@@ -5,7 +5,7 @@ export interface IModel {
 }
 
 export interface IModelOptions {
-  range?: boolean;
+  type?: boolean;
   min?: number;
   max?: number;
   from?: number;
