@@ -93,7 +93,8 @@ export default class Model implements IModel {
   // private methods
 
   private setRange(min = this.options.min, max = this.options.max): boolean {
-    if (this.options.min === min && this.options.max === max) {
+    const o = this.options;
+    if (o.min === min && o.max === max) {
       return false;
     } 
 
@@ -101,60 +102,58 @@ export default class Model implements IModel {
       max = min;
     }
 
-    this.options.min = min;
-    this.options.max = max;
+    o.min = min;
+    o.max = max;
     this.updateFromTo();
     return true;
   }
 
   private setValues(from = this.options.from, to = this.options.to): boolean {
-    if (this.options.from === from && this.options.to === to) {
+    const o = this.options;
+    if (o.from === from && o.to === to) {
       return false;
     }
-    this.options.from = from;
-    this.options.to = to;
+    o.from = from;
+    o.to = to;
     this.updateFromTo();
     return true;
   }
 
   private setStep(value: number): boolean {
-    if (this.options.step === value) {
+    const o = this.options;
+    if (o.step === value) {
       return false;
     } else {
       let range;
-      if (value > (range = this.options.max - this.options.min)) {
-        this.options.step = range;
+      if (value < 0) {
+        o.step = 1;
+      } else if (value > (range = o.max - o.min)) {
+        o.step = range;
       } else {
-        this.options.step = value;
+        o.step = value;
       }
       return true;
     }
   }
 
   private setType(value: boolean): boolean {
-    if (this.options.type === value) {
+    const o = this.options;
+    if (o.type === value) {
       return false;
     } else {
-      this.options.type = value;
+      o.type = value;
       return true;
     }
   }
 
   private updateFromTo() {
-    if (this.options.from < this.options.min) {
-      this.options.from = this.options.min;
-    } 
-    else if (this.options.from > this.options.max) {
-      this.options.from = this.options.max;
-    }
+    const o = this.options;
+    if (o.from < o.min) o.from = o.min;
+    if (o.from > o.max) o.from = o.max;
 
-    if (this.options.type) {
-      if (this.options.to < this.options.from) {
-        this.options.to = this.options.from;
-      } 
-      else if (this.options.to > this.options.max) {
-        this.options.to = this.options.max;
-      }
+    if (o.type) {
+      if (o.to < o.from) o.to = o.from;
+      if (o.to > o.max) o.to = o.max;
     }
   }
 }

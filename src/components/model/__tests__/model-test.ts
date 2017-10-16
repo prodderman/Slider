@@ -130,6 +130,7 @@ describe('( class Model )', () => {
         max: 150,
         from: 1000,
         to: -30,
+        step: -1
       })
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
@@ -141,15 +142,6 @@ describe('( class Model )', () => {
       model.sliderChanged.attach(() => {
         checkEvent = true;
       });
-
-      const options: supposedOptions = {
-        type: false,
-        min: 0,
-        max: 150,
-        from: 0,
-        to: 0,
-        step: 1
-      }
 
       model.validate({
         max: 150,
@@ -165,20 +157,53 @@ describe('( class Model )', () => {
         checkEvent = true;
       });
 
-      const options: supposedOptions = {
-        type: false,
-        min: 0,
-        max: 150,
-        from: 0,
-        to: 0,
-        step: 1
-      }
-
       model.validate({
         max: 100,
       }, true);
 
       expect(checkEvent).to.be.false;
     });
+  });
+
+  describe('( method calcFromWithStep)', () => {
+
+    function r(min:number, max:number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function onStepInRange(step: number, value: number) {
+      const model = new Model({ min: 10 });
+      const supposedValue = Math.round(( value - model.min ) / step) * step + model.min;
+      if ( value < model.min ) {
+
+        it('at a value less then minimum, must return minimum', () => {
+          model.calcFromWithStep(-435);
+          assert.equal(model.from, model.min);
+        });
+
+      } else if (value > model.max) {
+
+        it('at a value greater then maximum, must return maximum', () => {
+          model.calcFromWithStep(124);
+          assert.equal(model.from, model.max);
+        });
+
+      } else {
+
+        it(`at a value of ${value} with step ${step}, must return ${supposedValue}`, () => {
+          model.calcFromWithStep(value);
+          assert.equal(model.from, supposedValue);
+        });
+      }
+    }
+    it('at model.type == true and at a value greater then model.to, must return model.to', () => {
+      const model = new Model({type: true, step: 2.4, to: 77 });
+      model.calcFromWithStep(88);
+      assert.equal(model.from, model.to);
+    });
+
+    for (let i = 0; i < 15; i++) {
+      onStepInRange(+r(0.001,10).toFixed(2),+r(-180,180).toFixed(2));
+    }
   });
 })
