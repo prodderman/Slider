@@ -10,9 +10,9 @@ interface supposedOptions {
   step: number;
 }
 
-describe('( class Model )', () => {
-  describe('( method validate )', () => {
-    it('test validate parameters 1', () => {
+describe('( Test Model )', () => {
+  describe('( method init )', () => {
+    it('test init parameters 1', () => {
       const model = new Model();
       const options: supposedOptions = {
         type: false,
@@ -23,7 +23,7 @@ describe('( class Model )', () => {
         step: 3
       }
 
-      model.validate({
+      model.init({
         min: 50,
         step: 3
       })
@@ -31,7 +31,7 @@ describe('( class Model )', () => {
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
-    it('test validate parameters 2', () => {
+    it('test init parameters 2', () => {
       const model = new Model();
       const options: supposedOptions = {
         type: false,
@@ -42,14 +42,14 @@ describe('( class Model )', () => {
         step: 1
       }
 
-      model.validate({
+      model.init({
         min: 150,
       })
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
-    it('test validate parameters 3', () => {
+    it('test init parameters 3', () => {
       const model = new Model();
       const options: supposedOptions = {
         type: true,
@@ -60,7 +60,7 @@ describe('( class Model )', () => {
         step: 1
       }
 
-      model.validate({
+      model.init({
         type: true,
         min: 150,
         from: -341,
@@ -70,7 +70,7 @@ describe('( class Model )', () => {
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
-    it('test validate parameters 4', () => {
+    it('test init parameters 4', () => {
       const model = new Model();
       const options: supposedOptions = {
         type: true,
@@ -81,7 +81,7 @@ describe('( class Model )', () => {
         step: 1
       }
 
-      model.validate({
+      model.init({
         type: true,
         min: 0,
         max: 150,
@@ -92,7 +92,7 @@ describe('( class Model )', () => {
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
-    it('test validate parameters 5', () => {
+    it('test init parameters 5', () => {
       const model = new Model();
       const options: supposedOptions = {
         type: true,
@@ -103,7 +103,7 @@ describe('( class Model )', () => {
         step: 1
       }
 
-      model.validate({
+      model.init({
         type: true,
         min: 0,
         max: 150,
@@ -114,7 +114,7 @@ describe('( class Model )', () => {
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
-    it('test validate parameters 6', () => {
+    it('test init parameters 6', () => {
       const model = new Model();
       const options: supposedOptions = {
         type: false,
@@ -125,7 +125,7 @@ describe('( class Model )', () => {
         step: 1
       }
 
-      model.validate({
+      model.init({
         min: 0,
         max: 150,
         from: 1000,
@@ -134,34 +134,6 @@ describe('( class Model )', () => {
       })
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
-    });
-
-    it('validate with changes and with update parameter should call notify', () => {
-      const model = new Model();
-      let checkEvent = false;
-      model.sliderChanged.attach(() => {
-        checkEvent = true;
-      });
-
-      model.validate({
-        max: 150,
-      }, true);
-
-      expect(checkEvent).to.be.true;
-    });
-
-    it('validate with update parameter, but without changes should not call notify', () => {
-      const model = new Model();
-      let checkEvent = false;
-      model.sliderChanged.attach(() => {
-        checkEvent = true;
-      });
-
-      model.validate({
-        max: 100,
-      }, true);
-
-      expect(checkEvent).to.be.false;
     });
   });
 
@@ -173,33 +145,33 @@ describe('( class Model )', () => {
 
     function onStepInRange(step: number, value: number) {
       const model = new Model({ min: 10, step: step });
-      const supposedValue = Math.round(( value - model.min ) / step) * step + model.min;
-      if ( value < model.min ) {
+      const supposedValue = Math.round(( value - model.data.min ) / step) * step + model.data.min;
+      if ( value < model.data.min ) {
 
         it('at a value less then minimum, must return minimum', () => {
           model.calcFromWithStep(-435);
-          assert.equal(model.from, model.min);
+          assert.equal(model.data.from, model.data.min);
         });
 
-      } else if ( value > model.max ) {
+      } else if ( value > model.data.max ) {
 
         it('at a value greater then maximum, must return maximum', () => {
           model.calcFromWithStep(124);
-          assert.equal(model.from, model.max);
+          assert.equal(model.data.from, model.data.max);
         });
 
       } else {
 
         it(`at a value of ${value} with step ${step}, must return ${supposedValue}`, () => {
           model.calcFromWithStep(value);
-          assert.equal(model.from, supposedValue);
+          assert.equal(model.data.from, supposedValue);
         });
       }
     }
     it('at model.type == true and at a value greater then model.to, must return model.to', () => {
       const model = new Model({type: true, step: 2.4, to: 77 });
       model.calcFromWithStep(88);
-      assert.equal(model.from, model.to);
+      assert.equal(model.data.from, model.data.to);
     });
 
     for (let i = 0; i < 15; i++) {
@@ -215,26 +187,26 @@ describe('( class Model )', () => {
 
     function onStepInRange(step: number, value: number) {
       const model = new Model({type: true, from: 10, step: step });
-      const supposedValue = Math.round(( value - model.min ) / step) * step + model.min;
-      if ( value < model.from ) {
+      const supposedValue = Math.round(( value - model.data.min ) / step) * step + model.data.min;
+      if ( value < model.data.from ) {
 
         it('at a value less then model.from, must return model.from', () => {
           model.calcToWithStep(-435);
-          assert.equal(model.to, model.from);
+          assert.equal(model.data.to, model.data.from);
         });
 
-      } else if ( value > model.max ) {
+      } else if ( value > model.data.max ) {
 
         it('at a value greater then maximum, must return maximum', () => {
           model.calcToWithStep(124);
-          assert.equal(model.to, model.max);
+          assert.equal(model.data.to, model.data.max);
         });
 
       } else {
 
         it(`at a value of ${value} with step ${step}, must return ${supposedValue}`, () => {
           model.calcToWithStep(value);
-          assert.equal(model.to, supposedValue);
+          assert.equal(model.data.to, supposedValue);
         });
       }
     }

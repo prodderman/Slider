@@ -3,7 +3,15 @@ import View from './components/view/view';
 import Controller from './components/controller/controller';
 
 export default class Slider {
-    constructor(rootObject: HTMLElement, options = {}) {
-      
-    }
+  constructor(rootObject: HTMLElement, options = {}) {
+    
+  }
+
+  init() {
+
+  }
+
+  set() {
+    
+  }
 }

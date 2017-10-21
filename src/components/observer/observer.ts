@@ -1,4 +1,4 @@
-import {IEvent} from './namespace';
+import { IEvent } from './namespace';
 
 export default class Event implements IEvent{
   private listeners: Set<Function>;

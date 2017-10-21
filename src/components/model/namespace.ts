@@ -1,7 +1,8 @@
-import Event from './../observer/observer';
+import IEvent from './../observer/observer';
 
 export interface IModel {
-
+  readonly data: IModelOptions;
+  readonly event: IModelEvents;
 }
 
 export interface IModelOptions {
@@ -11,4 +12,9 @@ export interface IModelOptions {
   from?: number;
   to?: number;
   step?: number;
+}
+
+export interface IModelEvents {
+  fromChanged: IEvent,
+  toChanged: IEvent,
 }

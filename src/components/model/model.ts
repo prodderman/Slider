@@ -1,7 +1,7 @@
-import Event from './../observer/observer';
-import { IModel, IModelOptions } from './namespace';
+import IEvent from './../observer/observer';
+import { IModel, IModelOptions, IModelEvents } from './namespace';
 
-interface IMandatoryOptions {
+interface IMandatoryOptions extends IModelOptions {
   type: boolean;
   min: number;
   max: number;
@@ -12,10 +12,9 @@ interface IMandatoryOptions {
 
 export default class Model implements IModel {
   
-  private events = {
-    fromChanged: new Event(),
-    toChanged: new Event(),
-    sliderChanged: new Event()
+  private triggers: IModelEvents = {
+    fromChanged: new IEvent(),
+    toChanged: new IEvent(),
   }
 
   private options: IMandatoryOptions  = {
@@ -28,66 +27,77 @@ export default class Model implements IModel {
   }
 
   public constructor(modelOptions: IModelOptions = {}) {
-    this.validate(modelOptions);
+    this.init(modelOptions);
   }
 
   // accessors
 
-  get sliderChanged() {
-    return this.events.sliderChanged;
-  }
-
-  get data() {
+  get data(): IMandatoryOptions {
     return this.options;
   }
 
-  get min() {
-    return this.options.min;
-  }
-
-  get max() {
-    return this.options.max;
-  }
-
-  get from() {
-    return this.options.from;
-  }
-
-  get to() {
-    return this.options.to;
+  get event(): IModelEvents {
+    return this.triggers;
   }
 
   // public methods
 
-  public validate(options: IModelOptions = {}, isUpadate = false) {
-    let changed = false;
+  public init(options: IModelOptions = {}, isUpdate?: boolean) { 
     if (options.type) {
-      changed = this.setType(options.type) || changed;
+      this.setType(options.type);
     }
 
     if (options.step) {
-      changed = this.setStep(options.step) || changed;
+      this.setStep(options.step);
     }
 
     if (options.min || options.max) {
-      changed = this.setRange(options.min, options.max) || changed;
+      this.setRange(options.min, options.max);
     }
 
     if (options.from || options.to) {
-      changed = this.setValues(options.from, options.to) || changed;
-    }
-
-    if (changed && isUpadate) {
-      this.events.sliderChanged.notify();
+      this.setValues(options.from, options.to);
     }
   }
 
   public calcFromWithStep(value: number) {
+    const o = this.options;
+    let result;
+
+    if (o.type) {
+      result = this.inDaipason(value, o.min, o.to);
+    } else {
+      result = this.inDaipason(value, o.min, o.max);
+    }
     
+    if (result === value) {
+      result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
+    }
+
+    if (result != o.from) {
+      o.from = result;
+      this.triggers.fromChanged.notify(result);
+    }
   }
 
   public calcToWithStep(value: number) {
+    const o = this.options;
+    let result;
+
+    if (!o.type) {
+      return;
+    }
+
+    result = this.inDaipason(value, o.from, o.max);
     
+    if (result === value) {
+      result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
+    }
+
+    if (result != o.to) {
+      o.to = result;
+      this.triggers.toChanged.notify(result);
+    }
   }
 
   // private methods
@@ -148,12 +158,21 @@ export default class Model implements IModel {
 
   private updateFromTo() {
     const o = this.options;
-    if (o.from < o.min) o.from = o.min;
-    if (o.from > o.max) o.from = o.max;
+    o.from = this.inDaipason(o.from, o.min, o.max);
 
     if (o.type) {
-      if (o.to < o.from) o.to = o.from;
-      if (o.to > o.max) o.to = o.max;
+      o.to = this.inDaipason(o.to, o.from, o.max)
+    }
+  }
+
+  private inDaipason(value: number, min = this.options.min, max = this.options.min) {
+    let result: number;
+    if (value < min) {
+      return min;
+    } else if (value > max) {
+      return max;
+    } else {
+      return value;
     }
   }
 }
