@@ -1,0 +1,54 @@
+$main-color: #ed5565;
+$back-color: #f6f6f6;
+
+.vanilla {
+
+  &-slider {
+    background-color: $back-color;
+    border-radius: 0.3em;
+  }
+
+  &-horizontal {
+    height: 0.6em;
+
+    & .vanilla-range {
+      height: 100%;
+    }
+  }
+
+  &-vertical {
+    width: 0.6em;
+
+    & .vanilla-range {
+      width: 100%;
+    }
+  }
+
+  &-handle {
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 0.3em;
+    background-color: $back-color;
+    border: 1px solid $main-color;
+    cursor: pointer;
+    outline: none;
+
+    &:hover {
+      border-color: darken($main-color, 20%);
+    }
+
+    &:focus {
+      box-shadow: 0 0 2px 0 blue;
+      border-color: darken($main-color, 20%);
+    }
+
+    &-active {
+      background-color: darken($main-color, 20%);
+    }
+  }
+
+  &-range {
+    background-color: $main-color;
+    border-radius: 0.3em;
+  }
+}

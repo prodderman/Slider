@@ -1,14 +1,5 @@
 import IEvent from './../observer/observer';
-import { IModel, IModelOptions, IModelEvents } from './namespace';
-
-interface IMandatoryOptions extends IModelOptions {
-  type: boolean;
-  min: number;
-  max: number;
-  from: number;
-  to: number;
-  step: number;
-}
+import { IModel, IModelOptions, IMandatoryOptions, IModelEvents } from './namespace';
 
 export default class Model implements IModel {
   
@@ -36,7 +27,7 @@ export default class Model implements IModel {
     return this.options;
   }
 
-  get event(): IModelEvents {
+  get events(): IModelEvents {
     return this.triggers;
   }
 
@@ -76,7 +67,7 @@ export default class Model implements IModel {
 
     if (result != o.from) {
       o.from = result;
-      this.triggers.fromChanged.notify(result);
+      this.triggers.fromChanged.notify();
     }
   }
 
@@ -96,7 +87,7 @@ export default class Model implements IModel {
 
     if (result != o.to) {
       o.to = result;
-      this.triggers.toChanged.notify(result);
+      this.triggers.toChanged.notify();
     }
   }
 

@@ -1,8 +1,8 @@
 import IEvent from './../observer/observer';
 
 export interface IModel {
-  readonly data: IModelOptions;
-  readonly event: IModelEvents;
+  readonly data: IMandatoryOptions;
+  readonly events: IModelEvents;
 }
 
 export interface IModelOptions {
@@ -12,6 +12,15 @@ export interface IModelOptions {
   from?: number;
   to?: number;
   step?: number;
+}
+
+export interface IMandatoryOptions extends IModelOptions {
+  type: boolean;
+  min: number;
+  max: number;
+  from: number;
+  to: number;
+  step: number;
 }
 
 export interface IModelEvents {

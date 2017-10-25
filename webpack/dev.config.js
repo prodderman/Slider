@@ -6,30 +6,40 @@ module.exports = {
   devtool: 'inline-source-map',
   context: path.resolve(__dirname, '..', 'src'),
   entry: {
-    app: './index.ts'
+    app: './index.js'
   },
   output: {
     filename: 'js/bundle.js',
     path: path.resolve(__dirname, '..', 'demo')
   },
   resolve: {
-    modules: [
-      'node_modules', 'src'
-    ],
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
   module: {
     rules: [
       {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['es2015', 'stage-0']
+          }
+        },
+        exclude: /node_modules/
+      }, {
         test: /\.ts$/,
         loader: 'awesome-typescript-loader',
-        exclude: /node_modules/,
+        exclude: /node_modules/
       }, {
         test: /\.css$/,
         loader: ['style-loader', 'css-loader']
       }, {
         test: /\.scss$/,
-        loader: ['style-loader', 'css-loader', 'sass-loader']
+        use: [
+          'style-loader',
+          'css-loader?importLoaders=2',
+          'sass-loader',
+        ],
       }, {
         test: /\.(png|jpg|svg|ttf|eot|woff|woff2|gif)$/,
         loader: 'file-loader?name=[path][name].[ext]'

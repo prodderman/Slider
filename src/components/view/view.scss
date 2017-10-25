@@ -1,0 +1,52 @@
+.vanilla {
+  
+  &-slider {
+    position: relative;
+    text-align: left;
+  }
+
+  &-horizontal {
+    width: 100%;
+
+    & .vanilla-handle {
+      top: -0.35em;
+      margin-left: -0.55em;
+    }
+  }
+
+  &-vertical {
+    height: 100%;
+
+    & .vanilla-handle {
+      left: -0.35em;
+      margin-bottom: -0.7em;
+    }
+  }
+
+  &-handle {
+    position: absolute;
+    display: block;
+    z-index: 2;
+    cursor: default;
+    white-space: nowrap;
+
+    &.vanilla-last-type {
+      z-index: 3;
+    }
+  }
+
+  &-range {
+    position: absolute;
+    display: block;
+    z-index: 1;
+    width: 0;
+
+    &-min {
+      left: 0;
+    }
+
+    &-max {
+      right: 0;
+    }
+  }
+}

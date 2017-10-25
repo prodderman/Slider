@@ -6,5 +6,6 @@ export interface IViewOptions {
 }
 
 export interface IViewEvents {
-  
+  fromChanged: IEvent,
+  toChanged: IEvent
 }
