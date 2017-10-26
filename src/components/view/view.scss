@@ -30,8 +30,12 @@
     cursor: default;
     white-space: nowrap;
 
-    &.vanilla-last-type {
+    &.last-type {
       z-index: 3;
+    }
+
+    &.active {
+      z-index: 4;
     }
   }
 

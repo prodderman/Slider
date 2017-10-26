@@ -19,30 +19,30 @@ interface INodes {
 
 export default class View {
 
-  private root: HTMLDivElement | HTMLSpanElement;
   private handle: HTMLSpanElement | null = null;
   private handler = this.mouseMove.bind(this);
+  private mouseup = this.mouseUp.bind(this);
 
   private triggers: IViewEvents  = {
     fromChanged: new IEvent(),
     toChanged: new IEvent()
   }
 
-  private types = { 
+  static types = { 
     single: 'single', 
     min: 'min', 
     max: 'max', 
     double: 'double' 
   };
 
-  private orientations = {
+  static orientations = {
     horizontal: 'horizontal',
     vertical: 'vertical'
   }
 
   private options: IMandatoryOptions = {
-    type: this.types.single,
-    orientation: this.orientations.horizontal,
+    type: View.types.single,
+    orientation: View.orientations.horizontal,
   }
 
   private nodes: INodes = {
@@ -50,10 +50,8 @@ export default class View {
     from: document.createElement('span')
   };
   
-  constructor(rootObject: HTMLElement | HTMLCollection | string, private model: Model, viewOptions: IViewOptions = {}) {
-    if (this.setRoot(rootObject)) {
+  constructor(private root: HTMLDivElement | HTMLSpanElement, private model: Model, viewOptions: IViewOptions = {}) {
       this.init(viewOptions);
-    }
   }
 
   // accessors
@@ -79,15 +77,27 @@ export default class View {
   public init(viewOptions: IViewOptions, isUpdate?: boolean) {
     const o = this.options;
     const v = viewOptions;
-    if (v.type && v.type in this.types) {
+    if (v.type && v.type in View.types) {
       o.type = v.type;
     }
-
-    if (v.orientation && v.orientation in this.orientations) {
+    //debugger;
+    if (v.orientation && v.orientation in View.orientations) {
       o.orientation = v.orientation;
     }
-
+    if (isUpdate) {
+      this.nodes = {
+        track: document.createElement('div'),
+        from: document.createElement('span')
+      }
+    }
+    
+    this.rootEmpty();
+    this.setNodes();
     this.render();
+    this.calcFrom();
+    this.calcTo();
+    this.calcRange();
+    this.setHandlers();
   }
 
   // private methods
@@ -96,10 +106,7 @@ export default class View {
     const o = this.options;
     const r = this.root;
     const n = this.nodes;
-    const d = this.orientations;
-
-    this.rootEmpty();
-    this.setNodes();
+    const d = View.orientations;
 
     r.appendChild(n.track);
     n.track.appendChild(n.from);
@@ -115,10 +122,6 @@ export default class View {
     } else if (o.orientation === d.vertical && !n.track.clientHeight) {
       throw "zero container height";
     }
-    this.calcFrom();
-    this.calcTo();
-    this.calcRange();
-    this.setHandlers();
   }
 
   private setHandlers() {
@@ -134,17 +137,16 @@ export default class View {
       this.calcTo();
       this.calcRange();
     });
-    document.body.removeEventListener('mousemove', this.handler);
+    window.removeEventListener('mousemove', this.handler);
     n.track.removeEventListener('mousedown', this.mouseDown.bind(this));
-    window.removeEventListener('mouseup', this.mouseUp.bind(this));
+    window.removeEventListener('mouseup', this.mouseup);
     
     n.track.addEventListener('mousedown', this.mouseDown.bind(this));
-    window.addEventListener('mouseup', this.mouseUp.bind(this));
   }
 
   private calcFrom() {
     const o = this.options;
-    const d = this.orientations;
+    const d = View.orientations;
     const n = this.nodes;
     const m = this.model.data;
     
@@ -157,8 +159,8 @@ export default class View {
 
   private calcTo() {
     const o = this.options;
-    const d = this.orientations;
-    const t = this.types;
+    const d = View.orientations;
+    const t = View.types;
     const n = this.nodes;
     const m = this.model.data;
 
@@ -176,8 +178,8 @@ export default class View {
 
   private calcRange() {
     const o = this.options;
-    const d = this.orientations;
-    const t = this.types;
+    const d = View.orientations;
+    const t = View.types;
     const n = this.nodes;
     const m = this.model.data;
 
@@ -212,21 +214,27 @@ export default class View {
     const o = this.options;
     const n = this.nodes;
 
-    this.root.className += ' vanilla';
+    if (this.root.className.indexOf('vanilla') < 0) {
+      this.root.className += ' vanilla';
+    }
     n.track.setAttribute('class', `vanilla-slider vanilla-${o.type} vanilla-${o.orientation}`);
 
     n.from.setAttribute('tabindex', `0`);
     n.from.setAttribute('class', `vanilla-handle vanilla-handle-from`);
 
-    if (o.type !== this.types.single) {
+    if (o.type !== View.types.single) {
       n.range = document.createElement('div');
       n.range.setAttribute('class', `vanilla-range vanilla-range-${o.type}`);
+    } else {
+      delete n.range;
     }
 
-    if (o.type === this.types.double) {
+    if (o.type === View.types.double) {
       n.to = document.createElement('span');
       n.to.setAttribute('tabindex', `0`);
       n.to.setAttribute('class', `vanilla-handle vanilla-handle-to`);
+    } else {
+      delete n.to;
     }
   }
 
@@ -234,7 +242,7 @@ export default class View {
     const o = this.options;
     const m = this.model.data;
     const n = this.nodes;
-    const d = this.orientations;
+    const d = View.orientations;
 
     const range = m.max - m.min;
 
@@ -259,31 +267,10 @@ export default class View {
     }
   }
 
-  private setRoot(root: HTMLElement | HTMLCollection | string) {
-    if (root instanceof HTMLDivElement || root instanceof HTMLSpanElement) {
-      this.root = root;
-      return true;
-    } else if (root instanceof HTMLCollection && root[0] instanceof HTMLDivElement) {
-      this.root = <HTMLDivElement | HTMLSpanElement>root[0];
-      return true;
-    } else if (typeof root === 'string') {
-      const t = document.querySelector(root);
-      if (t instanceof HTMLDivElement || t instanceof HTMLSpanElement) {
-        this.root = t;
-        return true;
-      } else {
-        throw "Invalid node type, expected 'div'";
-      }
-    } 
-    else{
-      throw "Invalid node type, expected 'div'";
-    }
-  }
-
   private mouseDown(event: MouseEvent) {
     const o = this.options;
     const n = this.nodes;
-    const d = this.orientations;
+    const d = View.orientations;
     const coord = (o.orientation === d.horizontal ? 
                                      event.pageX - n.track.offsetLeft : 
                                      event.pageY - n.track.offsetTop);
@@ -298,14 +285,24 @@ export default class View {
       this.handle = this.chooseHandle(coord);
       this.mouseMove(event);
     }
-    document.addEventListener('mousemove', this.handler);
+
+    n.from.classList.remove('last-type');
+    if (n.to) {
+      n.to.classList.remove('last-type');
+    }
+
+    if (this.handle) {
+      this.handle.classList.add('active');
+      this.handle.classList.add('last-type');
+    }
+    window.addEventListener('mousemove', this.handler);
+    window.addEventListener('mouseup', this.mouseup);
   }
 
   private mouseMove(event: MouseEvent) {
     const e = this.events;
     const n = this.nodes;
     const value = this.convertToReal(this.getCoord(event));
-    console.log(value);
     if (this.handle === n.from) {
       e.fromChanged.notify(value);
     } else {
@@ -313,16 +310,30 @@ export default class View {
     }
   }
 
-  private mouseUp() {
-    document.removeEventListener('mousemove', this.handler);
-    this.handle = null;
+  private mouseUp(event: MouseEvent) {
+    const n = this.nodes;
+    const t = event.target;
+    window.removeEventListener('mousemove', this.handler);
+    window.removeEventListener('mouseup', this.mouseup);
+    if (this.handle) {
+      this.handle.classList.remove('active');
+    }
+ 
+    if (this.handle && t !== n.from && t !== n.to) {
+      this.handle.classList.remove('last-type');
+      this.handle = null;
+    }
   }
 
   private chooseHandle(coord: number): HTMLSpanElement {
     const o = this.options;
-    const t = this.types;
-    const d = this.orientations;
+    const t = View.types;
+    const d = View.orientations;
     const n = this.nodes;
+
+    if (this.handle) {
+      return this.handle;
+    }
 
     if (o.type !== t.double) {
       return n.from;
@@ -335,7 +346,7 @@ export default class View {
 
   private getCoord(event: MouseEvent) {
     const o = this.options;
-    const d = this.orientations;
+    const d = View.orientations;
     const n = this.nodes;
 
     if (o.orientation === d.horizontal) {
@@ -361,7 +372,7 @@ export default class View {
 
   private offset(node: HTMLElement) {
     const o = this.options;
-    const d = this.orientations;
+    const d = View.orientations;
 
     if (o.orientation === d.horizontal) {
       return node.offsetLeft + this.outerWidth(node)/2;
