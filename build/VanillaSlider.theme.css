@@ -1,0 +1,34 @@
+.vanilla-slider {
+  background-color: #f6f6f6;
+  border-radius: 0.3em; }
+
+.vanilla-horizontal {
+  height: 0.6em; }
+  .vanilla-horizontal .vanilla-range {
+    height: 100%; }
+
+.vanilla-vertical {
+  width: 0.6em;
+  min-height: 200px; }
+  .vanilla-vertical .vanilla-range {
+    width: 100%; }
+
+.vanilla-handle {
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 0.3em;
+  background-color: #f6f6f6;
+  border: 1px solid #ed5565;
+  cursor: pointer;
+  outline: none; }
+  .vanilla-handle:hover {
+    border-color: #c71528; }
+  .vanilla-handle:focus {
+    box-shadow: 0 0 2px 0 blue;
+    border-color: #c71528; }
+  .vanilla-handle-active {
+    background-color: #c71528; }
+
+.vanilla-range {
+  background-color: #ed5565;
+  border-radius: 0.3em; }

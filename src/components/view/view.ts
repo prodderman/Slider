@@ -8,6 +8,8 @@ import { IViewOptions, IViewEvents } from './namespace';
 interface IMandatoryOptions extends IViewOptions {
   type: string;
   orientation: string;
+  from_fixed: boolean;
+  to_fixed: boolean;
 }
 
 interface INodes {
@@ -17,15 +19,19 @@ interface INodes {
   range?: HTMLDivElement;
 }
 
+type Style = 'top' | 'left' | 'right' | 'bottom';
+
 export default class View {
 
   private handle: HTMLSpanElement | null = null;
-  private handler = this.mouseMove.bind(this);
+  private mousemove = this.mouseMove.bind(this);
   private mouseup = this.mouseUp.bind(this);
 
   private triggers: IViewEvents  = {
+    slideStart: new IEvent(),
+    slideEnd: new IEvent(),
     fromChanged: new IEvent(),
-    toChanged: new IEvent()
+    toChanged: new IEvent(),
   }
 
   static types = { 
@@ -43,6 +49,8 @@ export default class View {
   private options: IMandatoryOptions = {
     type: View.types.single,
     orientation: View.orientations.horizontal,
+    from_fixed: false,
+    to_fixed: false
   }
 
   private nodes: INodes = {
@@ -50,11 +58,11 @@ export default class View {
     from: document.createElement('span')
   };
   
-  constructor(private root: HTMLDivElement | HTMLSpanElement, private model: Model, viewOptions: IViewOptions = {}) {
+  constructor(private root: HTMLDivElement | HTMLSpanElement, viewOptions: IViewOptions = {}) {
       this.init(viewOptions);
   }
 
-  // accessors
+  // ======================= accessors =========================
 
   get data(): IMandatoryOptions {
     return this.options;
@@ -72,35 +80,65 @@ export default class View {
     return this.root;
   }
 
-  // public methods
+  // ======================= public methods ======================
 
   public init(viewOptions: IViewOptions, isUpdate?: boolean) {
     const o = this.options;
     const v = viewOptions;
+
     if (v.type && v.type in View.types) {
       o.type = v.type;
     }
-    //debugger;
     if (v.orientation && v.orientation in View.orientations) {
       o.orientation = v.orientation;
     }
-    if (isUpdate) {
-      this.nodes = {
-        track: document.createElement('div'),
-        from: document.createElement('span')
-      }
+    if (v.from_fixed !== undefined) {
+      o.from_fixed = v.from_fixed; 
+    }
+    if (v.to_fixed !== undefined) {
+      o.to_fixed = v.to_fixed; 
     }
     
     this.rootEmpty();
     this.setNodes();
     this.render();
-    this.calcFrom();
-    this.calcTo();
-    this.calcRange();
     this.setHandlers();
   }
 
-  // private methods
+  public calcFrom(from: number) {
+    const o = this.options;
+    const d = View.orientations;
+    const n = this.nodes;
+    
+    if (o.orientation === d.horizontal) {
+      n.from.style.left = `${from}%`;
+    } else {
+      n.from.style.bottom = `${from}%`;
+    }
+    
+    this.calcRange();
+  }
+
+  public calcTo(to: number) {
+    const o = this.options;
+    const d = View.orientations;
+    const t = View.types;
+    const n = this.nodes;
+    let base: Style = 'left';
+
+    if (o.type !== t.double || !n.to) {
+      return;
+    }
+
+    if (o.orientation === d.vertical) {
+      base = 'bottom';
+    }
+      
+    n.to.style[base] = `${to}%`;
+    this.calcRange();
+  }
+
+  // ================= private methods ===================
 
   private render() {
     const o = this.options;
@@ -127,53 +165,16 @@ export default class View {
   private setHandlers() {
     const t = this.triggers;
     const n = this.nodes;
-    const e = this.model.events;
 
-    e.fromChanged.attach(() => {
-      this.calcFrom();
-      this.calcRange();
-    });
-    e.toChanged.attach(() => {
-      this.calcTo();
-      this.calcRange();
-    });
-    window.removeEventListener('mousemove', this.handler);
+    window.removeEventListener('mousemove', this.mousemove);
     n.track.removeEventListener('mousedown', this.mouseDown.bind(this));
     window.removeEventListener('mouseup', this.mouseup);
     
     n.track.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
-  private calcFrom() {
-    const o = this.options;
-    const d = View.orientations;
-    const n = this.nodes;
-    const m = this.model.data;
-    
-    if (o.orientation === d.horizontal) {
-      n.from.style.left = `${this.converToPercent(m.from)}%`;
-    } else {
-      n.from.style.bottom = `${this.converToPercent(m.from)}%`;
-    }    
-  }
+  private setEvents() {
 
-  private calcTo() {
-    const o = this.options;
-    const d = View.orientations;
-    const t = View.types;
-    const n = this.nodes;
-    const m = this.model.data;
-
-    if (o.type !== t.double || !n.to) {
-      return;
-    }
-
-    if (o.orientation === d.horizontal) {
-      n.to.style.left = `${this.converToPercent(m.to)}%`;
-    } else {
-      n.to.style.bottom = `${this.converToPercent(m.to)}%`;
-
-    }
   }
 
   private calcRange() {
@@ -181,36 +182,38 @@ export default class View {
     const d = View.orientations;
     const t = View.types;
     const n = this.nodes;
-    const m = this.model.data;
+    
+    let baseF: Style = 'left';
+    let baseT: Style = 'right';
 
     if (o.type === t.single || !n.range) {
       return;
-    } else if (o.type === t.min) {
-      if (o.orientation === d.horizontal) {
-        n.range.style.left = '0';
-        n.range.style.width = `${this.converToPercent(m.from)}%`;
-      } else {
-        n.range.style.bottom = '0';
-        n.range.style.height = `${this.converToPercent(m.from)}%`;
-      }
+    }
+
+    if (o.orientation === d.vertical) { 
+      baseF = 'bottom';
+      baseT = 'top';
+    }
+    
+    if (o.type === t.min) {
+      n.range.style[baseF] = `0`;
+      n.range.style[baseT] = `${100 - parseFloat(<string>n.from.style[baseF])}%`;
     } else if (o.type === t.max) {
-      if (o.orientation === d.horizontal) {
-        n.range.style.width = `${100 - this.converToPercent(m.from)}%`;
-      } else {
-        n.range.style.height = `${100 - this.converToPercent(m.from)}%`;
-      }
+      n.range.style[baseF] = n.from.style[baseF];
+      n.range.style[baseT] = `0`;
     } else if (o.type === t.double && n.to) {
-      if (o.orientation === d.horizontal) {
-        n.range.style.left = `${this.converToPercent(m.from)}%`;
-        n.range.style.width = `${this.converToPercent(m.to - m.from + m.min)}%`;
-      } else {
-        n.range.style.bottom = `${this.converToPercent(m.from)}%`;
-        n.range.style.height = `${this.converToPercent(m.to - m.from + m.min)}%`;
-      }
+      n.range.style[baseF] = n.from.style[baseF];
+      n.range.style[baseT] = `${100 - parseFloat(<string>n.to.style[baseF])}%`;
     }
   }
 
   private setNodes() {
+
+    this.nodes = {
+      track: document.createElement('div'),
+      from: document.createElement('span')
+    }
+
     const o = this.options;
     const n = this.nodes;
 
@@ -221,6 +224,10 @@ export default class View {
 
     n.from.setAttribute('tabindex', `0`);
     n.from.setAttribute('class', `vanilla-handle vanilla-handle-from`);
+
+    if (o.from_fixed) {
+      n.from.classList.add(`vanilla-handle-fixed`);
+    }
 
     if (o.type !== View.types.single) {
       n.range = document.createElement('div');
@@ -233,32 +240,13 @@ export default class View {
       n.to = document.createElement('span');
       n.to.setAttribute('tabindex', `0`);
       n.to.setAttribute('class', `vanilla-handle vanilla-handle-to`);
+
+      if (o.to_fixed) {
+        n.to.classList.add(`vanilla-handle-fixed`);
+      }
     } else {
       delete n.to;
     }
-  }
-
-  private convertToReal(pixels: number) {
-    const o = this.options;
-    const m = this.model.data;
-    const n = this.nodes;
-    const d = View.orientations;
-
-    const range = m.max - m.min;
-
-    if (o.orientation === d.horizontal) {
-      const width = n.track.clientWidth;
-      return +((pixels * range / width) + m.min).toFixed(10);
-    } else {
-      const height = n.track.clientHeight;
-      return +(((height - pixels) * range / height) + m.min).toFixed(10);
-    }    
-  }
-
-  private converToPercent(value: number) {
-    const m = this.model.data;
-    const range = m.max - m.min;
-    return +((value - m.min) * 100 / range).toFixed(10);
   }
 
   private rootEmpty() {
@@ -271,6 +259,7 @@ export default class View {
     const o = this.options;
     const n = this.nodes;
     const d = View.orientations;
+    const e = this.events;
     const coord = (o.orientation === d.horizontal ? 
                                      event.pageX - n.track.offsetLeft : 
                                      event.pageY - n.track.offsetTop);
@@ -291,45 +280,49 @@ export default class View {
       n.to.classList.remove('last-type');
     }
 
+    const value = this.getCoord(event);
+
     if (this.handle) {
       this.handle.classList.add('active');
       this.handle.classList.add('last-type');
+      e.slideStart.notify<HTMLSpanElement | number>(this.handle, value);
     }
-    window.addEventListener('mousemove', this.handler);
+    window.addEventListener('mousemove', this.mousemove);
     window.addEventListener('mouseup', this.mouseup);
   }
 
   private mouseMove(event: MouseEvent) {
     const e = this.events;
     const n = this.nodes;
-    const value = this.convertToReal(this.getCoord(event));
+    const value = this.getCoord(event);
     if (this.handle === n.from) {
-      e.fromChanged.notify(value);
-    } else {
-      e.toChanged.notify(value);
+      e.fromChanged.notify<HTMLSpanElement | number>(this.handle, value);
+    } else if (this.handle === n.to) {
+      e.toChanged.notify<HTMLSpanElement | number>(this.handle, value);
     }
   }
 
   private mouseUp(event: MouseEvent) {
     const n = this.nodes;
     const t = event.target;
-    window.removeEventListener('mousemove', this.handler);
+    const e = this.events;
+    const value = this.getCoord(event);
+
+    window.removeEventListener('mousemove', this.mousemove);
     window.removeEventListener('mouseup', this.mouseup);
     if (this.handle) {
       this.handle.classList.remove('active');
+      e.slideEnd.notify<HTMLSpanElement | number>(this.handle, value);
     }
- 
-    if (this.handle && t !== n.from && t !== n.to) {
-      this.handle.classList.remove('last-type');
-      this.handle = null;
-    }
+    this.handle = null;
   }
 
-  private chooseHandle(coord: number): HTMLSpanElement {
+  private chooseHandle(coord: number): HTMLSpanElement | null {
     const o = this.options;
     const t = View.types;
     const d = View.orientations;
     const n = this.nodes;
+    let result: HTMLSpanElement;
 
     if (this.handle) {
       return this.handle;
@@ -338,10 +331,24 @@ export default class View {
     if (o.type !== t.double) {
       return n.from;
     }
+
+    if (o.from_fixed && o.to_fixed) {
+      return null;
+    } else if (o.from_fixed) {
+      return n.to as HTMLElement;
+    } else if (o.to_fixed) {
+      return n.from;
+    }
+    
     const fromCoord = this.offset(n.from);
     const toCoord = this.offset(n.to as HTMLElement);
 
-    return <HTMLSpanElement>(Math.abs(fromCoord - coord) < Math.abs(toCoord - coord) ? n.from : n.to);
+    if (fromCoord === toCoord) {
+      result = <HTMLSpanElement>(coord < fromCoord ? n.from : n.to);
+    } else {
+      result = <HTMLSpanElement>(Math.abs(fromCoord - coord) < Math.abs(toCoord - coord) ? n.from : n.to);
+    }
+    return result;
   }
 
   private getCoord(event: MouseEvent) {

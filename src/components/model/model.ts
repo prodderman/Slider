@@ -50,7 +50,7 @@ export default class Model implements IModel {
     }
 
     if (options.from_fixed !== undefined || options.to_fixed !== undefined) {
-
+      this.setFixed(options.from_fixed, options.to_fixed);
     }
 
     if (options.from !== undefined || options.to !== undefined) {
@@ -78,7 +78,7 @@ export default class Model implements IModel {
 
     if (result != o.from) {
       o.from = result;
-      this.triggers.fromChanged.notify();
+      this.triggers.fromChanged.notify(o.from);
     }
   }
 
@@ -98,17 +98,14 @@ export default class Model implements IModel {
 
     if (result != o.to) {
       o.to = result;
-      this.triggers.toChanged.notify();
+      this.triggers.toChanged.notify(o.to);
     }
   }
 
   // private methods
 
-  private setRange(min = this.options.min, max = this.options.max): boolean {
+  private setRange(min = this.options.min, max = this.options.max) {
     const o = this.options;
-    if (o.min === min && o.max === max) {
-      return false;
-    } 
 
     if (min > max) {
       max = min;
@@ -117,57 +114,37 @@ export default class Model implements IModel {
     o.min = min;
     o.max = max;
     this.updateFromTo();
-    return true;
   }
 
-  private setValues(from = this.options.from, to = this.options.to): boolean {
+  private setValues(from = this.options.from, to = this.options.to) {
     const o = this.options;
-    if (o.from === from && o.to === to) {
-      return false;
-    }
     o.from = from;
     o.to = to;
     this.updateFromTo();
-    return true;
   }
 
-  private setStep(value: number): boolean {
+  private setStep(step: number) {
     const o = this.options;
-    if (o.step === value) {
-      return false;
+    const range = o.max - o.min;
+    if (step < 0) {
+      o.step = 1;
+    } else if (step > range) {
+      o.step = range;
     } else {
-      let range;
-      if (value < 0) {
-        o.step = 1;
-      } else if (value > (range = o.max - o.min)) {
-        o.step = range;
-      } else {
-        o.step = value;
-      }
-      return true;
+      o.step = step;
     }
   }
 
-  private setType(value: boolean) {
+  private setType(type: boolean) {
     const o = this.options;
-    if (o.type === value) {
-      return;
-    } else {
-      o.type = value;
-      this.updateFromTo();
-    }
+    o.type = type;
+    this.updateFromTo();
   }
 
-  private setFromFixed(value: boolean) {
+  private setFixed(from = this.options.from_fixed, to= this.options.to_fixed) {
     const o = this.options;
-    if (o.from_fixed === value) {
-      return false;
-    } else if (value === true) {
-      
-    } else {
-      o.from_fixed = value;
-      return true;
-    }
+    o.from_fixed = from;
+    o.to_fixed = to;
   }
 
   private updateFromTo() {
@@ -180,7 +157,6 @@ export default class Model implements IModel {
   }
 
   private inDaipason(value: number, min = this.options.min, max = this.options.min) {
-    let result: number;
     if (value < min) {
       return min;
     } else if (value > max) {

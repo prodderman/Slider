@@ -1,22 +1,15 @@
 import './index.scss';
 import VanillaSlider from './slider';
 
-[].forEach.call(document.querySelectorAll('.slider'), (node, index) => {
-  new VanillaSlider(node, {
-    type: "min"
-  })
-});
 
-VanillaSlider.for('.slider-1').set({
+const slider = new VanillaSlider('#slider', {
   type: "double",
-  to: "100"
-});
-
-VanillaSlider.for('.slider-2').set({
-  orientation: "vertical",
-  type: "double",
-  from: "50",
-  step: 1
+  from: 10,
+  from_fixed: true,
+  to: 20,
+  onSlide: (e, d) => {
+    document.querySelector('#settings').innerHTML = d.value;
+  }
 });
 
 

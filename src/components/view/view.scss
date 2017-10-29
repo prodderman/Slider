@@ -26,16 +26,20 @@
   &-handle {
     position: absolute;
     display: block;
-    z-index: 2;
+    z-index: 3;
     cursor: default;
     white-space: nowrap;
 
     &.last-type {
-      z-index: 3;
+      z-index: 4;
     }
 
     &.active {
-      z-index: 4;
+      z-index: 5;
+    }
+
+    &-fixed {
+      z-index: 2;
     }
   }
 
@@ -43,14 +47,5 @@
     position: absolute;
     display: block;
     z-index: 1;
-    width: 0;
-
-    &-min {
-      left: 0;
-    }
-
-    &-max {
-      right: 0;
-    }
   }
 }

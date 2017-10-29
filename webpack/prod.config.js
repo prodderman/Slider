@@ -3,8 +3,8 @@ const webpack = require('webpack');
 const CleanPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const extractCSS = new ExtractTextPlugin({filename: 'slider.css', allChunks: true});
-const extractTheme = new ExtractTextPlugin({filename: 'slider.theme.css', allChunks: true});
+const extractCSS = new ExtractTextPlugin({filename: 'VanillaSlider.css', allChunks: true});
+const extractTheme = new ExtractTextPlugin({filename: 'VanillaSlider.theme.css', allChunks: true});
 
 const autoprefixer = require('autoprefixer');
 
@@ -16,8 +16,11 @@ module.exports = {
 
   output: {
     publicPath: "",
-    filename: 'slider.js',
-    path: path.resolve(__dirname, '..', 'build')
+    filename: 'VanillaSlider.js',
+    path: path.resolve(__dirname, '..', 'build'),
+    library: "VanillaSlider",
+    libraryTarget: "umd",
+    libraryExport: "default"
   },
 
   resolve: {
@@ -30,10 +33,17 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\view.scss$/,
-        use: extractCSS.extract({
+        test: /view.scss/,
+        loader: extractCSS.extract({
+          fallback: 'style-loader',
           use: [
-            'css-loader?importLoaders=1', {
+            {
+              loader: 'css-loader',
+              options: {
+                importLoaders: 2,
+                sourceMap: false,
+              },
+            }, {
               loader: 'postcss-loader',
               options: {
                 plugins: function () {
@@ -45,15 +55,20 @@ module.exports = {
           ]
         })
       }, {
-        test: /\theme.scss$/,
-        use: extractTheme.extract({
+        test: /theme.scss/,
+        loader: extractTheme.extract({
+          fallback: 'style-loader',
           use: [
-            'css-loader?importLoaders=1', {
+            {
+              loader: 'css-loader',
+              options: {
+                importLoaders: 2,
+                sourceMap: false,
+              },
+            }, {
               loader: 'postcss-loader',
               options: {
-                plugins: function () {
-                  return [autoprefixer({browsers: ['last 2 versions']})];
-                }
+                plugins: () => [ autoprefixer({ browsers: 'last 2 versions' }) ]
               }
             },
             'sass-loader'

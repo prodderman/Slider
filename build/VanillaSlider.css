@@ -1,0 +1,33 @@
+.vanilla-slider {
+  position: relative;
+  text-align: left; }
+
+.vanilla-horizontal {
+  width: 100%; }
+  .vanilla-horizontal .vanilla-handle {
+    top: -0.35em;
+    margin-left: -0.55em; }
+
+.vanilla-vertical {
+  height: 100%; }
+  .vanilla-vertical .vanilla-handle {
+    left: -0.35em;
+    margin-bottom: -0.7em; }
+
+.vanilla-handle {
+  position: absolute;
+  display: block;
+  z-index: 3;
+  cursor: default;
+  white-space: nowrap; }
+  .vanilla-handle.last-type {
+    z-index: 4; }
+  .vanilla-handle.active {
+    z-index: 5; }
+  .vanilla-handle-fixed {
+    z-index: 2; }
+
+.vanilla-range {
+  position: absolute;
+  display: block;
+  z-index: 1; }
