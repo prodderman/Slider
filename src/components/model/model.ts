@@ -66,14 +66,11 @@ export default class Model implements IModel {
       return;
     }
 
+    result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
     if (o.type) {
-      result = this.inDaipason(value, o.min, o.to);
+      result = this.inDaipason(result, o.min, o.to);
     } else {
-      result = this.inDaipason(value, o.min, o.max);
-    }
-    
-    if (result === value) {
-      result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
+      result = this.inDaipason(result, o.min, o.max);
     }
 
     if (result != o.from) {
@@ -90,11 +87,8 @@ export default class Model implements IModel {
       return;
     }
 
-    result = this.inDaipason(value, o.from, o.max);
-    
-    if (result === value) {
-      result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
-    }
+    result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
+    result = this.inDaipason(result, o.from, o.max);
 
     if (result != o.to) {
       o.to = result;
