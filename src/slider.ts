@@ -102,11 +102,13 @@ class Constructor {
       const r = (/true/i).test(o.from_fixed.toString());
       this.modelOptions.from_fixed = r;
       this.viewOptions.from_fixed = r;
+      updated = true;
     }
     if (o.to_fixed !== undefined) {
       const r = (/true/i).test(o.to_fixed.toString());
       this.modelOptions.to_fixed = r;
       this.viewOptions.to_fixed = r;
+      updated = true;
     }
     if (o.step !== undefined && !Number.isNaN(Number(o.step))) {
       this.modelOptions.step = Number(o.step);

@@ -35,7 +35,6 @@ export default class Controller {
     const e = this.customEvents;
     const modelE = this.model.events;
     const viewE = this.view.events;
-
     if (callbacks.onCreate) {
       c.onCreate = callbacks.onCreate;
     }
@@ -56,30 +55,42 @@ export default class Controller {
       e.update = new CustomEvent('vanillaupdate', {
         detail: {
           target: v.rootObject
-        }
+        },
+        bubbles: true,
+        cancelable: true
       });
-      this.callFunction(e.update, c.onUpdate);
+      this.callFunction(e.update, {
+        from: m.data.from,
+        to: m.data.to
+      }, c.onUpdate);
       v.rootObject.dispatchEvent(e.update);
     } else {
       e.create = new CustomEvent('vanillacreate', {
         detail: {
           target: v.rootObject
-        }
+        },
+        bubbles: true,
+        cancelable: true
       });
       v.rootObject.dispatchEvent(e.create);
-      this.callFunction(e.create, c.onCreate);
+      this.callFunction(e.create, {
+        from: m.data.from,
+        to: m.data.to
+      }, c.onCreate);
     }
 
     viewE.fromChanged.attach((handle: HTMLSpanElement,value: number) => {
       e.slide = new MouseEvent('vanillaslide', {
-        bubbles: true
+        bubbles: true,
+        cancelable: true
       });
       m.calcFromWithStep(this.convertToReal(value));
     });
 
     viewE.toChanged.attach((handle: HTMLSpanElement ,value: number) => {
       e.slide = new MouseEvent('vanillaslide', {
-        bubbles: true
+        bubbles: true,
+        cancelable: true
       });
       m.calcToWithStep(this.convertToReal(value));
     });
@@ -88,18 +99,14 @@ export default class Controller {
     viewE.slideStart.attach((handle: HTMLSpanElement) => {
       let value;
       e.start = new MouseEvent('vanillastart', {
-        bubbles: true
+        bubbles: true,
+        cancelable: true
       });
 
-      if (handle === v.nodesData.from) {
-        value = m.data.from;
-      } else {
-        value = m.data.to;
-      }
-      
       this.callFunction(e.start, {
         handle: handle,
-        value: value
+        from: m.data.from,
+        to: m.data.to
       }, c.onStart);
       handle.dispatchEvent(e.start);
     })
@@ -107,43 +114,42 @@ export default class Controller {
     viewE.slideEnd.attach((handle: HTMLSpanElement) => {
       let value;
       e.end = new MouseEvent('vanillaend', {
-        bubbles: true
+        bubbles: true,
+        cancelable: true
       });
 
-      if (handle === v.nodesData.from) {
-        value = m.data.from;
-      } else {
-        value = m.data.to;
-      }
 
       this.callFunction(e.end, {
         handle: handle,
-        value: m.data.from
+        from: m.data.from,
+        to: m.data.to
       }, c.onEnd);
       handle.dispatchEvent(e.end);
     })
 
     modelE.fromChanged.attach((from: number) => {
-      v.calcFrom(from);
+      v.calcFrom(this.converToPercent(from));
 
       if (!e.slide) return;
 
       this.callFunction(e.slide, {
         handle: v.nodesData.from,
-        value: m.data.from
+        from: m.data.from,
+        to: m.data.to
       }, c.onSlide);
 
       v.nodesData.from.dispatchEvent(e.slide);
     });
 
     modelE.toChanged.attach((to: number) => {
-      v.calcTo(to);
+      v.calcTo(this.converToPercent(to));
       
       if (!e.slide) return;
 
       this.callFunction(e.slide, {
         handle: v.nodesData.to,
-        value: m.data.to
+        from: m.data.from,
+        to: m.data.to
       }, c.onSlide);
 
       (<HTMLSpanElement>v.nodesData.to).dispatchEvent(e.slide);
@@ -179,6 +185,7 @@ export default class Controller {
   }
 
   private callFunction(event: event, data = {}, callback?: Function) {
+
     if (callback && typeof callback === "function") {
       callback(event, data);
     }

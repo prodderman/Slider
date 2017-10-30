@@ -1,9 +1,64 @@
-body {
-  padding: 10vh 10vw;
-  min-height: 50vh
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
 }
 
 .slider {
+  height: auto;
+}
+
+.container {
+  padding: 150px 500px 0 200px;
   height: 100%;
-  margin-bottom: 50px
+}
+
+#settings {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100vh;
+  padding-right: 20px;
+  padding-top: 10vh;
+}
+
+label {
+  display: flex;
+  margin-bottom: 10px;
+
+  &.input {
+    justify-content: space-between;
+  }
+}
+
+.screen {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30px
+}
+
+.callbacks {
+  display: flex;
+  justify-content: space-between;
+
+  .cb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    color: #ed5565;
+    background-color: white;
+    border: 1px solid #ed5565;
+    transition: 0.3s;
+
+    &.active {
+      color: white;
+      background-color: #ed5565;
+    }
+  }
 }

@@ -7,7 +7,83 @@
   <title>Slider</title>
 </head>
 <body>
-  <div id="slider" class="slider"></div>
-  <div id="settings"></div>
+    <div class="container">
+      <div id="slider" class="slider"></div>
+    </div>
+    <div id="settings">
+      <div class="screen">
+        <div id="from"></div>
+        <div id="to"></div>
+      </div>
+      <div class="types">
+        <label class="rc">
+          <input type="radio" name="type" value="single" checked>
+          <span class="label">single</span>
+        </label>
+        <label class="rc">
+          <input type="radio" name="type" value="min">
+          <span class="label">min</span>
+        </label>
+        <label class="rc">
+          <input type="radio" name="type" value="max">
+          <span class="label">max</span>
+        </label>
+        <label class="rc">
+          <input type="radio" name="type" value="double">
+          <span class="label">double</span>
+        </label>
+      </div>
+      <div class="orientation">
+        <label class="rc">
+          <input type="radio" name="orientation" value="horizontal" checked>
+          <span class="label">horizontal</span>
+        </label>
+        <label class="rc">
+          <input type="radio" name="orientation" value="vertical">
+          <span class="label">vertical</span>
+        </label>
+      </div>
+      <div class="range">
+        <label class="input">
+          <span class="label">min:</span>
+          <input type="text" name="min" value="0">
+        </label>
+        <label class="input">
+          <span class="label">max:</span>
+          <input type="text" name="max" value="100">
+        </label>
+      </div>
+      <div class="values">
+        <label class="input">
+          <span class="label">from:</span>
+          <input type="text" name="from" value="10">
+        </label>
+        <label class="input">
+          <span class="label">to:</span>
+          <input type="text" name="to" value="50">
+        </label>
+        <label class="rc">
+          <input type="checkbox" name="fixed-from" value="100">
+          <span class="label">fixed from</span>
+        </label>
+        <label class="rc">
+          <input type="checkbox" name="fixed-to" value="100">
+          <span class="label">fixed to</span>
+        </label>
+      </div>
+      <div class="step">
+        <label class="input">
+          <span class="label">step:</span>
+          <input type="text" name="step" value="1">
+        </label>
+      </div>
+      <div class="callbacks">
+        <div class="cb create">create</div>
+        <div class="cb start">start</div>
+        <div class="cb slide">slide</div>
+        <div class="cb end">end</div>
+        <div class="cb update">update</div>
+      </div>  
+    </div> 
 </body>
 </html>

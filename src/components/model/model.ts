@@ -126,7 +126,7 @@ export default class Model implements IModel {
   private setStep(step: number) {
     const o = this.options;
     const range = o.max - o.min;
-    if (step < 0) {
+    if (step <= 0) {
       o.step = 1;
     } else if (step > range) {
       o.step = range;
@@ -141,7 +141,7 @@ export default class Model implements IModel {
     this.updateFromTo();
   }
 
-  private setFixed(from = this.options.from_fixed, to= this.options.to_fixed) {
+  private setFixed(from = this.options.from_fixed, to = this.options.to_fixed) {
     const o = this.options;
     o.from_fixed = from;
     o.to_fixed = to;
