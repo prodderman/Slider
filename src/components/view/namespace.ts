@@ -1,8 +1,8 @@
 import IEvent from './../observer/observer';
 
 export interface IViewOptions {
-  type?: string; //single(default), min, max, double
-  orientation? : string // horizontal(default), vertical
+  type?: Types;
+  orientation? : Orient;
   from_fixed? : boolean;
   to_fixed?: boolean;
 }
@@ -13,3 +13,6 @@ export interface IViewEvents {
   fromChanged: IEvent;
   toChanged: IEvent;
 }
+
+export type Orient = 'horizontal' | 'vertical';
+export type Types = 'single' | 'min' | 'max' | 'double';

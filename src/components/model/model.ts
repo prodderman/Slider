@@ -35,7 +35,7 @@ export default class Model implements IModel {
 
   // public methods
 
-  public init(options: IModelOptions = {}, isUpdate?: boolean) { 
+  public init(options: IModelOptions = {}): void { 
 
     if (options.type !== undefined) {
       this.setType(options.type);
@@ -58,7 +58,7 @@ export default class Model implements IModel {
     }
   }
 
-  public calcFromWithStep(value: number) {
+  public calcFromWithStep(value: number): void {
     let result;
 
     if (this.options.from_fixed) {
@@ -78,7 +78,7 @@ export default class Model implements IModel {
     }
   }
 
-  public calcToWithStep(value: number) {
+  public calcToWithStep(value: number): void {
     let result;
 
     if (!this.options.type || this.options.to_fixed) {
@@ -96,7 +96,7 @@ export default class Model implements IModel {
 
   // private methods
 
-  private setRange(min = this.options.min, max = this.options.max) {
+  private setRange(min = this.options.min, max = this.options.max): void {
      if (min > max) {
       max = min;
     }
@@ -106,13 +106,13 @@ export default class Model implements IModel {
     this.updateFromTo();
   }
 
-  private setValues(from = this.options.from, to = this.options.to) {
+  private setValues(from = this.options.from, to = this.options.to): void {
     this.options.from = from;
     this.options.to = to;
     this.updateFromTo();
   }
 
-  private setStep(step: number) {
+  private setStep(step: number): void {
     const range = this.options.max - this.options.min;
     if (step <= 0) {
       this.options.step = 1;
@@ -123,17 +123,17 @@ export default class Model implements IModel {
     }
   }
 
-  private setType(type: boolean) {
+  private setType(type: boolean): void {
     this.options.type = type;
     this.updateFromTo();
   }
 
-  private setFixed(from = this.options.from_fixed, to = this.options.to_fixed) {
+  private setFixed(from = this.options.from_fixed, to = this.options.to_fixed): void {
     this.options.from_fixed = from;
     this.options.to_fixed = to;
   }
 
-  private updateFromTo() {
+  private updateFromTo(): void {
     this.options.from = this.inDaipason(this.options.from, this.options.min, this.options.max);
 
     if (this.options.type) {
@@ -141,7 +141,7 @@ export default class Model implements IModel {
     }
   }
 
-  private inDaipason(value: number, min = this.options.min, max = this.options.min) {
+  private inDaipason(value: number, min = this.options.min, max = this.options.min): number {
     if (value < min) {
       return min;
     } else if (value > max) {

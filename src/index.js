@@ -18,6 +18,7 @@ $(document).ready(function() {
   }
 
   const slider = new VanillaSlider('#slider', {
+    orientation: "vertica",
     from: 10,
     to: 50,
     onCreate: (e, d) => {

@@ -28,146 +28,139 @@ export default class Controller {
 
   // ================= public methods ===================
 
-  public init(callbacks: IControllerOptions,isUpdate?: boolean) {
-    const m = this.model;
-    const v = this.view;
-    const c = this.callbacks;
-    const e = this.customEvents;
-    const modelE = this.model.events;
-    const viewE = this.view.events;
+  public init(callbacks: IControllerOptions, isUpdate?: boolean): void {
     if (callbacks.onCreate) {
-      c.onCreate = callbacks.onCreate;
+      this.callbacks.onCreate = callbacks.onCreate;
     }
     if (callbacks.onStart) {
-      c.onStart = callbacks.onStart;
+      this.callbacks.onStart = callbacks.onStart;
     }
     if (callbacks.onSlide) {
-      c.onSlide = callbacks.onSlide;
+      this.callbacks.onSlide = callbacks.onSlide;
     }
     if (callbacks.onEnd) {
-      c.onEnd = callbacks.onEnd;
+      this.callbacks.onEnd = callbacks.onEnd;
     }
     if (callbacks.onUpdate) {
-      c.onUpdate = callbacks.onUpdate;
+      this.callbacks.onUpdate = callbacks.onUpdate;
     }
     
     if (isUpdate) {
-      e.update = new CustomEvent('vanillaupdate', {
+      this.customEvents.update = new CustomEvent('vanillaupdate', {
         detail: {
-          target: v.rootObject
+          target: this.view.rootObject
         },
         bubbles: true,
         cancelable: true
       });
-      this.callFunction(e.update, {
-        from: m.data.from,
-        to: m.data.to
-      }, c.onUpdate);
-      v.rootObject.dispatchEvent(e.update);
+      this.callFunction(this.customEvents.update, {
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onUpdate);
+      this.view.rootObject.dispatchEvent(this.customEvents.update);
     } else {
-      e.create = new CustomEvent('vanillacreate', {
+      this.customEvents.create = new CustomEvent('vanillacreate', {
         detail: {
-          target: v.rootObject
+          target: this.view.rootObject
         },
         bubbles: true,
         cancelable: true
       });
-      v.rootObject.dispatchEvent(e.create);
-      this.callFunction(e.create, {
-        from: m.data.from,
-        to: m.data.to
-      }, c.onCreate);
+      this.view.rootObject.dispatchEvent(this.customEvents.create);
+      this.callFunction(this.customEvents.create, {
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onCreate);
     }
 
-    viewE.fromChanged.attach((handle: HTMLSpanElement,value: number) => {
-      e.slide = new MouseEvent('vanillaslide', {
+    this.view.events.fromChanged.attach((handle: HTMLSpanElement,value: number) => {
+      this.customEvents.slide = new MouseEvent('vanillaslide', {
         bubbles: true,
         cancelable: true
       });
-      m.calcFromWithStep(this.convertToReal(value));
+      this.model.calcFromWithStep(this.convertToReal(value));
     });
 
-    viewE.toChanged.attach((handle: HTMLSpanElement ,value: number) => {
-      e.slide = new MouseEvent('vanillaslide', {
+    this.view.events.toChanged.attach((handle: HTMLSpanElement ,value: number) => {
+      this.customEvents.slide = new MouseEvent('vanillaslide', {
         bubbles: true,
         cancelable: true
       });
-      m.calcToWithStep(this.convertToReal(value));
+      this.model.calcToWithStep(this.convertToReal(value));
     });
 
 
-    viewE.slideStart.attach((handle: HTMLSpanElement) => {
+    this.view.events.slideStart.attach((handle: HTMLSpanElement) => {
       let value;
-      e.start = new MouseEvent('vanillastart', {
+      this.customEvents.start = new MouseEvent('vanillastart', {
         bubbles: true,
         cancelable: true
       });
 
-      this.callFunction(e.start, {
+      this.callFunction(this.customEvents.start, {
         handle: handle,
-        from: m.data.from,
-        to: m.data.to
-      }, c.onStart);
-      handle.dispatchEvent(e.start);
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onStart);
+      handle.dispatchEvent(this.customEvents.start);
     })
 
-    viewE.slideEnd.attach((handle: HTMLSpanElement) => {
+    this.view.events.slideEnd.attach((handle: HTMLSpanElement) => {
       let value;
-      e.end = new MouseEvent('vanillaend', {
+      this.customEvents.end = new MouseEvent('vanillaend', {
         bubbles: true,
         cancelable: true
       });
 
 
-      this.callFunction(e.end, {
+      this.callFunction(this.customEvents.end, {
         handle: handle,
-        from: m.data.from,
-        to: m.data.to
-      }, c.onEnd);
-      handle.dispatchEvent(e.end);
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onEnd);
+      handle.dispatchEvent(this.customEvents.end);
     })
 
-    modelE.fromChanged.attach((from: number) => {
-      v.calcFrom(this.converToPercent(from));
+    this.model.events.fromChanged.attach((from: number) => {
+      this.view.calcFrom(this.converToPercent(from));
 
-      if (!e.slide) return;
+      if (!this.customEvents.slide) return;
 
-      this.callFunction(e.slide, {
-        handle: v.nodesData.from,
-        from: m.data.from,
-        to: m.data.to
-      }, c.onSlide);
+      this.callFunction(this.customEvents.slide, {
+        handle: this.view.nodesData.from,
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onSlide);
 
-      v.nodesData.from.dispatchEvent(e.slide);
+      this.view.nodesData.from.dispatchEvent(this.customEvents.slide);
     });
 
-    modelE.toChanged.attach((to: number) => {
-      v.calcTo(this.converToPercent(to));
+    this.model.events.toChanged.attach((to: number) => {
+      this.view.calcTo(this.converToPercent(to));
       
-      if (!e.slide) return;
+      if (!this.customEvents.slide) return;
 
-      this.callFunction(e.slide, {
-        handle: v.nodesData.to,
-        from: m.data.from,
-        to: m.data.to
-      }, c.onSlide);
+      this.callFunction(this.customEvents.slide, {
+        handle: this.view.nodesData.to,
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onSlide);
 
-      (<HTMLSpanElement>v.nodesData.to).dispatchEvent(e.slide);
+      (<HTMLSpanElement>this.view.nodesData.to).dispatchEvent(this.customEvents.slide);
     });
 
-    this.view.calcFrom(this.converToPercent(m.data.from));
-    this.view.calcTo(this.converToPercent(m.data.to));
+    this.view.calcFrom(this.converToPercent(this.model.data.from));
+    this.view.calcTo(this.converToPercent(this.model.data.to));
   }
 
   // ================= private methods ===================
 
-  private converToPercent(value: number) {
-    const m = this.model.data;
-    const range = m.max - m.min;
-    return +((value - m.min) * 100 / range).toFixed(10);
+  private converToPercent(value: number): number {
+    const range = this.model.data.max - this.model.data.min;
+    return +((value - this.model.data.min) * 100 / range).toFixed(10);
   }
 
-  private convertToReal(pixels: number) {
+  private convertToReal(pixels: number): number {
      const range = this.model.data.max - this.model.data.min;
 
     if (this.view.data.orientation === 'horizontal') {
@@ -179,8 +172,7 @@ export default class Controller {
     }    
   }
 
-  private callFunction(event: event, data = {}, callback?: Function) {
-
+  private callFunction(event: event, data = {}, callback?: Function): void {
     if (callback && typeof callback === "function") {
       callback(event, data);
     }

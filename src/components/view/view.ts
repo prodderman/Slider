@@ -62,17 +62,17 @@ export default class View {
     return this.triggers;
   }
 
-  get nodesData() {
+  get nodesData(): INodes {
     return this.nodes;
   }
 
-  get rootObject() {
+  get rootObject(): HTMLDivElement | HTMLSpanElement {
     return this.root;
   }
 
   // ======================= public methods ======================
 
-  public init(viewOptions: IViewOptions, isUpdate?: boolean) {
+  public init(viewOptions: IViewOptions): void {
 
     if (viewOptions.type) {
       this.options.type = <Types>viewOptions.type;
@@ -93,7 +93,7 @@ export default class View {
     this.setHandlers();
   }
 
-  public calcFrom(from: number) {   
+  public calcFrom(from: number): void {   
     if (this.options.orientation === 'horizontal') {
       this.nodes.from.style.left = `${from}%`;
     } else {
@@ -103,7 +103,7 @@ export default class View {
     this.calcRange();
   }
 
-  public calcTo(to: number) {
+  public calcTo(to: number): void {
     let base: Style = 'left';
 
     if (this.options.type !== 'double' || !this.nodes.to) {
@@ -120,7 +120,7 @@ export default class View {
 
   // ================= private methods ===================
 
-  private render() {
+  private render(): void {
     this.root.appendChild(this.nodes.track);
     this.nodes.track.appendChild(this.nodes.from);
 
@@ -137,7 +137,7 @@ export default class View {
     }
   }
 
-  private setHandlers() {
+  private setHandlers(): void {
     window.removeEventListener('mousemove', this.mousemove);
     this.nodes.track.removeEventListener('mousedown', this.mouseDown.bind(this));
     window.removeEventListener('mouseup', this.mouseup);
@@ -145,11 +145,7 @@ export default class View {
     this.nodes.track.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
-  private setEvents() {
-
-  }
-
-  private calcRange() {  
+  private calcRange(): void {  
     let baseF: Style = 'left';
     let baseT: Style = 'right';
 
@@ -174,7 +170,7 @@ export default class View {
     }
   }
 
-  private setNodes() {
+  private setNodes(): void {
 
     this.nodes = {
       track: document.createElement('div'),
@@ -213,13 +209,13 @@ export default class View {
     }
   }
 
-  private rootEmpty() {
+  private rootEmpty(): void {
     while (this.root.firstChild) {
       this.root.removeChild(this.root.firstChild);
     }
   }
 
-  private mouseDown(event: MouseEvent) {
+  private mouseDown(event: MouseEvent): void {
     const coord = (this.options.orientation === 'horizontal' ? 
                                      event.pageX - this.nodes.track.offsetLeft : 
                                      event.pageY - this.nodes.track.offsetTop);
@@ -251,7 +247,7 @@ export default class View {
     window.addEventListener('mouseup', this.mouseup);
   }
 
-  private mouseMove(event: MouseEvent) {
+  private mouseMove(event: MouseEvent): void {
     const value = this.getCoord(event);
     if (this.handle === this.nodes.from) {
       this.events.fromChanged.notify<HTMLSpanElement | number>(this.handle, value);
@@ -260,17 +256,14 @@ export default class View {
     }
   }
 
-  private mouseUp(event: MouseEvent) {
-    const n = this.nodes;
-    const t = event.target;
-    const e = this.events;
+  private mouseUp(event: MouseEvent): void {
     const value = this.getCoord(event);
 
     window.removeEventListener('mousemove', this.mousemove);
     window.removeEventListener('mouseup', this.mouseup);
     if (this.handle) {
       this.handle.classList.remove('active');
-      e.slideEnd.notify<HTMLSpanElement | number>(this.handle, value);
+      this.events.slideEnd.notify<HTMLSpanElement | number>(this.handle, value);
     }
     this.handle = null;
   }
@@ -305,7 +298,7 @@ export default class View {
     return result;
   }
 
-  private getCoord(event: MouseEvent) {
+  private getCoord(event: MouseEvent): number {
     if (this.options.orientation === 'horizontal') {
        return event.pageX - this.nodes.track.offsetLeft;
     } else {
@@ -313,21 +306,21 @@ export default class View {
     }
   }
 
-  private outerWidth(node: HTMLElement) {
+  private outerWidth(node: HTMLElement): number {
     const style = getComputedStyle(node);
     const width = node.offsetWidth + parseInt(style.marginLeft as string) + parseInt(style.marginRight as string);
 
     return width;
   }
 
-  private outerHeight(node: HTMLElement) {
+  private outerHeight(node: HTMLElement): number {
     const style = getComputedStyle(node);
     const height = node.offsetHeight + parseInt(style.marginLeft as string) + parseInt(style.marginRight as string);
 
     return height;
   }
 
-  private offset(node: HTMLElement) {
+  private offset(node: HTMLElement): number {
     if (this.options.orientation === 'horizontal') {
       return node.offsetLeft + this.outerWidth(node)/2;
     } else {
