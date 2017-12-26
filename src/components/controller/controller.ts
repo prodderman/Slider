@@ -168,19 +168,14 @@ export default class Controller {
   }
 
   private convertToReal(pixels: number) {
-    const v = this.view.data;
-    const n = this.view.nodesData;
-    const d = View.orientations;
-    const m = this.model.data;
+     const range = this.model.data.max - this.model.data.min;
 
-    const range = m.max - m.min;
-
-    if (v.orientation === d.horizontal) {
-      const width = n.track.clientWidth;
-      return +((pixels * range / width) + m.min).toFixed(10);
+    if (this.view.data.orientation === 'horizontal') {
+      const width = this.view.nodesData.track.clientWidth;
+      return +((pixels * range / width) + this.model.data.min).toFixed(10);
     } else {
-      const height = n.track.clientHeight;
-      return +(((height - pixels) * range / height) + m.min).toFixed(10);
+      const height = this.view.nodesData.track.clientHeight;
+      return +(((height - pixels) * range / height) + this.model.data.min).toFixed(10);
     }    
   }
 

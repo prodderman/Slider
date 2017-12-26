@@ -6,8 +6,8 @@ import { IModel as Model, IModelEvents, IModelOptions } from '../model/namespace
 import { IViewOptions, IViewEvents } from './namespace';
 
 interface IMandatoryOptions extends IViewOptions {
-  type: string;
-  orientation: string;
+  type: Types;
+  orientation: Orient;
   from_fixed: boolean;
   to_fixed: boolean;
 }
@@ -20,6 +20,8 @@ interface INodes {
 }
 
 type Style = 'top' | 'left' | 'right' | 'bottom';
+type Orient = 'horizontal' | 'vertical';
+type Types = 'single' | 'min' | 'max' | 'double';
 
 export default class View {
 
@@ -34,21 +36,9 @@ export default class View {
     toChanged: new IEvent(),
   }
 
-  static types = { 
-    single: 'single', 
-    min: 'min', 
-    max: 'max', 
-    double: 'double' 
-  };
-
-  static orientations = {
-    horizontal: 'horizontal',
-    vertical: 'vertical'
-  }
-
   private options: IMandatoryOptions = {
-    type: View.types.single,
-    orientation: View.orientations.horizontal,
+    type: 'single',
+    orientation: 'horizontal',
     from_fixed: false,
     to_fixed: false
   }
@@ -83,20 +73,18 @@ export default class View {
   // ======================= public methods ======================
 
   public init(viewOptions: IViewOptions, isUpdate?: boolean) {
-    const o = this.options;
-    const v = viewOptions;
 
-    if (v.type && v.type in View.types) {
-      o.type = v.type;
+    if (viewOptions.type) {
+      this.options.type = <Types>viewOptions.type;
     }
-    if (v.orientation && v.orientation in View.orientations) {
-      o.orientation = v.orientation;
+    if (viewOptions.orientation) {
+      this.options.orientation = <Orient>viewOptions.orientation;
     }
-    if (v.from_fixed !== undefined) {
-      o.from_fixed = v.from_fixed; 
+    if (viewOptions.from_fixed !== undefined) {
+      this.options.from_fixed = viewOptions.from_fixed; 
     }
-    if (v.to_fixed !== undefined) {
-      o.to_fixed = v.to_fixed; 
+    if (viewOptions.to_fixed !== undefined) {
+      this.options.to_fixed = viewOptions.to_fixed; 
     }
     
     this.rootEmpty();
@@ -105,105 +93,84 @@ export default class View {
     this.setHandlers();
   }
 
-  public calcFrom(from: number) {
-    const o = this.options;
-    const d = View.orientations;
-    const n = this.nodes;
-    
-    if (o.orientation === d.horizontal) {
-      n.from.style.left = `${from}%`;
+  public calcFrom(from: number) {   
+    if (this.options.orientation === 'horizontal') {
+      this.nodes.from.style.left = `${from}%`;
     } else {
-      n.from.style.bottom = `${from}%`;
+      this.nodes.from.style.bottom = `${from}%`;
     }
     
     this.calcRange();
   }
 
   public calcTo(to: number) {
-    const o = this.options;
-    const d = View.orientations;
-    const t = View.types;
-    const n = this.nodes;
     let base: Style = 'left';
 
-    if (o.type !== t.double || !n.to) {
+    if (this.options.type !== 'double' || !this.nodes.to) {
       return;
     }
 
-    if (o.orientation === d.vertical) {
+    if (this.options.orientation === 'vertical') {
       base = 'bottom';
     }
       
-    n.to.style[base] = `${to}%`;
+    this.nodes.to.style[base] = `${to}%`;
     this.calcRange();
   }
 
   // ================= private methods ===================
 
   private render() {
-    const o = this.options;
-    const r = this.root;
-    const n = this.nodes;
-    const d = View.orientations;
+    this.root.appendChild(this.nodes.track);
+    this.nodes.track.appendChild(this.nodes.from);
 
-    r.appendChild(n.track);
-    n.track.appendChild(n.from);
-
-    if (n.range) {
-      n.track.appendChild(n.range);
+    if (this.nodes.range) {
+      this.nodes.track.appendChild(this.nodes.range);
     }
-    if (n.to) {
-      n.track.appendChild(n.to)
+    if (this.nodes.to) {
+      this.nodes.track.appendChild(this.nodes.to)
     }
-    if (o.orientation === d.horizontal && !n.track.clientWidth) {
+    if (this.options.orientation === 'horizontal' && !this.nodes.track.clientWidth) {
       throw "zero container width";
-    } else if (o.orientation === d.vertical && !n.track.clientHeight) {
+    } else if (this.options.orientation === 'vertical' && !this.nodes.track.clientHeight) {
       throw "zero container height";
     }
   }
 
   private setHandlers() {
-    const t = this.triggers;
-    const n = this.nodes;
-
     window.removeEventListener('mousemove', this.mousemove);
-    n.track.removeEventListener('mousedown', this.mouseDown.bind(this));
+    this.nodes.track.removeEventListener('mousedown', this.mouseDown.bind(this));
     window.removeEventListener('mouseup', this.mouseup);
     
-    n.track.addEventListener('mousedown', this.mouseDown.bind(this));
+    this.nodes.track.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
   private setEvents() {
 
   }
 
-  private calcRange() {
-    const o = this.options;
-    const d = View.orientations;
-    const t = View.types;
-    const n = this.nodes;
-    
+  private calcRange() {  
     let baseF: Style = 'left';
     let baseT: Style = 'right';
 
-    if (o.type === t.single || !n.range) {
+    if (this.options.type === 'single' || !this.nodes.range) {
       return;
     }
 
-    if (o.orientation === d.vertical) { 
+    if (this.options.orientation === 'vertical') { 
       baseF = 'bottom';
       baseT = 'top';
     }
     
-    if (o.type === t.min) {
-      n.range.style[baseF] = `0`;
-      n.range.style[baseT] = `${100 - parseFloat(<string>n.from.style[baseF])}%`;
-    } else if (o.type === t.max) {
-      n.range.style[baseF] = n.from.style[baseF];
-      n.range.style[baseT] = `0`;
-    } else if (o.type === t.double && n.to) {
-      n.range.style[baseF] = n.from.style[baseF];
-      n.range.style[baseT] = `${100 - parseFloat(<string>n.to.style[baseF])}%`;
+    if (this.options.type === 'min') {
+      this.nodes.range.style[baseF] = `0`;
+      this.nodes.range.style[baseT] = `${100 - parseFloat(<string>this.nodes.from.style[baseF])}%`;
+    } else if (this.options.type === 'max') {
+      this.nodes.range.style[baseF] = this.nodes.from.style[baseF];
+      this.nodes.range.style[baseT] = `0`;
+    } else if (this.options.type === 'double' && this.nodes.to) {
+      this.nodes.range.style[baseF] = this.nodes.from.style[baseF];
+      this.nodes.range.style[baseT] = `${100 - parseFloat(<string>this.nodes.to.style[baseF])}%`;
     }
   }
 
@@ -214,38 +181,35 @@ export default class View {
       from: document.createElement('span')
     }
 
-    const o = this.options;
-    const n = this.nodes;
-
     if (this.root.className.indexOf('vanilla') < 0) {
       this.root.className += ' vanilla';
     }
-    n.track.setAttribute('class', `vanilla-slider vanilla-${o.type} vanilla-${o.orientation}`);
+    this.nodes.track.setAttribute('class', `vanilla-slider vanilla-${this.options.type} vanilla-${this.options.orientation}`);
 
-    n.from.setAttribute('tabindex', `0`);
-    n.from.setAttribute('class', `vanilla-handle vanilla-handle-from`);
+    this.nodes.from.setAttribute('tabindex', `0`);
+    this.nodes.from.setAttribute('class', `vanilla-handle vanilla-handle-from`);
 
-    if (o.from_fixed) {
-      n.from.classList.add(`vanilla-handle-fixed`);
+    if (this.options.from_fixed) {
+      this.nodes.from.classList.add(`vanilla-handle-fixed`);
     }
 
-    if (o.type !== View.types.single) {
-      n.range = document.createElement('div');
-      n.range.setAttribute('class', `vanilla-range vanilla-range-${o.type}`);
+    if (this.options.type !== 'single') {
+      this.nodes.range = document.createElement('div');
+      this.nodes.range.setAttribute('class', `vanilla-range vanilla-range-${this.options.type}`);
     } else {
-      delete n.range;
+      delete this.nodes.range;
     }
 
-    if (o.type === View.types.double) {
-      n.to = document.createElement('span');
-      n.to.setAttribute('tabindex', `0`);
-      n.to.setAttribute('class', `vanilla-handle vanilla-handle-to`);
+    if (this.options.type === 'double') {
+      this.nodes.to = document.createElement('span');
+      this.nodes.to.setAttribute('tabindex', `0`);
+      this.nodes.to.setAttribute('class', `vanilla-handle vanilla-handle-to`);
 
-      if (o.to_fixed) {
-        n.to.classList.add(`vanilla-handle-fixed`);
+      if (this.options.to_fixed) {
+        this.nodes.to.classList.add(`vanilla-handle-fixed`);
       }
     } else {
-      delete n.to;
+      delete this.nodes.to;
     }
   }
 
@@ -256,28 +220,24 @@ export default class View {
   }
 
   private mouseDown(event: MouseEvent) {
-    const o = this.options;
-    const n = this.nodes;
-    const d = View.orientations;
-    const e = this.events;
-    const coord = (o.orientation === d.horizontal ? 
-                                     event.pageX - n.track.offsetLeft : 
-                                     event.pageY - n.track.offsetTop);
+    const coord = (this.options.orientation === 'horizontal' ? 
+                                     event.pageX - this.nodes.track.offsetLeft : 
+                                     event.pageY - this.nodes.track.offsetTop);
                                      
     event.preventDefault();
 
-    if (event.target === n.from) {
-      this.handle = n.from;
-    } else if (event.target === n.to) {
-      this.handle = n.to;
-    } else if (event.target === n.range || event.target === n.track) {
+    if (event.target === this.nodes.from) {
+      this.handle = this.nodes.from;
+    } else if (event.target === this.nodes.to) {
+      this.handle = this.nodes.to;
+    } else if (event.target === this.nodes.range || event.target === this.nodes.track) {
       this.handle = this.chooseHandle(coord);
       this.mouseMove(event);
     }
 
-    n.from.classList.remove('last-type');
-    if (n.to) {
-      n.to.classList.remove('last-type');
+    this.nodes.from.classList.remove('last-type');
+    if (this.nodes.to) {
+      this.nodes.to.classList.remove('last-type');
     }
 
     const value = this.getCoord(event);
@@ -285,20 +245,18 @@ export default class View {
     if (this.handle) {
       this.handle.classList.add('active');
       this.handle.classList.add('last-type');
-      e.slideStart.notify<HTMLSpanElement | number>(this.handle, value);
+      this.events.slideStart.notify<HTMLSpanElement | number>(this.handle, value);
     }
     window.addEventListener('mousemove', this.mousemove);
     window.addEventListener('mouseup', this.mouseup);
   }
 
   private mouseMove(event: MouseEvent) {
-    const e = this.events;
-    const n = this.nodes;
     const value = this.getCoord(event);
-    if (this.handle === n.from) {
-      e.fromChanged.notify<HTMLSpanElement | number>(this.handle, value);
-    } else if (this.handle === n.to) {
-      e.toChanged.notify<HTMLSpanElement | number>(this.handle, value);
+    if (this.handle === this.nodes.from) {
+      this.events.fromChanged.notify<HTMLSpanElement | number>(this.handle, value);
+    } else if (this.handle === this.nodes.to) {
+      this.events.toChanged.notify<HTMLSpanElement | number>(this.handle, value);
     }
   }
 
@@ -318,48 +276,40 @@ export default class View {
   }
 
   private chooseHandle(coord: number): HTMLSpanElement | null {
-    const o = this.options;
-    const t = View.types;
-    const d = View.orientations;
-    const n = this.nodes;
     let result: HTMLSpanElement;
 
     if (this.handle) {
       return this.handle;
     }
 
-    if (o.type !== t.double) {
-      return n.from;
+    if (this.options.type !== 'double') {
+      return this.nodes.from;
     }
 
-    if (o.from_fixed && o.to_fixed) {
+    if (this.options.from_fixed && this.options.to_fixed) {
       return null;
-    } else if (o.from_fixed) {
-      return n.to as HTMLElement;
-    } else if (o.to_fixed) {
-      return n.from;
+    } else if (this.options.from_fixed) {
+      return this.nodes.to as HTMLElement;
+    } else if (this.options.to_fixed) {
+      return this.nodes.from;
     }
     
-    const fromCoord = this.offset(n.from);
-    const toCoord = this.offset(n.to as HTMLElement);
+    const fromCoord = this.offset(this.nodes.from);
+    const toCoord = this.offset(this.nodes.to as HTMLElement);
 
     if (fromCoord === toCoord) {
-      result = <HTMLSpanElement>(coord < fromCoord ? n.from : n.to);
+      result = <HTMLSpanElement>(coord < fromCoord ? this.nodes.from : this.nodes.to);
     } else {
-      result = <HTMLSpanElement>(Math.abs(fromCoord - coord) < Math.abs(toCoord - coord) ? n.from : n.to);
+      result = <HTMLSpanElement>(Math.abs(fromCoord - coord) < Math.abs(toCoord - coord) ? this.nodes.from : this.nodes.to);
     }
     return result;
   }
 
   private getCoord(event: MouseEvent) {
-    const o = this.options;
-    const d = View.orientations;
-    const n = this.nodes;
-
-    if (o.orientation === d.horizontal) {
-       return event.pageX - n.track.offsetLeft;
+    if (this.options.orientation === 'horizontal') {
+       return event.pageX - this.nodes.track.offsetLeft;
     } else {
-      return event.pageY - n.track.offsetTop;
+      return event.pageY - this.nodes.track.offsetTop;
     }
   }
 
@@ -378,10 +328,7 @@ export default class View {
   }
 
   private offset(node: HTMLElement) {
-    const o = this.options;
-    const d = View.orientations;
-
-    if (o.orientation === d.horizontal) {
+    if (this.options.orientation === 'horizontal') {
       return node.offsetLeft + this.outerWidth(node)/2;
     } else {
       return node.offsetTop + this.outerHeight(node)/2;

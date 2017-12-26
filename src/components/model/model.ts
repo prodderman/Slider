@@ -59,94 +59,85 @@ export default class Model implements IModel {
   }
 
   public calcFromWithStep(value: number) {
-    const o = this.options;
     let result;
 
-    if (o.from_fixed) {
+    if (this.options.from_fixed) {
       return;
     }
 
-    result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
-    if (o.type) {
-      result = this.inDaipason(result, o.min, o.to);
+    result = Math.round(( value - this.options.min ) / this.options.step) * this.options.step + this.options.min;
+    if (this.options.type) {
+      result = this.inDaipason(result, this.options.min, this.options.to);
     } else {
-      result = this.inDaipason(result, o.min, o.max);
+      result = this.inDaipason(result, this.options.min, this.options.max);
     }
 
-    if (result != o.from) {
-      o.from = result;
-      this.triggers.fromChanged.notify(o.from);
+    if (result != this.options.from) {
+      this.options.from = result;
+      this.triggers.fromChanged.notify(this.options.from);
     }
   }
 
   public calcToWithStep(value: number) {
-    const o = this.options;
     let result;
 
-    if (!o.type || o.to_fixed) {
+    if (!this.options.type || this.options.to_fixed) {
       return;
     }
 
-    result = Math.round(( value - o.min ) / o.step) * o.step + o.min;
-    result = this.inDaipason(result, o.from, o.max);
+    result = Math.round(( value - this.options.min ) / this.options.step) * this.options.step + this.options.min;
+    result = this.inDaipason(result, this.options.from, this.options.max);
 
-    if (result != o.to) {
-      o.to = result;
-      this.triggers.toChanged.notify(o.to);
+    if (result != this.options.to) {
+      this.options.to = result;
+      this.triggers.toChanged.notify(this.options.to);
     }
   }
 
   // private methods
 
   private setRange(min = this.options.min, max = this.options.max) {
-    const o = this.options;
-
-    if (min > max) {
+     if (min > max) {
       max = min;
     }
 
-    o.min = min;
-    o.max = max;
+    this.options.min = min;
+    this.options.max = max;
     this.updateFromTo();
   }
 
   private setValues(from = this.options.from, to = this.options.to) {
-    const o = this.options;
-    o.from = from;
-    o.to = to;
+    this.options.from = from;
+    this.options.to = to;
     this.updateFromTo();
   }
 
   private setStep(step: number) {
-    const o = this.options;
-    const range = o.max - o.min;
+    const range = this.options.max - this.options.min;
     if (step <= 0) {
-      o.step = 1;
+      this.options.step = 1;
     } else if (step > range) {
-      o.step = range;
+      this.options.step = range;
     } else {
-      o.step = step;
+      this.options.step = step;
     }
   }
 
   private setType(type: boolean) {
-    const o = this.options;
-    o.type = type;
+    this.options.type = type;
     this.updateFromTo();
   }
 
   private setFixed(from = this.options.from_fixed, to = this.options.to_fixed) {
-    const o = this.options;
-    o.from_fixed = from;
-    o.to_fixed = to;
+    this.options.from_fixed = from;
+    this.options.to_fixed = to;
   }
 
   private updateFromTo() {
-    const o = this.options;
-    o.from = this.inDaipason(o.from, o.min, o.max);
+    this.options.from = this.inDaipason(this.options.from, this.options.min, this.options.max);
 
-    if (o.type) {
-      o.to = this.inDaipason(o.to, o.from, o.max)
+    if (this.options.type) {
+      this.options.to = this.inDaipason(this.options.to, this.options.from, this.options.max)
     }
   }
 

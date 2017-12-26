@@ -64,62 +64,59 @@ class Constructor {
   }
 
   private setOptions(options: IOptions) {
-    const o = options;
-    const t = View.types;
-    const d = View.orientations;
     let updated = false;
     
     this.modelOptions = {};
     this.viewOptions = {};
     this.controllerOptions = {};
 
-    if (o.type && o.type in t) {
-      this.viewOptions.type = o.type;
-      this.modelOptions.type = o.type === t.double ? true : false;
+    if (options.type) {
+      this.viewOptions.type = options.type;
+      this.modelOptions.type = options.type === 'double' ? true : false;
       updated = true;
     }
-    if (o.orientation && o.orientation in d) {
-      this.viewOptions.orientation = o.orientation;
+    if (options.orientation) {
+      this.viewOptions.orientation = options.orientation;
       updated = true;
     }
-    if (o.min !== undefined && !Number.isNaN(Number(o.min))) {
-      this.modelOptions.min = Number(o.min);
+    if (options.min !== undefined && !Number.isNaN(Number(options.min))) {
+      this.modelOptions.min = Number(options.min);
       updated = true;
     }
-    if (o.max !== undefined && !Number.isNaN(Number(o.max))) {
-      this.modelOptions.max = Number(o.max);
+    if (options.max !== undefined && !Number.isNaN(Number(options.max))) {
+      this.modelOptions.max = Number(options.max);
       updated = true;
     }
-    if (o.from !== undefined && !Number.isNaN(Number(o.from))) {
-      this.modelOptions.from = Number(o.from);
+    if (options.from !== undefined && !Number.isNaN(Number(options.from))) {
+      this.modelOptions.from = Number(options.from);
       updated = true;
     }
-    if (o.to !== undefined && !Number.isNaN(Number(o.to))) {
-      this.modelOptions.to = Number(o.to);
+    if (options.to !== undefined && !Number.isNaN(Number(options.to))) {
+      this.modelOptions.to = Number(options.to);
       updated = true;
     }
-    if (o.from_fixed !== undefined) {
-      const r = (/true/i).test(o.from_fixed.toString());
+    if (options.from_fixed !== undefined) {
+      const r = (/true/i).test(options.from_fixed.toString());
       this.modelOptions.from_fixed = r;
       this.viewOptions.from_fixed = r;
       updated = true;
     }
-    if (o.to_fixed !== undefined) {
-      const r = (/true/i).test(o.to_fixed.toString());
+    if (options.to_fixed !== undefined) {
+      const r = (/true/i).test(options.to_fixed.toString());
       this.modelOptions.to_fixed = r;
       this.viewOptions.to_fixed = r;
       updated = true;
     }
-    if (o.step !== undefined && !Number.isNaN(Number(o.step))) {
-      this.modelOptions.step = Number(o.step);
+    if (options.step !== undefined && !Number.isNaN(Number(options.step))) {
+      this.modelOptions.step = Number(options.step);
       updated = true;
     }
 
-    this.controllerOptions.onCreate = o.onCreate;
-    this.controllerOptions.onStart = o.onStart;
-    this.controllerOptions.onSlide = o.onSlide;
-    this.controllerOptions.onEnd = o.onEnd;
-    this.controllerOptions.onUpdate = o.onUpdate;
+    this.controllerOptions.onCreate = options.onCreate;
+    this.controllerOptions.onStart = options.onStart;
+    this.controllerOptions.onSlide = options.onSlide;
+    this.controllerOptions.onEnd = options.onEnd;
+    this.controllerOptions.onUpdate = options.onUpdate;
     return updated;
   }
 
