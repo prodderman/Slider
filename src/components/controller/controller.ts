@@ -5,10 +5,11 @@ import View from './../view/view';
 import { IViewEvents } from '../view/namespace';
 import { IModelEvents } from '../model/namespace';
 import { IControllerOptions } from './namespace';
+import { IOptions, TCallback } from './../../namespace';
 
 type event = MouseEvent | KeyboardEvent | TouchEvent | CustomEvent;
 
-interface customEvents {
+interface CustomEvents {
   create?: CustomEvent,
   start?: MouseEvent,
   slide?: MouseEvent,
@@ -20,7 +21,7 @@ export default class Controller {
 
   private callbacks: IControllerOptions = {};
 
-  private customEvents: customEvents = {};
+  private customEvents: CustomEvents = {};
 
   constructor(private model: Model, private view: View, callbacks: IControllerOptions) {
     this.init(callbacks);
@@ -124,7 +125,7 @@ export default class Controller {
     this.model.events.fromChanged.attach((from: number) => {
       this.view.calcFrom(this.converToPercent(from));
 
-      if (!this.customEvents.slide) return;
+      if (!this.customEvents.slide) { return; };
 
       this.callFunction(this.customEvents.slide, {
         handle: this.view.nodesData.from,
@@ -138,7 +139,7 @@ export default class Controller {
     this.model.events.toChanged.attach((to: number) => {
       this.view.calcTo(this.converToPercent(to));
       
-      if (!this.customEvents.slide) return;
+      if (!this.customEvents.slide) { return; };
 
       this.callFunction(this.customEvents.slide, {
         handle: this.view.nodesData.to,
@@ -172,7 +173,7 @@ export default class Controller {
     }    
   }
 
-  private callFunction(event: event, data = {}, callback?: Function): void {
+  private callFunction(event: event, data = {}, callback?: TCallback): void {
     if (callback && typeof callback === "function") {
       callback(event, data);
     }

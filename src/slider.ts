@@ -5,26 +5,7 @@ import Controller from './components/controller/controller';
 import {IModelOptions} from './components/model/namespace';
 import {IViewOptions, Types, Orient} from './components/view/namespace';
 import {IControllerOptions} from './components/controller/namespace';
-
-interface IOptions {
-  type?: string;
-  orientation?: string;
-  min?: number | string;
-  max?: number | string;
-  from?: number | string;
-  from_fixed?: boolean | string;
-  to?: number | string;
-  to_fixed?: boolean | string;
-  step?: number | string;
-
-  onCreate?: Function;
-  onStart?: Function;
-  onSlide?: Function;
-  onEnd?: Function;
-  onUpdate?: Function;
-}
-
-type Selector = HTMLElement | HTMLCollection | string;
+import {IOptions, Selector} from 'namespace';
 
 class SliderConstructor {
 

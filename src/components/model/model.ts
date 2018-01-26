@@ -72,7 +72,7 @@ export default class Model implements IModel {
       result = this.inDaipason(result, this.options.min, this.options.max);
     }
 
-    if (result != this.options.from) {
+    if (result !== this.options.from) {
       this.options.from = result;
       this.triggers.fromChanged.notify(this.options.from);
     }
@@ -88,7 +88,7 @@ export default class Model implements IModel {
     result = Math.round(( value - this.options.min ) / this.options.step) * this.options.step + this.options.min;
     result = this.inDaipason(result, this.options.from, this.options.max);
 
-    if (result != this.options.to) {
+    if (result !== this.options.to) {
       this.options.to = result;
       this.triggers.toChanged.notify(this.options.to);
     }

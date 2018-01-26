@@ -6,7 +6,9 @@ interface supposedOptions {
   min: number;
   max: number;
   from: number;
+  from_fixed: boolean;
   to: number;
+  to_fixed: boolean;
   step: number;
 }
 
@@ -19,7 +21,9 @@ describe('( Test Model )', () => {
         min: 50,
         max: 100,
         from: 50,
+        from_fixed: false,
         to: 0,
+        to_fixed: false,
         step: 3
       }
 
@@ -38,7 +42,9 @@ describe('( Test Model )', () => {
         min: 150,
         max: 150,
         from: 150,
+        from_fixed: false,
         to: 0,
+        to_fixed: false,
         step: 1
       }
 
@@ -56,7 +62,9 @@ describe('( Test Model )', () => {
         min: 150,
         max: 150,
         from: 150,
+        from_fixed: false,
         to: 150,
+        to_fixed: false,
         step: 1
       }
 
@@ -77,7 +85,9 @@ describe('( Test Model )', () => {
         min: 0,
         max: 150,
         from: 0,
+        from_fixed: false,
         to: 150,
+        to_fixed: false,
         step: 1
       }
 
@@ -99,7 +109,9 @@ describe('( Test Model )', () => {
         min: 0,
         max: 150,
         from: 100,
+        from_fixed: false,
         to: 100,
+        to_fixed: false,
         step: 1
       }
 
@@ -121,7 +133,9 @@ describe('( Test Model )', () => {
         min: 0,
         max: 150,
         from: 150,
+        from_fixed: false,
         to: -30,
+        to_fixed: false,
         step: 1
       }
 

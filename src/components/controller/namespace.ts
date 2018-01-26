@@ -1,8 +1,9 @@
+import { TCallback } from './../../namespace';
 
 export interface IControllerOptions {
-  onCreate?: Function;
-  onStart?: Function;
-  onSlide?: Function;
-  onEnd?: Function;
-  onUpdate?: Function;
+  onCreate?: TCallback;
+  onStart?: TCallback;
+  onSlide?: TCallback;
+  onEnd?: TCallback;
+  onUpdate?: TCallback;
 }
