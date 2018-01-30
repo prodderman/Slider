@@ -216,9 +216,7 @@ export default class View {
   }
 
   private mouseDown(event: MouseEvent): void {
-    const coord = (this.options.orientation === 'horizontal' ?
-                                     event.pageX - this.nodes.track.offsetLeft :
-                                     event.pageY - this.nodes.track.offsetTop);
+    const coord = this.getCoord(event);
 
     event.preventDefault();
 
@@ -291,7 +289,10 @@ export default class View {
     const toCoord = this.offset(this.nodes.to as HTMLElement);
 
     if (fromCoord === toCoord) {
-      result = <HTMLSpanElement>(coord < fromCoord ? this.nodes.from : this.nodes.to);
+      if (this.options.orientation === 'horizontal')
+        result = <HTMLSpanElement>(coord < fromCoord ? this.nodes.from : this.nodes.to);
+      else
+        result = <HTMLSpanElement>(coord > fromCoord ? this.nodes.from : this.nodes.to);
     } else {
       result = <HTMLSpanElement>(Math.abs(fromCoord - coord) < Math.abs(toCoord - coord) ? this.nodes.from : this.nodes.to);
     }
