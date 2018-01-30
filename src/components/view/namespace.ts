@@ -2,8 +2,8 @@ import IEvent from './../observer/observer';
 
 export interface IViewOptions {
   type?: Types;
-  orientation? : Orient;
-  from_fixed? : boolean;
+  orientation?: Orient;
+  from_fixed?: boolean;
   to_fixed?: boolean;
 }
 

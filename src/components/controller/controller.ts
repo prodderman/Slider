@@ -10,11 +10,11 @@ import { IOptions, TCallback } from './../../namespace';
 type event = MouseEvent | KeyboardEvent | TouchEvent | CustomEvent;
 
 interface CustomEvents {
-  create?: CustomEvent,
-  start?: MouseEvent,
-  slide?: MouseEvent,
-  end?: MouseEvent,
-  update?: CustomEvent
+  create?: CustomEvent;
+  start?: MouseEvent;
+  slide?: MouseEvent;
+  end?: MouseEvent;
+  update?: CustomEvent;
 }
 
 export default class Controller {
@@ -45,7 +45,7 @@ export default class Controller {
     if (callbacks.onUpdate) {
       this.callbacks.onUpdate = callbacks.onUpdate;
     }
-    
+
     if (isUpdate) {
       this.customEvents.update = new CustomEvent('vanillaupdate', {
         detail: {
@@ -74,7 +74,7 @@ export default class Controller {
       }, this.callbacks.onCreate);
     }
 
-    this.view.events.fromChanged.attach((handle: HTMLSpanElement,value: number) => {
+    this.view.events.fromChanged.attach((handle: HTMLSpanElement, value: number) => {
       this.customEvents.slide = new MouseEvent('vanillaslide', {
         bubbles: true,
         cancelable: true
@@ -82,7 +82,7 @@ export default class Controller {
       this.model.calcFromWithStep(this.convertToReal(value));
     });
 
-    this.view.events.toChanged.attach((handle: HTMLSpanElement ,value: number) => {
+    this.view.events.toChanged.attach((handle: HTMLSpanElement, value: number) => {
       this.customEvents.slide = new MouseEvent('vanillaslide', {
         bubbles: true,
         cancelable: true
@@ -104,7 +104,7 @@ export default class Controller {
         to: this.model.data.to
       }, this.callbacks.onStart);
       handle.dispatchEvent(this.customEvents.start);
-    })
+    });
 
     this.view.events.slideEnd.attach((handle: HTMLSpanElement) => {
       let value;
@@ -120,12 +120,12 @@ export default class Controller {
         to: this.model.data.to
       }, this.callbacks.onEnd);
       handle.dispatchEvent(this.customEvents.end);
-    })
+    });
 
     this.model.events.fromChanged.attach((from: number) => {
       this.view.calcFrom(this.converToPercent(from));
 
-      if (!this.customEvents.slide) { return; };
+      if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
         handle: this.view.nodesData.from,
@@ -138,8 +138,8 @@ export default class Controller {
 
     this.model.events.toChanged.attach((to: number) => {
       this.view.calcTo(this.converToPercent(to));
-      
-      if (!this.customEvents.slide) { return; };
+
+      if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
         handle: this.view.nodesData.to,
@@ -170,11 +170,11 @@ export default class Controller {
     } else {
       const height = this.view.nodesData.track.clientHeight;
       return +(((height - pixels) * range / height) + this.model.data.min).toFixed(10);
-    }    
+    }
   }
 
   private callFunction(event: event, data = {}, callback?: TCallback): void {
-    if (callback && typeof callback === "function") {
+    if (callback && typeof callback === 'function') {
       callback(event, data);
     }
   }

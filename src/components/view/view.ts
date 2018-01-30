@@ -34,20 +34,20 @@ export default class View {
     slideEnd: new IEvent(),
     fromChanged: new IEvent(),
     toChanged: new IEvent(),
-  }
+  };
 
   private options: IMandatoryOptions = {
     type: 'single',
     orientation: 'horizontal',
     from_fixed: false,
     to_fixed: false
-  }
+  };
 
   private nodes: INodes = {
     track: document.createElement('div'),
     from: document.createElement('span')
   };
-  
+
   constructor(private root: HTMLDivElement | HTMLSpanElement, viewOptions: IViewOptions = {}) {
       this.init(viewOptions);
   }
@@ -81,25 +81,25 @@ export default class View {
       this.options.orientation = <Orient>viewOptions.orientation;
     }
     if (viewOptions.from_fixed !== undefined) {
-      this.options.from_fixed = viewOptions.from_fixed; 
+      this.options.from_fixed = viewOptions.from_fixed;
     }
     if (viewOptions.to_fixed !== undefined) {
-      this.options.to_fixed = viewOptions.to_fixed; 
+      this.options.to_fixed = viewOptions.to_fixed;
     }
-    
+
     this.rootEmpty();
     this.setNodes();
     this.render();
     this.setHandlers();
   }
 
-  public calcFrom(from: number): void {   
+  public calcFrom(from: number): void {
     if (this.options.orientation === 'horizontal') {
       this.nodes.from.style.left = `${from}%`;
     } else {
       this.nodes.from.style.bottom = `${from}%`;
     }
-    
+
     this.calcRange();
   }
 
@@ -113,7 +113,7 @@ export default class View {
     if (this.options.orientation === 'vertical') {
       base = 'bottom';
     }
-      
+
     this.nodes.to.style[base] = `${to}%`;
     this.calcRange();
   }
@@ -128,12 +128,12 @@ export default class View {
       this.nodes.track.appendChild(this.nodes.range);
     }
     if (this.nodes.to) {
-      this.nodes.track.appendChild(this.nodes.to)
+      this.nodes.track.appendChild(this.nodes.to);
     }
     if (this.options.orientation === 'horizontal' && !this.nodes.track.clientWidth) {
-      throw "zero container width";
+      throw 'zero container width';
     } else if (this.options.orientation === 'vertical' && !this.nodes.track.clientHeight) {
-      throw "zero container height";
+      throw 'zero container height';
     }
   }
 
@@ -141,32 +141,32 @@ export default class View {
     window.removeEventListener('mousemove', this.mousemove);
     this.nodes.track.removeEventListener('mousedown', this.mouseDown.bind(this));
     window.removeEventListener('mouseup', this.mouseup);
-    
+
     this.nodes.track.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
-  private calcRange(): void {  
-    let baseF: Style = 'left';
-    let baseT: Style = 'right';
+  private calcRange(): void {
+    let baseStart: Style = 'left';
+    let baseEnd: Style = 'right';
 
     if (this.options.type === 'single' || !this.nodes.range) {
       return;
     }
 
-    if (this.options.orientation === 'vertical') { 
-      baseF = 'bottom';
-      baseT = 'top';
+    if (this.options.orientation === 'vertical') {
+      baseStart = 'bottom';
+      baseEnd = 'top';
     }
-    
+
     if (this.options.type === 'min') {
-      this.nodes.range.style[baseF] = `0`;
-      this.nodes.range.style[baseT] = `${100 - parseFloat(<string>this.nodes.from.style[baseF])}%`;
+      this.nodes.range.style[baseStart] = `0`;
+      this.nodes.range.style[baseEnd] = `${100 - parseFloat(<string>this.nodes.from.style[baseStart])}%`;
     } else if (this.options.type === 'max') {
-      this.nodes.range.style[baseF] = this.nodes.from.style[baseF];
-      this.nodes.range.style[baseT] = `0`;
+      this.nodes.range.style[baseStart] = this.nodes.from.style[baseStart];
+      this.nodes.range.style[baseEnd] = `0`;
     } else if (this.options.type === 'double' && this.nodes.to) {
-      this.nodes.range.style[baseF] = this.nodes.from.style[baseF];
-      this.nodes.range.style[baseT] = `${100 - parseFloat(<string>this.nodes.to.style[baseF])}%`;
+      this.nodes.range.style[baseStart] = this.nodes.from.style[baseStart];
+      this.nodes.range.style[baseEnd] = `${100 - parseFloat(<string>this.nodes.to.style[baseStart])}%`;
     }
   }
 
@@ -175,7 +175,7 @@ export default class View {
     this.nodes = {
       track: document.createElement('div'),
       from: document.createElement('span')
-    }
+    };
 
     if (this.root.className.indexOf('vanilla') < 0) {
       this.root.className += ' vanilla';
@@ -216,10 +216,10 @@ export default class View {
   }
 
   private mouseDown(event: MouseEvent): void {
-    const coord = (this.options.orientation === 'horizontal' ? 
-                                     event.pageX - this.nodes.track.offsetLeft : 
+    const coord = (this.options.orientation === 'horizontal' ?
+                                     event.pageX - this.nodes.track.offsetLeft :
                                      event.pageY - this.nodes.track.offsetTop);
-                                     
+
     event.preventDefault();
 
     if (event.target === this.nodes.from) {
@@ -286,7 +286,7 @@ export default class View {
     } else if (this.options.to_fixed) {
       return this.nodes.from;
     }
-    
+
     const fromCoord = this.offset(this.nodes.from);
     const toCoord = this.offset(this.nodes.to as HTMLElement);
 
@@ -322,9 +322,9 @@ export default class View {
 
   private offset(node: HTMLElement): number {
     if (this.options.orientation === 'horizontal') {
-      return node.offsetLeft + this.outerWidth(node)/2;
+      return node.offsetLeft + this.outerWidth(node) / 2;
     } else {
-      return node.offsetTop + this.outerHeight(node)/2;
-    } 
+      return node.offsetTop + this.outerHeight(node) / 2;
+    }
   }
 }

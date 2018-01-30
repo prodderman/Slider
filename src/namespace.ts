@@ -8,7 +8,7 @@ export interface IOptions {
     to?: number | string;
     to_fixed?: boolean | string;
     step?: number | string;
-  
+
     onCreate?: TCallback;
     onStart?: TCallback;
     onSlide?: TCallback;

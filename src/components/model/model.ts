@@ -2,11 +2,10 @@ import IEvent from './../observer/observer';
 import { IModel, IModelOptions, IMandatoryOptions, IModelEvents } from './namespace';
 
 export default class Model implements IModel {
-  
   private triggers: IModelEvents = {
     fromChanged: new IEvent(),
     toChanged: new IEvent(),
-  }
+  };
 
   private options: IMandatoryOptions  = {
     type: false,
@@ -17,7 +16,7 @@ export default class Model implements IModel {
     to: 0,
     to_fixed: false,
     step: 1
-  }
+  };
 
   public constructor(modelOptions: IModelOptions = {}) {
     this.init(modelOptions);
@@ -35,7 +34,7 @@ export default class Model implements IModel {
 
   // public methods
 
-  public init(options: IModelOptions = {}): void { 
+  public init(options: IModelOptions = {}): void {
 
     if (options.type !== undefined) {
       this.setType(options.type);
@@ -137,7 +136,7 @@ export default class Model implements IModel {
     this.options.from = this.inDaipason(this.options.from, this.options.min, this.options.max);
 
     if (this.options.type) {
-      this.options.to = this.inDaipason(this.options.to, this.options.from, this.options.max)
+      this.options.to = this.inDaipason(this.options.to, this.options.from, this.options.max);
     }
   }
 

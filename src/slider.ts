@@ -18,7 +18,7 @@ class SliderConstructor {
   private view: View;
   private model: Model;
   private controller: Controller;
- 
+
   constructor(rootObject: Selector, options: IOptions = {}, public wrap: VanillaSlider) {
     if (this.setRoot(rootObject)) {
       this.init(options);
@@ -30,7 +30,7 @@ class SliderConstructor {
   }
 
   public set(options: IOptions): void {
-    this.setOptions(options)
+    this.setOptions(options);
     this.model.init(this.modelOptions);
     this.view.init(this.viewOptions);
     this.controller.init(this.controllerOptions, true);
@@ -93,9 +93,9 @@ class SliderConstructor {
 
     if (check) {
       this.root = check as HTMLDivElement | HTMLSpanElement;
-    } 
-    else{
-      throw "Invalid node type, expected 'div'";
+    }
+    else {
+      throw 'Invalid node type, expected \'div\'';
     }
     return true;
   }
@@ -117,9 +117,9 @@ class SliderConstructor {
 export default class VanillaSlider {
   set: (options: IOptions) => void;
   data: () => IOptions;
-  
+
   private static instances: Array<SliderConstructor> = [];
-  
+
   constructor(root: Selector, options: IOptions = {}) {
     const instance = new SliderConstructor(root, options, this);
     this.set = instance.set.bind(instance);

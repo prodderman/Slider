@@ -28,6 +28,6 @@ export interface IMandatoryOptions extends IModelOptions {
 }
 
 export interface IModelEvents {
-  fromChanged: IEvent,
-  toChanged: IEvent,
+  fromChanged: IEvent;
+  toChanged: IEvent;
 }

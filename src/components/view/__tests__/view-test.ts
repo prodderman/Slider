@@ -4,7 +4,7 @@ import { assert, expect } from 'chai';
 describe('( Test View )', () => {
   describe('( method init )', () => {
     it('', () => {
-      
+
     });
   });
 });

@@ -1,7 +1,7 @@
 import Model from './../model';
 import { assert, expect } from 'chai';
 
-interface supposedOptions {
+interface SupposedOptions {
   type: boolean;
   min: number;
   max: number;
@@ -16,7 +16,7 @@ describe('( Test Model )', () => {
   describe('( method init )', () => {
     it('test init parameters 1', () => {
       const model = new Model();
-      const options: supposedOptions = {
+      const options: SupposedOptions = {
         type: false,
         min: 50,
         max: 100,
@@ -25,19 +25,19 @@ describe('( Test Model )', () => {
         to: 0,
         to_fixed: false,
         step: 3
-      }
+      };
 
       model.init({
         min: 50,
         step: 3
-      })
+      });
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
     it('test init parameters 2', () => {
       const model = new Model();
-      const options: supposedOptions = {
+      const options: SupposedOptions = {
         type: false,
         min: 150,
         max: 150,
@@ -46,18 +46,18 @@ describe('( Test Model )', () => {
         to: 0,
         to_fixed: false,
         step: 1
-      }
+      };
 
       model.init({
         min: 150,
-      })
+      });
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
     it('test init parameters 3', () => {
       const model = new Model();
-      const options: supposedOptions = {
+      const options: SupposedOptions = {
         type: true,
         min: 150,
         max: 150,
@@ -66,21 +66,21 @@ describe('( Test Model )', () => {
         to: 150,
         to_fixed: false,
         step: 1
-      }
+      };
 
       model.init({
         type: true,
         min: 150,
         from: -341,
         to: 231,
-      })
+      });
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
     it('test init parameters 4', () => {
       const model = new Model();
-      const options: supposedOptions = {
+      const options: SupposedOptions = {
         type: true,
         min: 0,
         max: 150,
@@ -89,7 +89,7 @@ describe('( Test Model )', () => {
         to: 150,
         to_fixed: false,
         step: 1
-      }
+      };
 
       model.init({
         type: true,
@@ -97,14 +97,14 @@ describe('( Test Model )', () => {
         max: 150,
         from: -341,
         to: 231,
-      })
+      });
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
     it('test init parameters 5', () => {
       const model = new Model();
-      const options: supposedOptions = {
+      const options: SupposedOptions = {
         type: true,
         min: 0,
         max: 150,
@@ -113,7 +113,7 @@ describe('( Test Model )', () => {
         to: 100,
         to_fixed: false,
         step: 1
-      }
+      };
 
       model.init({
         type: true,
@@ -121,14 +121,14 @@ describe('( Test Model )', () => {
         max: 150,
         from: 100,
         to: 30,
-      })
+      });
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
 
     it('test init parameters 6', () => {
       const model = new Model();
-      const options: supposedOptions = {
+      const options: SupposedOptions = {
         type: false,
         min: 0,
         max: 150,
@@ -137,7 +137,7 @@ describe('( Test Model )', () => {
         to: -30,
         to_fixed: false,
         step: 1
-      }
+      };
 
       model.init({
         min: 0,
@@ -145,7 +145,7 @@ describe('( Test Model )', () => {
         from: 1000,
         to: -30,
         step: -1
-      })
+      });
 
       assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
@@ -153,7 +153,7 @@ describe('( Test Model )', () => {
 
   describe('( method calcFromWithStep)', () => {
 
-    function r(min:number, max:number) {
+    function r(min: number, max: number) {
       return Math.random() * (max - min) + min;
     }
 
@@ -189,13 +189,12 @@ describe('( Test Model )', () => {
     });
 
     for (let i = 0; i < 15; i++) {
-      onStepInRange(+r(0.001,10).toFixed(2),+r(-180,180).toFixed(2));
+      onStepInRange(+r(0.001, 10).toFixed(2), +r(-180, 180).toFixed(2));
     }
   });
 
   describe('( method calcToWithStep)', () => {
-    
-    function r(min:number, max:number) {
+    function r(min: number, max: number) {
       return Math.random() * (max - min) + min;
     }
 
@@ -226,7 +225,7 @@ describe('( Test Model )', () => {
     }
 
     for (let i = 0; i < 15; i++) {
-      onStepInRange(+r(0.001,10).toFixed(2),+r(-180,180).toFixed(2));
+      onStepInRange(+r(0.001, 10).toFixed(2), +r(-180, 180).toFixed(2));
     }
   });
-})
+});
