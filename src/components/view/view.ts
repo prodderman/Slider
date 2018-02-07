@@ -267,8 +267,6 @@ export default class View {
   }
 
   private chooseHandle(coord: number): HTMLSpanElement | null {
-    let result: HTMLSpanElement;
-
     if (this.handle) {
       return this.handle;
     }
@@ -287,6 +285,8 @@ export default class View {
 
     const fromCoord = this.offset(this.nodes.from);
     const toCoord = this.offset(this.nodes.to as HTMLElement);
+
+    let result: HTMLSpanElement;
 
     if (fromCoord === toCoord) {
       if (this.options.orientation === 'horizontal')
