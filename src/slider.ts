@@ -67,15 +67,15 @@ class SliderConstructor {
     if (options.to !== undefined && !Number.isNaN(Number(options.to))) {
       this.modelOptions.to = Number(options.to);
     }
-    if (options.from_fixed !== undefined) {
-      const check = (/true/i).test(options.from_fixed.toString());
-      this.modelOptions.from_fixed = check;
-      this.viewOptions.from_fixed = check;
+    if (options.fromFixed !== undefined) {
+      const check = (/true/i).test(options.fromFixed.toString());
+      this.modelOptions.fromFixed = check;
+      this.viewOptions.fromFixed = check;
     }
-    if (options.to_fixed !== undefined) {
-      const check = (/true/i).test(options.to_fixed.toString());
-      this.modelOptions.to_fixed = check;
-      this.viewOptions.to_fixed = check;
+    if (options.toFixed !== undefined) {
+      const check = (/true/i).test(options.toFixed.toString());
+      this.modelOptions.toFixed = check;
+      this.viewOptions.toFixed = check;
     }
     if (options.step !== undefined && !Number.isNaN(Number(options.step))) {
       this.modelOptions.step = Number(options.step);

@@ -4,9 +4,9 @@ export interface IOptions {
     min?: number | string;
     max?: number | string;
     from?: number | string;
-    from_fixed?: boolean | string;
+    fromFixed?: boolean | string;
     to?: number | string;
-    to_fixed?: boolean | string;
+    toFixed?: boolean | string;
     step?: number | string;
 
     onCreate?: TCallback;

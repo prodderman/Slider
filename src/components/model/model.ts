@@ -12,9 +12,9 @@ export default class Model implements IModel {
     min: 0,
     max: 100,
     from: 0,
-    from_fixed: false,
+    fromFixed: false,
     to: 0,
-    to_fixed: false,
+    toFixed: false,
     step: 1
   };
 
@@ -48,8 +48,8 @@ export default class Model implements IModel {
       this.setRange(options.min, options.max);
     }
 
-    if (options.from_fixed !== undefined || options.to_fixed !== undefined) {
-      this.setFixed(options.from_fixed, options.to_fixed);
+    if (options.fromFixed !== undefined || options.toFixed !== undefined) {
+      this.setFixed(options.fromFixed, options.toFixed);
     }
 
     if (options.from !== undefined || options.to !== undefined) {
@@ -60,7 +60,7 @@ export default class Model implements IModel {
   public calcFromWithStep(value: number): void {
     let result;
 
-    if (this.options.from_fixed) {
+    if (this.options.fromFixed) {
       return;
     }
 
@@ -80,7 +80,7 @@ export default class Model implements IModel {
   public calcToWithStep(value: number): void {
     let result;
 
-    if (!this.options.type || this.options.to_fixed) {
+    if (!this.options.type || this.options.toFixed) {
       return;
     }
 
@@ -127,9 +127,9 @@ export default class Model implements IModel {
     this.updateFromTo();
   }
 
-  private setFixed(from = this.options.from_fixed, to = this.options.to_fixed): void {
-    this.options.from_fixed = from;
-    this.options.to_fixed = to;
+  private setFixed(from = this.options.fromFixed, to = this.options.toFixed): void {
+    this.options.fromFixed = from;
+    this.options.toFixed = to;
   }
 
   private updateFromTo(): void {

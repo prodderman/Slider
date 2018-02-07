@@ -10,9 +10,9 @@ export interface IModelOptions {
   min?: number;
   max?: number;
   from?: number;
-  from_fixed?: boolean;
+  fromFixed?: boolean;
   to?: number;
-  to_fixed?: boolean;
+  toFixed?: boolean;
   step?: number;
 }
 
@@ -21,9 +21,9 @@ export interface IMandatoryOptions extends IModelOptions {
   min: number;
   max: number;
   from: number;
-  from_fixed: boolean;
+  fromFixed: boolean;
   to: number;
-  to_fixed: boolean;
+  toFixed: boolean;
   step: number;
 }
 

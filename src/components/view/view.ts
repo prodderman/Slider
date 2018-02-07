@@ -8,8 +8,8 @@ import { IViewOptions, IViewEvents } from './namespace';
 interface IMandatoryOptions extends IViewOptions {
   type: Types;
   orientation: Orient;
-  from_fixed: boolean;
-  to_fixed: boolean;
+  fromFixed: boolean;
+  toFixed: boolean;
 }
 
 interface INodes {
@@ -39,8 +39,8 @@ export default class View {
   private options: IMandatoryOptions = {
     type: 'single',
     orientation: 'horizontal',
-    from_fixed: false,
-    to_fixed: false
+    fromFixed: false,
+    toFixed: false
   };
 
   private nodes: INodes = {
@@ -80,11 +80,11 @@ export default class View {
     if (viewOptions.orientation) {
       this.options.orientation = <Orient>viewOptions.orientation;
     }
-    if (viewOptions.from_fixed !== undefined) {
-      this.options.from_fixed = viewOptions.from_fixed;
+    if (viewOptions.fromFixed !== undefined) {
+      this.options.fromFixed = viewOptions.fromFixed;
     }
-    if (viewOptions.to_fixed !== undefined) {
-      this.options.to_fixed = viewOptions.to_fixed;
+    if (viewOptions.toFixed !== undefined) {
+      this.options.toFixed = viewOptions.toFixed;
     }
 
     this.rootEmpty();
@@ -185,7 +185,7 @@ export default class View {
     this.nodes.from.setAttribute('tabindex', `0`);
     this.nodes.from.setAttribute('class', `vanilla-handle vanilla-handle-from`);
 
-    if (this.options.from_fixed) {
+    if (this.options.fromFixed) {
       this.nodes.from.classList.add(`vanilla-handle-fixed`);
     }
 
@@ -201,7 +201,7 @@ export default class View {
       this.nodes.to.setAttribute('tabindex', `0`);
       this.nodes.to.setAttribute('class', `vanilla-handle vanilla-handle-to`);
 
-      if (this.options.to_fixed) {
+      if (this.options.toFixed) {
         this.nodes.to.classList.add(`vanilla-handle-fixed`);
       }
     } else {
@@ -277,11 +277,11 @@ export default class View {
       return this.nodes.from;
     }
 
-    if (this.options.from_fixed && this.options.to_fixed) {
+    if (this.options.fromFixed && this.options.toFixed) {
       return null;
-    } else if (this.options.from_fixed) {
+    } else if (this.options.fromFixed) {
       return this.nodes.to as HTMLElement;
-    } else if (this.options.to_fixed) {
+    } else if (this.options.toFixed) {
       return this.nodes.from;
     }
 

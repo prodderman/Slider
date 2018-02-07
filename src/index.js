@@ -11,9 +11,9 @@ $(document).ready(function() {
   const update =$('.update');
   const from = $('#from');
   const to = $('#to');
-  let t;
+  let timeId;
 
-  const r = function() {
+  const remove = function() {
     $('.cb').removeClass('active');
   }
 
@@ -25,36 +25,36 @@ $(document).ready(function() {
       from.html(`from: ${d.from}`);
       to.html(`to: ${d.to}`);
       create.addClass('active');
-      clearTimeout(t);
-      t = setTimeout(r, 200);
+      clearTimeout(timeId);
+      timeId = setTimeout(remove, 200);
     },
     onStart: (e, d) => {
       from.html(`from: ${d.from}`);
       to.html(`to: ${d.to}`);
       start.addClass('active');
-      clearTimeout(t);
-      t = setTimeout(r, 200);
+      clearTimeout(timeId);
+      timeId = setTimeout(remove, 200);
     },
     onSlide: (e, d) => {
       from.html(`from: ${d.from}`);
       to.html(`to: ${d.to}`);
       slide.addClass('active');
-      clearTimeout(t);
-      t = setTimeout(r, 200);
+      clearTimeout(timeId);
+      timeId = setTimeout(remove, 200);
     },
     onEnd: (e, d) => {
       from.html(`from: ${d.from}`);
       to.html(`to: ${d.to}`);
       end.addClass('active');
-      clearTimeout(t);
-      t = setTimeout(r, 200);
+      clearTimeout(timeId);
+      timeId = setTimeout(remove, 200);
     },
     onUpdate: (e, d) => {
       from.html(`from: ${d.from}`);
       to.html(`to: ${d.to}`);
       update.addClass('active');
-      clearTimeout(t);
-      t = setTimeout(r, 200);
+      clearTimeout(timeId);
+      timeId = setTimeout(remove, 200);
     }
   });
 
@@ -96,13 +96,13 @@ $(document).ready(function() {
 
   $('input[name="fixed-from"]').change(function() {
     slider.set({
-      from_fixed: this.checked
+      fromFixed: this.checked
     });
   });
 
   $('input[name="fixed-to"]').change(function() {
     slider.set({
-      to_fixed: this.checked
+      toFixed: this.checked
     });
   });
 

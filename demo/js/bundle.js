@@ -11746,9 +11746,9 @@ var Model = /** @class */ (function () {
             min: 0,
             max: 100,
             from: 0,
-            from_fixed: false,
+            fromFixed: false,
             to: 0,
-            to_fixed: false,
+            toFixed: false,
             step: 1
         };
         this.init(modelOptions);
@@ -11780,8 +11780,8 @@ var Model = /** @class */ (function () {
         if (options.min !== undefined || options.max !== undefined) {
             this.setRange(options.min, options.max);
         }
-        if (options.from_fixed !== undefined || options.to_fixed !== undefined) {
-            this.setFixed(options.from_fixed, options.to_fixed);
+        if (options.fromFixed !== undefined || options.toFixed !== undefined) {
+            this.setFixed(options.fromFixed, options.toFixed);
         }
         if (options.from !== undefined || options.to !== undefined) {
             this.setValues(options.from, options.to);
@@ -11789,7 +11789,7 @@ var Model = /** @class */ (function () {
     };
     Model.prototype.calcFromWithStep = function (value) {
         var result;
-        if (this.options.from_fixed) {
+        if (this.options.fromFixed) {
             return;
         }
         result = Math.round((value - this.options.min) / this.options.step) * this.options.step + this.options.min;
@@ -11806,7 +11806,7 @@ var Model = /** @class */ (function () {
     };
     Model.prototype.calcToWithStep = function (value) {
         var result;
-        if (!this.options.type || this.options.to_fixed) {
+        if (!this.options.type || this.options.toFixed) {
             return;
         }
         result = Math.round((value - this.options.min) / this.options.step) * this.options.step + this.options.min;
@@ -11851,10 +11851,10 @@ var Model = /** @class */ (function () {
         this.updateFromTo();
     };
     Model.prototype.setFixed = function (from, to) {
-        if (from === void 0) { from = this.options.from_fixed; }
-        if (to === void 0) { to = this.options.to_fixed; }
-        this.options.from_fixed = from;
-        this.options.to_fixed = to;
+        if (from === void 0) { from = this.options.fromFixed; }
+        if (to === void 0) { to = this.options.toFixed; }
+        this.options.fromFixed = from;
+        this.options.toFixed = to;
     };
     Model.prototype.updateFromTo = function () {
         this.options.from = this.inDaipason(this.options.from, this.options.min, this.options.max);
@@ -12003,8 +12003,8 @@ var View = /** @class */ (function () {
         this.options = {
             type: 'single',
             orientation: 'horizontal',
-            from_fixed: false,
-            to_fixed: false
+            fromFixed: false,
+            toFixed: false
         };
         this.nodes = {
             track: document.createElement('div'),
@@ -12049,11 +12049,11 @@ var View = /** @class */ (function () {
         if (viewOptions.orientation) {
             this.options.orientation = viewOptions.orientation;
         }
-        if (viewOptions.from_fixed !== undefined) {
-            this.options.from_fixed = viewOptions.from_fixed;
+        if (viewOptions.fromFixed !== undefined) {
+            this.options.fromFixed = viewOptions.fromFixed;
         }
-        if (viewOptions.to_fixed !== undefined) {
-            this.options.to_fixed = viewOptions.to_fixed;
+        if (viewOptions.toFixed !== undefined) {
+            this.options.toFixed = viewOptions.toFixed;
         }
         this.rootEmpty();
         this.setNodes();
@@ -12137,7 +12137,7 @@ var View = /** @class */ (function () {
         this.nodes.track.setAttribute('class', "vanilla-slider vanilla-" + this.options.type + " vanilla-" + this.options.orientation);
         this.nodes.from.setAttribute('tabindex', "0");
         this.nodes.from.setAttribute('class', "vanilla-handle vanilla-handle-from");
-        if (this.options.from_fixed) {
+        if (this.options.fromFixed) {
             this.nodes.from.classList.add("vanilla-handle-fixed");
         }
         if (this.options.type !== 'single') {
@@ -12151,7 +12151,7 @@ var View = /** @class */ (function () {
             this.nodes.to = document.createElement('span');
             this.nodes.to.setAttribute('tabindex', "0");
             this.nodes.to.setAttribute('class', "vanilla-handle vanilla-handle-to");
-            if (this.options.to_fixed) {
+            if (this.options.toFixed) {
                 this.nodes.to.classList.add("vanilla-handle-fixed");
             }
         }
@@ -12217,13 +12217,13 @@ var View = /** @class */ (function () {
         if (this.options.type !== 'double') {
             return this.nodes.from;
         }
-        if (this.options.from_fixed && this.options.to_fixed) {
+        if (this.options.fromFixed && this.options.toFixed) {
             return null;
         }
-        else if (this.options.from_fixed) {
+        else if (this.options.fromFixed) {
             return this.nodes.to;
         }
-        else if (this.options.to_fixed) {
+        else if (this.options.toFixed) {
             return this.nodes.from;
         }
         var fromCoord = this.offset(this.nodes.from);
@@ -12384,13 +12384,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
   (0, _jquery2.default)('input[name="fixed-from"]').change(function () {
     slider.set({
-      from_fixed: this.checked
+      fromFixed: this.checked
     });
   });
 
   (0, _jquery2.default)('input[name="fixed-to"]').change(function () {
     slider.set({
-      to_fixed: this.checked
+      toFixed: this.checked
     });
   });
 
@@ -12498,15 +12498,15 @@ var SliderConstructor = /** @class */ (function () {
         if (options.to !== undefined && !Number.isNaN(Number(options.to))) {
             this.modelOptions.to = Number(options.to);
         }
-        if (options.from_fixed !== undefined) {
-            var check = (/true/i).test(options.from_fixed.toString());
-            this.modelOptions.from_fixed = check;
-            this.viewOptions.from_fixed = check;
+        if (options.fromFixed !== undefined) {
+            var check = (/true/i).test(options.fromFixed.toString());
+            this.modelOptions.fromFixed = check;
+            this.viewOptions.fromFixed = check;
         }
-        if (options.to_fixed !== undefined) {
-            var check = (/true/i).test(options.to_fixed.toString());
-            this.modelOptions.to_fixed = check;
-            this.viewOptions.to_fixed = check;
+        if (options.toFixed !== undefined) {
+            var check = (/true/i).test(options.toFixed.toString());
+            this.modelOptions.toFixed = check;
+            this.viewOptions.toFixed = check;
         }
         if (options.step !== undefined && !Number.isNaN(Number(options.step))) {
             this.modelOptions.step = Number(options.step);
