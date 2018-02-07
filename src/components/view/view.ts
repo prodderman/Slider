@@ -307,14 +307,14 @@ export default class View {
     }
   }
 
-  private outerWidth(node: HTMLElement): number {
+  private getOuterWidth(node: HTMLElement): number {
     const style = getComputedStyle(node);
     const width = node.offsetWidth + parseInt(style.marginLeft as string) + parseInt(style.marginRight as string);
 
     return width;
   }
 
-  private outerHeight(node: HTMLElement): number {
+  private getOuterHeight(node: HTMLElement): number {
     const style = getComputedStyle(node);
     const height = node.offsetHeight + parseInt(style.marginLeft as string) + parseInt(style.marginRight as string);
 
@@ -323,9 +323,9 @@ export default class View {
 
   private offset(node: HTMLElement): number {
     if (this.options.orientation === 'horizontal') {
-      return node.offsetLeft + this.outerWidth(node) / 2;
+      return node.offsetLeft + this.getOuterWidth(node) / 2;
     } else {
-      return node.offsetTop + this.outerHeight(node) / 2;
+      return node.offsetTop + this.getOuterHeight(node) / 2;
     }
   }
 }
