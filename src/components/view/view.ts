@@ -6,7 +6,7 @@ import { IModel as Model, IModelEvents, IModelOptions } from '../model/namespace
 import { IViewOptions, IViewEvents } from './namespace';
 
 interface IMandatoryOptions extends IViewOptions {
-  type: Types;
+  type: SliderTypes;
   orientation: Orient;
   fromFixed: boolean;
   toFixed: boolean;
@@ -19,9 +19,9 @@ interface INodes {
   range?: HTMLDivElement;
 }
 
-type Style = 'top' | 'left' | 'right' | 'bottom';
+type Direction = 'top' | 'left' | 'right' | 'bottom';
 type Orient = 'horizontal' | 'vertical';
-type Types = 'single' | 'min' | 'max' | 'double';
+type SliderTypes = 'single' | 'min' | 'max' | 'double';
 
 export default class View {
 
@@ -75,7 +75,7 @@ export default class View {
   public init(viewOptions: IViewOptions): void {
 
     if (viewOptions.type) {
-      this.options.type = <Types>viewOptions.type;
+      this.options.type = <SliderTypes>viewOptions.type;
     }
     if (viewOptions.orientation) {
       this.options.orientation = <Orient>viewOptions.orientation;
@@ -104,7 +104,7 @@ export default class View {
   }
 
   public calcTo(to: number): void {
-    let base: Style = 'left';
+    let base: Direction = 'left';
 
     if (this.options.type !== 'double' || !this.nodes.to) {
       return;
@@ -146,8 +146,8 @@ export default class View {
   }
 
   private calcRange(): void {
-    let baseStart: Style = 'left';
-    let baseEnd: Style = 'right';
+    let baseStart: Direction = 'left';
+    let baseEnd: Direction = 'right';
 
     if (this.options.type === 'single' || !this.nodes.range) {
       return;

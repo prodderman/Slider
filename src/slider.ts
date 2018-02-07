@@ -3,7 +3,7 @@ import View from './components/view/view';
 import Controller from './components/controller/controller';
 
 import {IModelOptions} from './components/model/namespace';
-import {IViewOptions, Types, Orient} from './components/view/namespace';
+import {IViewOptions, SliderTypes, Orient} from './components/view/namespace';
 import {IControllerOptions} from './components/controller/namespace';
 import {IOptions, Selector} from 'namespace';
 
@@ -49,7 +49,7 @@ class SliderConstructor {
     this.controllerOptions = {};
 
     if (options.type && ['single', 'min', 'max', 'double'].includes(options.type)) {
-      this.viewOptions.type = <Types>options.type;
+      this.viewOptions.type = <SliderTypes>options.type;
       this.modelOptions.type = options.type === 'double' ? true : false;
     }
     if (options.orientation && ['horizontal', 'vertical'].includes(options.orientation)) {
