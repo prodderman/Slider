@@ -283,8 +283,8 @@ export default class View {
       return this.nodes.from;
     }
 
-    const fromCoord = this.offset(this.nodes.from);
-    const toCoord = this.offset(this.nodes.to as HTMLElement);
+    const fromCoord = this.getOffset(this.nodes.from);
+    const toCoord = this.getOffset(this.nodes.to as HTMLElement);
 
     let result: HTMLSpanElement;
 
@@ -321,7 +321,7 @@ export default class View {
     return height;
   }
 
-  private offset(node: HTMLElement): number {
+  private getOffset(node: HTMLElement): number {
     if (this.options.orientation === 'horizontal') {
       return node.offsetLeft + this.getOuterWidth(node) / 2;
     } else {
