@@ -78,17 +78,15 @@ export default class Model implements IModel {
   }
 
   public calcToWithStep(value: number): void {
-    let result;
-
     if (!this.options.type || this.options.toFixed) {
       return;
     }
 
-    result = Math.round(( value - this.options.min ) / this.options.step) * this.options.step + this.options.min;
-    result = this.inDaipason(result, this.options.from, this.options.max);
+    const step = Math.round(( value - this.options.min ) / this.options.step) * this.options.step + this.options.min;
+    const stepInDeiapason = this.inDaipason(step, this.options.from, this.options.max);
 
-    if (result !== this.options.to) {
-      this.options.to = result;
+    if (stepInDeiapason !== this.options.to) {
+      this.options.to = stepInDeiapason;
       this.triggers.toChanged.notify(this.options.to);
     }
   }
