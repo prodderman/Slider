@@ -14,7 +14,7 @@ $(document).ready(function() {
   let timeId;
 
   const remove = function() {
-    $('.cb').removeClass('active');
+    $('.callback').removeClass('active');
   }
 
   const slider = new VanillaSlider('#slider', {
