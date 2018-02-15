@@ -12,142 +12,120 @@ interface SupposedOptions {
   step: number;
 }
 
+interface ModelOptions {
+  type?: boolean;
+  min?: number;
+  max?: number;
+  from?: number;
+  fromFixed?: boolean;
+  to?: number;
+  toFixed?: boolean;
+  step?: number;
+}
+
+const optionsMap = new Map<SupposedOptions, ModelOptions>();
+optionsMap.set({
+    type: false,
+    min: 50,
+    max: 100,
+    from: 50,
+    fromFixed: false,
+    to: 0,
+    toFixed: false,
+    step: 3
+  }, {
+    min: 50,
+    step: 3
+  });
+
+optionsMap.set({
+    type: false,
+    min: 150,
+    max: 150,
+    from: 150,
+    fromFixed: false,
+    to: 0,
+    toFixed: false,
+    step: 1
+  }, {
+    min: 150,
+  });
+
+optionsMap.set({
+    type: true,
+    min: 150,
+    max: 150,
+    from: 150,
+    fromFixed: false,
+    to: 150,
+    toFixed: false,
+    step: 1
+  }, {
+    type: true,
+    min: 150,
+    from: -341,
+    to: 231,
+  });
+
+optionsMap.set({
+    type: true,
+    min: 0,
+    max: 150,
+    from: 0,
+    fromFixed: false,
+    to: 150,
+    toFixed: false,
+    step: 1
+  }, {
+    type: true,
+    min: 0,
+    max: 150,
+    from: -341,
+    to: 231,
+  });
+
+optionsMap.set({
+    type: true,
+    min: 0,
+    max: 150,
+    from: 100,
+    fromFixed: false,
+    to: 100,
+    toFixed: false,
+    step: 1
+  }, {
+    type: true,
+    min: 0,
+    max: 150,
+    from: 100,
+    to: 30,
+  });
+
+optionsMap.set({
+    type: false,
+    min: 0,
+    max: 150,
+    from: 150,
+    fromFixed: false,
+    to: -30,
+    toFixed: false,
+    step: 1
+  }, {
+    min: 0,
+    max: 150,
+    from: 1000,
+    to: -30,
+    step: -1
+  });
+
 describe('( Test Model )', () => {
   describe('( method init )', () => {
-    it('test init parameters 1', () => {
-      const model = new Model();
-      const options: SupposedOptions = {
-        type: false,
-        min: 50,
-        max: 100,
-        from: 50,
-        fromFixed: false,
-        to: 0,
-        toFixed: false,
-        step: 3
-      };
 
-      model.init({
-        min: 50,
-        step: 3
+    optionsMap.forEach((modelOptions: ModelOptions, supposedOptions: SupposedOptions) => {
+      const model = new Model(modelOptions);
+      it(` test init with parameters ${JSON.stringify(modelOptions)} `, () => {
+        assert.deepEqual(model.data, supposedOptions, `must ${JSON.stringify(supposedOptions)}, \nreturn ${JSON.stringify(model.data)}\n`);
       });
-
-      assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
-    });
-
-    it('test init parameters 2', () => {
-      const model = new Model();
-      const options: SupposedOptions = {
-        type: false,
-        min: 150,
-        max: 150,
-        from: 150,
-        fromFixed: false,
-        to: 0,
-        toFixed: false,
-        step: 1
-      };
-
-      model.init({
-        min: 150,
-      });
-
-      assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
-    });
-
-    it('test init parameters 3', () => {
-      const model = new Model();
-      const options: SupposedOptions = {
-        type: true,
-        min: 150,
-        max: 150,
-        from: 150,
-        fromFixed: false,
-        to: 150,
-        toFixed: false,
-        step: 1
-      };
-
-      model.init({
-        type: true,
-        min: 150,
-        from: -341,
-        to: 231,
-      });
-
-      assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
-    });
-
-    it('test init parameters 4', () => {
-      const model = new Model();
-      const options: SupposedOptions = {
-        type: true,
-        min: 0,
-        max: 150,
-        from: 0,
-        fromFixed: false,
-        to: 150,
-        toFixed: false,
-        step: 1
-      };
-
-      model.init({
-        type: true,
-        min: 0,
-        max: 150,
-        from: -341,
-        to: 231,
-      });
-
-      assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
-    });
-
-    it('test init parameters 5', () => {
-      const model = new Model();
-      const options: SupposedOptions = {
-        type: true,
-        min: 0,
-        max: 150,
-        from: 100,
-        fromFixed: false,
-        to: 100,
-        toFixed: false,
-        step: 1
-      };
-
-      model.init({
-        type: true,
-        min: 0,
-        max: 150,
-        from: 100,
-        to: 30,
-      });
-
-      assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
-    });
-
-    it('test init parameters 6', () => {
-      const model = new Model();
-      const options: SupposedOptions = {
-        type: false,
-        min: 0,
-        max: 150,
-        from: 150,
-        fromFixed: false,
-        to: -30,
-        toFixed: false,
-        step: 1
-      };
-
-      model.init({
-        min: 0,
-        max: 150,
-        from: 1000,
-        to: -30,
-        step: -1
-      });
-
-      assert.deepEqual(model.data, options, `must ${JSON.stringify(options)}, \nreturn ${JSON.stringify(model.data)}\n`);
     });
   });
 

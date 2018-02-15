@@ -57,12 +57,12 @@ export default class Model implements IModel {
     }
   }
 
-  public calcFromWithStep(value: number): void {
+  public calcFromWithStep(realValue: number): void {
     if (this.options.fromFixed) {
       return;
     }
 
-    const valueWithStep = Math.round(( value - this.options.min ) / this.options.step) * this.options.step + this.options.min;
+    const valueWithStep = Math.round(( realValue - this.options.min ) / this.options.step) * this.options.step + this.options.min;
 
     let valueInDiapason;
     if (this.options.type) {

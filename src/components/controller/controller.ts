@@ -74,20 +74,20 @@ export default class Controller {
       }, this.callbacks.onCreate);
     }
 
-    this.view.events.fromChanged.attach((handle: HTMLSpanElement, value: number) => {
+    this.view.events.fromChanged.attach((handle: HTMLSpanElement, realValue: number) => {
       this.customEvents.slide = new MouseEvent('vanillaslide', {
         bubbles: true,
         cancelable: true
       });
-      this.model.calcFromWithStep(this.convertToReal(value));
+      this.model.calcFromWithStep(this.convertToReal(realValue));
     });
 
-    this.view.events.toChanged.attach((handle: HTMLSpanElement, value: number) => {
+    this.view.events.toChanged.attach((handle: HTMLSpanElement, realValue: number) => {
       this.customEvents.slide = new MouseEvent('vanillaslide', {
         bubbles: true,
         cancelable: true
       });
-      this.model.calcToWithStep(this.convertToReal(value));
+      this.model.calcToWithStep(this.convertToReal(realValue));
     });
 
 
@@ -120,8 +120,8 @@ export default class Controller {
       handle.dispatchEvent(this.customEvents.end);
     });
 
-    this.model.events.fromChanged.attach((from: number) => {
-      this.view.calcFrom(this.converToPercent(from));
+    this.model.events.fromChanged.attach((fromValue: number) => {
+      this.view.calcFrom(this.converToPercent(fromValue));
 
       if (!this.customEvents.slide) { return; }
 
@@ -134,8 +134,8 @@ export default class Controller {
       this.view.nodesData.from.dispatchEvent(this.customEvents.slide);
     });
 
-    this.model.events.toChanged.attach((to: number) => {
-      this.view.calcTo(this.converToPercent(to));
+    this.model.events.toChanged.attach((toValue: number) => {
+      this.view.calcTo(this.converToPercent(toValue));
 
       if (!this.customEvents.slide) { return; }
 
