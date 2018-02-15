@@ -92,7 +92,6 @@ export default class Controller {
 
 
     this.view.events.slideStart.attach((handle: HTMLSpanElement) => {
-      let value;
       this.customEvents.start = new MouseEvent('vanillastart', {
         bubbles: true,
         cancelable: true
@@ -107,7 +106,6 @@ export default class Controller {
     });
 
     this.view.events.slideEnd.attach((handle: HTMLSpanElement) => {
-      let value;
       this.customEvents.end = new MouseEvent('vanillaend', {
         bubbles: true,
         cancelable: true
@@ -156,9 +154,9 @@ export default class Controller {
 
   // ================= private methods ===================
 
-  private converToPercent(value: number): number {
+  private converToPercent(realValue: number): number {
     const range = this.model.data.max - this.model.data.min;
-    return +((value - this.model.data.min) * 100 / range).toFixed(10);
+    return +((realValue - this.model.data.min) * 100 / range).toFixed(10);
   }
 
   private convertToReal(pixels: number): number {

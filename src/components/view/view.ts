@@ -234,34 +234,32 @@ export default class View {
       this.nodes.to.classList.remove('last-type');
     }
 
-    const value = this.getCoord(event);
-
     if (this.handle) {
       this.handle.classList.add('active');
       this.handle.classList.add('last-type');
-      this.events.slideStart.notify<HTMLSpanElement | number>(this.handle, value);
+      this.events.slideStart.notify<HTMLSpanElement | number>(this.handle, coord);
     }
     window.addEventListener('mousemove', this.mousemove);
     window.addEventListener('mouseup', this.mouseup);
   }
 
   private mouseMove(event: MouseEvent): void {
-    const value = this.getCoord(event);
+    const coord = this.getCoord(event);
     if (this.handle === this.nodes.from) {
-      this.events.fromChanged.notify<HTMLSpanElement | number>(this.handle, value);
+      this.events.fromChanged.notify<HTMLSpanElement | number>(this.handle, coord);
     } else if (this.handle === this.nodes.to) {
-      this.events.toChanged.notify<HTMLSpanElement | number>(this.handle, value);
+      this.events.toChanged.notify<HTMLSpanElement | number>(this.handle, coord);
     }
   }
 
   private mouseUp(event: MouseEvent): void {
-    const value = this.getCoord(event);
+    const coord = this.getCoord(event);
 
     window.removeEventListener('mousemove', this.mousemove);
     window.removeEventListener('mouseup', this.mouseup);
     if (this.handle) {
       this.handle.classList.remove('active');
-      this.events.slideEnd.notify<HTMLSpanElement | number>(this.handle, value);
+      this.events.slideEnd.notify<HTMLSpanElement | number>(this.handle, coord);
     }
     this.handle = null;
   }
