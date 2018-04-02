@@ -2,10 +2,10 @@ import Model from './components/model/model';
 import View from './components/view/view';
 import Controller from './components/controller/controller';
 
-import {IModelOptions} from './components/model/namespace';
-import {IViewOptions, SliderTypes, Orient} from './components/view/namespace';
-import {IControllerOptions} from './components/controller/namespace';
-import {IOptions, Selector} from 'namespace';
+import { IModelOptions } from './components/model/namespace';
+import { IViewOptions, SliderTypes, Orient } from './components/view/namespace';
+import { IControllerOptions } from './components/controller/namespace';
+import { IOptions, Selector } from 'namespace';
 
 class SliderConstructor {
 
@@ -55,29 +55,29 @@ class SliderConstructor {
     if (options.orientation && ['horizontal', 'vertical'].includes(options.orientation)) {
       this.viewOptions.orientation = <Orient>options.orientation;
     }
-    if (options.min !== undefined && !Number.isNaN(Number(options.min))) {
+    if (!this.isUndefined(options.min) && !Number.isNaN(Number(options.min))) {
       this.modelOptions.min = Number(options.min);
     }
-    if (options.max !== undefined && !Number.isNaN(Number(options.max))) {
+    if (!this.isUndefined(options.max) && !Number.isNaN(Number(options.max))) {
       this.modelOptions.max = Number(options.max);
     }
-    if (options.from !== undefined && !Number.isNaN(Number(options.from))) {
+    if (!this.isUndefined(options.from) && !Number.isNaN(Number(options.from))) {
       this.modelOptions.from = Number(options.from);
     }
-    if (options.to !== undefined && !Number.isNaN(Number(options.to))) {
+    if (!this.isUndefined(options.to) && !Number.isNaN(Number(options.to))) {
       this.modelOptions.to = Number(options.to);
     }
-    if (options.fromFixed !== undefined) {
-      const check = (/true/i).test(options.fromFixed.toString());
+    if (!this.isUndefined(options.fromFixed)) {
+      const check = (/true/i).test((<boolean | string>options.fromFixed).toString());
       this.modelOptions.fromFixed = check;
       this.viewOptions.fromFixed = check;
     }
-    if (options.toFixed !== undefined) {
-      const check = (/true/i).test(options.toFixed.toString());
+    if (!this.isUndefined(options.toFixed)) {
+      const check = (/true/i).test((<boolean | string>options.toFixed).toString());
       this.modelOptions.toFixed = check;
       this.viewOptions.toFixed = check;
     }
-    if (options.step !== undefined && !Number.isNaN(Number(options.step))) {
+    if (!this.isUndefined(options.step) && !Number.isNaN(Number(options.step))) {
       this.modelOptions.step = Number(options.step);
     }
 
@@ -98,6 +98,10 @@ class SliderConstructor {
       throw 'Invalid node type, expected \'div\'';
     }
     return true;
+  }
+
+  private isUndefined(value: any): boolean {
+    return value === undefined;
   }
 
   static checkNode(node: Selector): HTMLDivElement | HTMLSpanElement | undefined {

@@ -36,23 +36,23 @@ export default class Model implements IModel {
 
   public init(options: IModelOptions = {}): void {
 
-    if (options.type !== undefined) {
-      this.setType(options.type);
+    if (!this.isUndefined(options.type)) {
+      this.setType(options.type as boolean);
     }
 
-    if (options.step !== undefined) {
-      this.setStep(options.step);
+    if (!this.isUndefined(options.step)) {
+      this.setStep(options.step as number);
     }
 
-    if (options.min !== undefined || options.max !== undefined) {
+    if (!this.isUndefined(options.min) || !this.isUndefined(options.max)) {
       this.setRange(options.min, options.max);
     }
 
-    if (options.fromFixed !== undefined || options.toFixed !== undefined) {
+    if (!this.isUndefined(options.fromFixed) || !this.isUndefined(options.toFixed)) {
       this.setFixed(options.fromFixed, options.toFixed);
     }
 
-    if (options.from !== undefined || options.to !== undefined) {
+    if (!this.isUndefined(options.from) || !this.isUndefined(options.to)) {
       this.setValues(options.from, options.to);
     }
   }
@@ -146,5 +146,9 @@ export default class Model implements IModel {
     } else {
       return value;
     }
+  }
+
+  private isUndefined(value: any): boolean {
+    return value === undefined;
   }
 }

@@ -80,11 +80,11 @@ export default class View {
     if (viewOptions.orientation) {
       this.options.orientation = <Orient>viewOptions.orientation;
     }
-    if (viewOptions.fromFixed !== undefined) {
-      this.options.fromFixed = viewOptions.fromFixed;
+    if (!this.isUndefined(viewOptions.fromFixed)) {
+      this.options.fromFixed = <boolean>viewOptions.fromFixed;
     }
-    if (viewOptions.toFixed !== undefined) {
-      this.options.toFixed = viewOptions.toFixed;
+    if (!this.isUndefined(viewOptions.toFixed)) {
+      this.options.toFixed = <boolean>viewOptions.toFixed;
     }
 
     this.rootEmpty();
@@ -325,5 +325,9 @@ export default class View {
     } else {
       return node.offsetTop + this.getOuterHeight(node) / 2;
     }
+  }
+
+  private isUndefined(value: any): boolean {
+    return value === undefined;
   }
 }
