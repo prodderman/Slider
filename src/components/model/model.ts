@@ -83,10 +83,10 @@ export default class Model implements IModel {
     }
 
     const valueWithStep = Math.round(( realValue - this.options.min ) / this.options.step) * this.options.step + this.options.min;
-    const valueInDeiapason = this.inDaipason(valueWithStep, this.options.from, this.options.max);
+    const valueInDiapason = this.inDaipason(valueWithStep, this.options.from, this.options.max);
 
-    if (valueInDeiapason !== this.options.to) {
-      this.options.to = valueInDeiapason;
+    if (valueInDiapason !== this.options.to) {
+      this.options.to = valueInDiapason;
       this.triggers.toChanged.notify(this.options.to);
     }
   }

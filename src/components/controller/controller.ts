@@ -121,7 +121,7 @@ export default class Controller {
     });
 
     this.model.events.fromChanged.attach((fromValue: number) => {
-      this.view.calcFrom(this.converToPercent(fromValue));
+      this.view.calcFrom(this.convertToPercent(fromValue));
 
       if (!this.customEvents.slide) { return; }
 
@@ -135,7 +135,7 @@ export default class Controller {
     });
 
     this.model.events.toChanged.attach((toValue: number) => {
-      this.view.calcTo(this.converToPercent(toValue));
+      this.view.calcTo(this.convertToPercent(toValue));
 
       if (!this.customEvents.slide) { return; }
 
@@ -148,13 +148,13 @@ export default class Controller {
       (<HTMLSpanElement>this.view.nodesData.to).dispatchEvent(this.customEvents.slide);
     });
 
-    this.view.calcFrom(this.converToPercent(this.model.data.from));
-    this.view.calcTo(this.converToPercent(this.model.data.to));
+    this.view.calcFrom(this.convertToPercent(this.model.data.from));
+    this.view.calcTo(this.convertToPercent(this.model.data.to));
   }
 
   // ================= private methods ===================
 
-  private converToPercent(realValue: number): number {
+  private convertToPercent(realValue: number): number {
     const range = this.model.data.max - this.model.data.min;
     return +((realValue - this.model.data.min) * 100 / range).toFixed(10);
   }
