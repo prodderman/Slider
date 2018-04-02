@@ -155,19 +155,22 @@ export default class Controller {
   // ================= private methods ===================
 
   private convertToPercent(realValue: number): number {
-    const range = this.model.data.max - this.model.data.min;
-    return Number( ((realValue - this.model.data.min) * 100 / range).toFixed(10) );
+    const modelData = this.model.data;
+    const range = modelData.max - modelData.min;
+    return Number( ((realValue - modelData.min) * 100 / range).toFixed(10) );
   }
 
   private convertToReal(pixels: number): number {
-     const range = this.model.data.max - this.model.data.min;
+    const modelData = this.model.data;
+    const viewNodes = this.view.nodesData;
+    const range = modelData.max - modelData.min;
 
     if (this.view.data.orientation === 'horizontal') {
-      const width = this.view.nodesData.track.clientWidth;
-      return Number( ((pixels * range / width) + this.model.data.min).toFixed(10) );
+      const width = viewNodes.track.clientWidth;
+      return Number( ((pixels * range / width) + modelData.min).toFixed(10) );
     } else {
-      const height = this.view.nodesData.track.clientHeight;
-      return Number( (((height - pixels) * range / height) + this.model.data.min).toFixed(10) );
+      const height = viewNodes.track.clientHeight;
+      return Number( (((height - pixels) * range / height) + modelData.min).toFixed(10) );
     }
   }
 

@@ -58,36 +58,40 @@ export default class Model implements IModel {
   }
 
   public calcFromWithStep(realValue: number): void {
-    if (this.options.fromFixed) {
+    const opt = this.options;
+    if (opt.fromFixed) {
       return;
     }
 
-    const valueWithStep = Math.round(( realValue - this.options.min ) / this.options.step) * this.options.step + this.options.min;
+    const valueWithStep = Math.round(( realValue - opt.min ) / opt.step);
+    const valueOffset = valueWithStep * opt.step + opt.min;
 
     let valueInDiapason;
-    if (this.options.type) {
-      valueInDiapason = this.inDaipason(valueWithStep, this.options.min, this.options.to);
+    if (opt.type) {
+      valueInDiapason = this.inDaipason(valueOffset, opt.min, opt.to);
     } else {
-      valueInDiapason = this.inDaipason(valueWithStep, this.options.min, this.options.max);
+      valueInDiapason = this.inDaipason(valueOffset, opt.min, opt.max);
     }
 
-    if (valueInDiapason !== this.options.from) {
-      this.options.from = valueInDiapason;
-      this.triggers.fromChanged.notify(this.options.from);
+    if (valueInDiapason !== opt.from) {
+      opt.from = valueInDiapason;
+      this.triggers.fromChanged.notify(opt.from);
     }
   }
 
   public calcToWithStep(realValue: number): void {
-    if (!this.options.type || this.options.toFixed) {
+    const opt = this.options;
+    if (!opt.type || opt.toFixed) {
       return;
     }
 
-    const valueWithStep = Math.round(( realValue - this.options.min ) / this.options.step) * this.options.step + this.options.min;
-    const valueInDiapason = this.inDaipason(valueWithStep, this.options.from, this.options.max);
+    const valueWithStep = Math.round(( realValue - opt.min ) / opt.step);
+    const valueOffset = valueWithStep  * opt.step + opt.min;
+    const valueInDiapason = this.inDaipason(valueOffset, opt.from, opt.max);
 
-    if (valueInDiapason !== this.options.to) {
-      this.options.to = valueInDiapason;
-      this.triggers.toChanged.notify(this.options.to);
+    if (valueInDiapason !== opt.to) {
+      opt.to = valueInDiapason;
+      this.triggers.toChanged.notify(opt.to);
     }
   }
 
@@ -110,13 +114,14 @@ export default class Model implements IModel {
   }
 
   private setStep(step: number): void {
-    const range = this.options.max - this.options.min;
+    const opt = this.options;
+    const range = opt.max - opt.min;
     if (step <= 0) {
-      this.options.step = 1;
+      opt.step = 1;
     } else if (step > range) {
-      this.options.step = range;
+      opt.step = range;
     } else {
-      this.options.step = step;
+      opt.step = step;
     }
   }
 
@@ -131,10 +136,11 @@ export default class Model implements IModel {
   }
 
   private updateFromTo(): void {
-    this.options.from = this.inDaipason(this.options.from, this.options.min, this.options.max);
+    const opt = this.options;
+    opt.from = this.inDaipason(opt.from, opt.min, opt.max);
 
-    if (this.options.type) {
-      this.options.to = this.inDaipason(this.options.to, this.options.from, this.options.max);
+    if (opt.type) {
+      opt.to = this.inDaipason(opt.to, opt.from, opt.max);
     }
   }
 
