@@ -156,7 +156,7 @@ export default class Controller {
 
   private convertToPercent(realValue: number): number {
     const range = this.model.data.max - this.model.data.min;
-    return +((realValue - this.model.data.min) * 100 / range).toFixed(10);
+    return Number( ((realValue - this.model.data.min) * 100 / range).toFixed(10) );
   }
 
   private convertToReal(pixels: number): number {
@@ -164,10 +164,10 @@ export default class Controller {
 
     if (this.view.data.orientation === 'horizontal') {
       const width = this.view.nodesData.track.clientWidth;
-      return +((pixels * range / width) + this.model.data.min).toFixed(10);
+      return Number( ((pixels * range / width) + this.model.data.min).toFixed(10) );
     } else {
       const height = this.view.nodesData.track.clientHeight;
-      return +(((height - pixels) * range / height) + this.model.data.min).toFixed(10);
+      return Number( (((height - pixels) * range / height) + this.model.data.min).toFixed(10) );
     }
   }
 

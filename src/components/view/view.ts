@@ -308,14 +308,12 @@ export default class View {
   private getOuterWidth(node: HTMLElement): number {
     const style = getComputedStyle(node);
     const width = node.offsetWidth + parseInt(style.marginLeft as string) + parseInt(style.marginRight as string);
-
     return width;
   }
 
   private getOuterHeight(node: HTMLElement): number {
     const style = getComputedStyle(node);
     const height = node.offsetHeight + parseInt(style.marginLeft as string) + parseInt(style.marginRight as string);
-
     return height;
   }
 
