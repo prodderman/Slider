@@ -31,8 +31,6 @@ export default class Controller {
 
   public init(callbacks: IControllerOptions, isUpdated?: boolean): void {
     this.initCallbacks(callbacks);
-    this.attachViewEvents();
-    this.attachModelEvents();
 
     if (isUpdated) {
       this.customEvents.update = this.createSliderEvent('vanillaupdate');
@@ -49,6 +47,9 @@ export default class Controller {
       }, this.callbacks.onCreate);
       this.view.rootObject.dispatchEvent(this.customEvents.create);
     }
+
+    this.attachModelEvents();
+    this.attachViewEvents();
 
     this.view.calcFrom(this.convertToPercent(this.model.data.from));
     this.view.calcTo(this.convertToPercent(this.model.data.to));
@@ -76,12 +77,10 @@ export default class Controller {
 
   private attachViewEvents() {
     this.view.events.fromChanged.attach((handle: HTMLSpanElement, realValue: number) => {
-      this.customEvents.slide =  this.createSliderEvent('vanillaslide');
       this.model.calcFromWithStep(this.convertToReal(realValue));
     });
 
     this.view.events.toChanged.attach((handle: HTMLSpanElement, realValue: number) => {
-      this.customEvents.slide = this.createSliderEvent('vanillaslide');
       this.model.calcToWithStep(this.convertToReal(realValue));
     });
 
@@ -109,7 +108,7 @@ export default class Controller {
   private attachModelEvents() {
     this.model.events.fromChanged.attach((fromValue: number) => {
       this.view.calcFrom(this.convertToPercent(fromValue));
-
+      this.customEvents.slide =  this.createSliderEvent('vanillaslide');
       if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
@@ -117,13 +116,12 @@ export default class Controller {
         from: this.model.data.from,
         to: this.model.data.to
       }, this.callbacks.onSlide);
-
       this.view.nodesData.from.dispatchEvent(this.customEvents.slide);
     });
 
     this.model.events.toChanged.attach((toValue: number) => {
       this.view.calcTo(this.convertToPercent(toValue));
-
+      this.customEvents.slide =  this.createSliderEvent('vanillaslide');
       if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
@@ -131,7 +129,6 @@ export default class Controller {
         from: this.model.data.from,
         to: this.model.data.to
       }, this.callbacks.onSlide);
-
       (<HTMLSpanElement>this.view.nodesData.to).dispatchEvent(this.customEvents.slide);
     });
 
