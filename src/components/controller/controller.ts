@@ -10,11 +10,11 @@ import { IOptions, TCallback } from './../../namespace';
 type event = MouseEvent | KeyboardEvent | TouchEvent | CustomEvent;
 
 interface CustomEvents {
-  create?: CustomEvent;
-  start?: MouseEvent;
-  slide?: MouseEvent;
-  end?: MouseEvent;
-  update?: CustomEvent;
+  create?: event;
+  start?: event;
+  slide?: event;
+  end?: event;
+  update?: event;
 }
 
 export default class Controller {
@@ -29,7 +29,34 @@ export default class Controller {
 
   // ================= public methods ===================
 
-  public init(callbacks: IControllerOptions, isUpdate?: boolean): void {
+  public init(callbacks: IControllerOptions, isUpdated?: boolean): void {
+    this.initCallbacks(callbacks);
+    this.attachViewEvents();
+    this.attachModelEvents();
+
+    if (isUpdated) {
+      this.customEvents.update = this.createSliderEvent('vanillaupdate');
+      this.callFunction(this.customEvents.update, {
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onUpdate);
+      this.view.rootObject.dispatchEvent(this.customEvents.update);
+    } else {
+      this.customEvents.create =  this.createSliderEvent('vanillacreate');
+      this.callFunction(this.customEvents.create, {
+        from: this.model.data.from,
+        to: this.model.data.to
+      }, this.callbacks.onCreate);
+      this.view.rootObject.dispatchEvent(this.customEvents.create);
+    }
+
+    this.view.calcFrom(this.convertToPercent(this.model.data.from));
+    this.view.calcTo(this.convertToPercent(this.model.data.to));
+  }
+
+  // ================= private methods ===================
+
+  private initCallbacks(callbacks: IControllerOptions) {
     if (callbacks.onCreate) {
       this.callbacks.onCreate = callbacks.onCreate;
     }
@@ -45,58 +72,21 @@ export default class Controller {
     if (callbacks.onUpdate) {
       this.callbacks.onUpdate = callbacks.onUpdate;
     }
+  }
 
-    if (isUpdate) {
-      this.customEvents.update = new CustomEvent('vanillaupdate', {
-        detail: {
-          target: this.view.rootObject
-        },
-        bubbles: true,
-        cancelable: true
-      });
-      this.callFunction(this.customEvents.update, {
-        from: this.model.data.from,
-        to: this.model.data.to
-      }, this.callbacks.onUpdate);
-      this.view.rootObject.dispatchEvent(this.customEvents.update);
-    } else {
-      this.customEvents.create = new CustomEvent('vanillacreate', {
-        detail: {
-          target: this.view.rootObject
-        },
-        bubbles: true,
-        cancelable: true
-      });
-      this.view.rootObject.dispatchEvent(this.customEvents.create);
-      this.callFunction(this.customEvents.create, {
-        from: this.model.data.from,
-        to: this.model.data.to
-      }, this.callbacks.onCreate);
-    }
-
+  private attachViewEvents() {
     this.view.events.fromChanged.attach((handle: HTMLSpanElement, realValue: number) => {
-      this.customEvents.slide = new MouseEvent('vanillaslide', {
-        bubbles: true,
-        cancelable: true
-      });
+      this.customEvents.slide =  this.createSliderEvent('vanillaslide');
       this.model.calcFromWithStep(this.convertToReal(realValue));
     });
 
     this.view.events.toChanged.attach((handle: HTMLSpanElement, realValue: number) => {
-      this.customEvents.slide = new MouseEvent('vanillaslide', {
-        bubbles: true,
-        cancelable: true
-      });
+      this.customEvents.slide = this.createSliderEvent('vanillaslide');
       this.model.calcToWithStep(this.convertToReal(realValue));
     });
 
-
     this.view.events.slideStart.attach((handle: HTMLSpanElement) => {
-      this.customEvents.start = new MouseEvent('vanillastart', {
-        bubbles: true,
-        cancelable: true
-      });
-
+      this.customEvents.start =  this.createSliderEvent('vanillastart');
       this.callFunction(this.customEvents.start, {
         handle: handle,
         from: this.model.data.from,
@@ -106,12 +96,7 @@ export default class Controller {
     });
 
     this.view.events.slideEnd.attach((handle: HTMLSpanElement) => {
-      this.customEvents.end = new MouseEvent('vanillaend', {
-        bubbles: true,
-        cancelable: true
-      });
-
-
+      this.customEvents.end = this.createSliderEvent('vanillaend');
       this.callFunction(this.customEvents.end, {
         handle: handle,
         from: this.model.data.from,
@@ -119,7 +104,9 @@ export default class Controller {
       }, this.callbacks.onEnd);
       handle.dispatchEvent(this.customEvents.end);
     });
+  }
 
+  private attachModelEvents() {
     this.model.events.fromChanged.attach((fromValue: number) => {
       this.view.calcFrom(this.convertToPercent(fromValue));
 
@@ -148,11 +135,7 @@ export default class Controller {
       (<HTMLSpanElement>this.view.nodesData.to).dispatchEvent(this.customEvents.slide);
     });
 
-    this.view.calcFrom(this.convertToPercent(this.model.data.from));
-    this.view.calcTo(this.convertToPercent(this.model.data.to));
   }
-
-  // ================= private methods ===================
 
   private convertToPercent(realValue: number): number {
     const modelData = this.model.data;
@@ -178,5 +161,17 @@ export default class Controller {
     if (callback && typeof callback === 'function') {
       callback(event, data);
     }
+  }
+
+  private createSliderEvent(eventName: string) {
+    return new CustomEvent(eventName, {
+      detail: {
+        from: this.model.data.from,
+        to: this.model.data.to,
+        target: this.view.rootObject
+      },
+      bubbles: true,
+      cancelable: true
+    });
   }
 }

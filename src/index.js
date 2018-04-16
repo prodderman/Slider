@@ -56,6 +56,10 @@ $(document).ready(function() {
     }
   });
 
+  $('#slider').on('vanillaslide', function(e) {
+    console.log(e.detail);
+  });
+
   $('input[name="type"]').change(function() {
     slider.set({
       type: this.value

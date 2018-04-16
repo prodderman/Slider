@@ -313,7 +313,6 @@ export default class View {
   private getCoord(event: MouseEvent): number {
     const nodes = this.nodes;
     if (this.options.orientation === 'horizontal') {
-       console.log(nodes.track.offsetLeft);
        return event.pageX - nodes.track.offsetLeft;
     } else {
       return event.pageY - nodes.track.offsetTop;

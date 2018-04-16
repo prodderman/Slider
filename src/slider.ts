@@ -120,14 +120,14 @@ class SliderConstructor {
 
 export default class VanillaSlider {
   set: (options: IOptions) => void;
-  data: () => IOptions;
+  data: IOptions;
 
   private static instances: Array<SliderConstructor> = [];
 
   constructor(root: Selector, options: IOptions = {}) {
     const instance = new SliderConstructor(root, options, this);
     this.set = instance.set.bind(instance);
-    this.data = () => instance.data;
+    this.data = instance.data;
     VanillaSlider.instances.push(instance);
   }
 
