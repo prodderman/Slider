@@ -79,11 +79,11 @@ export default class Controller {
     const model = this.model;
     const view = this.view;
 
-    view.events.fromChanged.attach((handle: HTMLSpanElement, realValue: number) => { // убрать handle
+    view.events.fromChanged.attach((realValue: number) => {
       model.calcFromWithStep(this.convertToReal(realValue));
     });
 
-    view.events.toChanged.attach((handle: HTMLSpanElement, realValue: number) => {
+    view.events.toChanged.attach((realValue: number) => {
       model.calcToWithStep(this.convertToReal(realValue));
     });
 

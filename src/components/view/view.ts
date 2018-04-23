@@ -241,7 +241,7 @@ export default class View {
     if (this.handle) {
       this.handle.classList.add('active');
       this.handle.classList.add('last-type');
-      this.events.slideStart.notify<HTMLSpanElement | number>(this.handle, coord);
+      this.events.slideStart.notify<HTMLSpanElement>(this.handle);
     }
     window.addEventListener('mousemove', this.mousemove);
     window.addEventListener('mouseup', this.mouseup);
@@ -251,9 +251,9 @@ export default class View {
     const nodes = this.nodes;
     const coord = this.getCoord(event);
     if (this.handle === nodes.from) {
-      this.events.fromChanged.notify<HTMLSpanElement | number>(this.handle, coord);
+      this.events.fromChanged.notify<number>(coord);
     } else if (this.handle === nodes.to) {
-      this.events.toChanged.notify<HTMLSpanElement | number>(this.handle, coord);
+      this.events.toChanged.notify<number>(coord);
     }
   }
 
@@ -264,7 +264,7 @@ export default class View {
     window.removeEventListener('mouseup', this.mouseup);
     if (this.handle) {
       this.handle.classList.remove('active');
-      this.events.slideEnd.notify<HTMLSpanElement | number>(this.handle, coord);
+      this.events.slideEnd.notify<HTMLSpanElement>(this.handle);
     }
     this.handle = null;
   }
