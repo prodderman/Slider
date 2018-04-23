@@ -1,31 +1,27 @@
 $main-color: #ed5565;
 $back-color: #f6f6f6;
 
-.vanilla {
-
-  &-slider {
+.vanilla-slider {
     background-color: $back-color;
     border-radius: 0.3em;
-  }
 
-  &-horizontal {
+  &_horizontal {
     height: 0.6em;
 
-    & .vanilla-range {
+    & .vanilla-slider__range {
       height: 100%;
     }
   }
 
-  &-vertical {
+  &_vertical {
     width: 0.6em;
-    min-height: 200px;
 
-    & .vanilla-range {
+    & .vanilla-slider__range {
       width: 100%;
     }
   }
 
-  &-handle {
+  &__handle {
     width: 1.2em;
     height: 1.2em;
     border-radius: 0.3em;
@@ -48,7 +44,7 @@ $back-color: #f6f6f6;
     }
   }
 
-  &-range {
+  &__range {
     background-color: $main-color;
     border-radius: 0.3em;
   }

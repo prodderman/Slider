@@ -14,9 +14,10 @@ export interface IModelOptions {
   to?: number;
   toFixed?: boolean;
   step?: number;
+  [key: string]: number | boolean | undefined;
 }
 
-export interface IMandatoryOptions extends IModelOptions {
+export interface IMandatoryOptions {
   type: boolean;
   min: number;
   max: number;

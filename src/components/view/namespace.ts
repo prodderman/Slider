@@ -1,8 +1,8 @@
 import IEvent from './../observer/observer';
 
 export interface IViewOptions {
-  type?: SliderTypes;
-  orientation?: Orient;
+  type?: TType;
+  orientation?: TOrientation;
   fromFixed?: boolean;
   toFixed?: boolean;
 }
@@ -14,5 +14,5 @@ export interface IViewEvents {
   toChanged: IEvent;
 }
 
-export type Orient = 'horizontal' | 'vertical';
-export type SliderTypes = 'single' | 'min' | 'max' | 'double';
+export type TType = 'single' | 'min' | 'max' | 'double';
+export type TOrientation = 'vertical' | 'horizontal';

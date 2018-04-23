@@ -1,6 +1,8 @@
+import { TType, TOrientation  } from './components/view/namespace';
+
 export interface IOptions {
-    type?: string;
-    orientation?: string;
+    type?: TType;
+    orientation?: TOrientation;
     min?: number | string;
     max?: number | string;
     from?: number | string;
@@ -16,5 +18,5 @@ export interface IOptions {
     onUpdate?: TCallback;
   }
 
-export type Selector = HTMLElement | HTMLCollection | string;
+export type TNode = HTMLElement | HTMLCollection | string;
 export type TCallback = (event?: Event, data?: IOptions) => void;

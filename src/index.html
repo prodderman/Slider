@@ -7,79 +7,132 @@
   <title>Slider</title>
 </head>
 <body>
-    <div class="container">
-      <div id="slider" class="slider"></div>
+  <div class="container">
+    <div class="slider js-slider"></div>
+  </div>
+  <div class="settings">
+    <div class="settings__types">
+      <h2 class="settings__title">types:</h2>
+      <div class="settings__fields">
+        <div class="settings__field">
+          <label class="radio">
+            <input class="radio__input" type="radio" name="type" value="single" checked>
+            <span class="radio__label">single</span>
+          </label>
+        </div>
+        <div class="settings__field">
+          <label class="radio">
+            <input class="radio__input" type="radio" name="type" value="min">
+            <span class="radio__label">min</span>
+          </label>
+        </div>
+        <div class="settings__field">
+          <label class="radio">
+            <input class="radio__input" type="radio" name="type" value="max">
+            <span class="radio__label">max</span>
+          </label>
+        </div>
+        <div class="settings__field">
+          <label class="radio">
+            <input class="radio__input" type="radio" name="type" value="double">
+            <span class="radio__label">double</span>
+          </label>
+        </div>
+      </div>
     </div>
-    <div id="settings">
-      <div class="types">
-        <label class="type">
-          <input type="radio" name="type" value="single" checked>
-          <span class="label">single</span>
-        </label>
-        <label class="type">
-          <input type="radio" name="type" value="min">
-          <span class="label">min</span>
-        </label>
-        <label class="type">
-          <input type="radio" name="type" value="max">
-          <span class="label">max</span>
-        </label>
-        <label class="type">
-          <input type="radio" name="type" value="double">
-          <span class="label">double</span>
+    <div class="settings__orientations">
+      <h2 class="settings__title">orientations:</h2>
+      <div class="settings__fields">
+        <div class="settings__field">
+          <label class="radio">
+            <input class="radio__input" type="radio" name="orientation" value="horizontal" checked>
+            <span class="radio__label">horizontal</span>
+          </label>
+        </div>
+        <div class="settings__field">
+          <label class="radio">
+            <input class="radio__input" type="radio" name="orientation" value="vertical">
+            <span class="radio__label">vertical</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="settings__range">
+      <h2 class="settings__title">range:</h2>
+      <div class="settings__fields">
+        <div class="settings__field">
+          <label class="field">
+            <span class="field__label">min:</span>
+            <input class="field__input" type="text" name="min" value="0">
+          </label>
+        </div>
+        <div class="settings__field">
+          <label class="field">
+            <span class="field__label">max:</span>
+            <input class="field__input" type="text" name="max" value="100">
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="settings__values">
+      <h2 class="settings__title">values:</h2>
+      <div class="settings__fields">
+        <div class="settings__field">
+          <label class="field">
+            <span class="field__label">from:</span>
+            <input class="field__input" type="text" name="from" value="10">
+          </label>
+        </div>
+        <div class="settings__field">
+          <label class="field">
+            <span class="field__label">to:</span>
+            <input class="field__input" type="text" name="to" value="50">
+          </label>
+        </div>
+      </div>
+    <div class="settings__fixed">
+      <h2 class="settings__title">fixed values:</h2>
+      <div class="settings__field">
+        <label class="checkbox">
+          <input class="checkbox__input" type="checkbox" name="fixed-from" value="100">
+          <span class="checkbox__label">fixed from</span>
         </label>
       </div>
-      <div class="orientations">
-        <label class="orientation">
-          <input type="radio" name="orientation" value="horizontal" checked>
-          <span class="label">horizontal</span>
-        </label>
-        <label class="orientation">
-          <input type="radio" name="orientation" value="vertical">
-          <span class="label">vertical</span>
-        </label>
-      </div>
-      <div class="range">
-        <label class="input">
-          <span class="label">min:</span>
-          <input type="text" name="min" value="0">
-        </label>
-        <label class="input">
-          <span class="label">max:</span>
-          <input type="text" name="max" value="100">
-        </label>
-      </div>
-      <div class="values">
-        <label class="input">
-          <span class="label">from:</span>
-          <input id="from" type="text" name="from" value="10">
-        </label>
-        <label class="input">
-          <span class="label">to:</span>
-          <input id="to" type="text" name="to" value="50">
-        </label>
+      <div class="settings__field">
         <label class="fixed">
-          <input type="checkbox" name="fixed-from" value="100">
-          <span class="label">fixed from</span>
-        </label>
-        <label class="fixed">
-          <input type="checkbox" name="fixed-to" value="100">
-          <span class="label">fixed to</span>
+          <input class="checkbox__input" type="checkbox" name="fixed-to" value="100">
+          <span class="checkbox__label">fixed to</span>
         </label>
       </div>
-      <div class="step">
-        <label class="input">
-          <span class="label">step:</span>
-          <input type="text" name="step" value="1">
-        </label>
+    </div>
+    </div>
+    <div class="settings__step">
+      <div class="settings__fields">
+        <div class="settings__field">
+          <label class="field">
+            <span class="field__label">step:</span>
+            <input class="field__input" type="text" name="step" value="1">
+          </label>
+        </div>
       </div>
-      <div class="callbacks">
-        <div class="callback create">create</div>
-        <div class="callback start">start</div>
-        <div class="callback slide">slide</div>
-        <div class="callback end">end</div>
-        <div class="callback update">update</div>
-      </div>  
-    </div> 
+    </div>
+    <div class="settings__callbacks">
+      <div class="settings__callback">
+        <div class="callback callback_create js-callback_create">create</div>
+      </div>
+      <div class="settings__callback">
+        <div class="callback callback_start js-callback_start">start</div>
+      </div>
+      <div class="settings__callback">
+        <div class="callback callback_slide js-callback_slide">slide</div>
+      </div>
+      <div class="settings__callback">
+        <div class="callback callback_end js-callback_end">end</div>
+      </div>
+      <div class="settings__callback">
+        <div class="callback callback_update js-callback_update">update</div>
+      </div>
+    </div>  
+  </div>
 </body>
 </html>

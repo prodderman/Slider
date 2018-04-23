@@ -1,29 +1,26 @@
-.vanilla {
-  
-  &-slider {
+.vanilla-slider {
     position: relative;
     text-align: left;
-  }
 
-  &-horizontal {
+  &_horizontal {
     width: 100%;
 
-    & .vanilla-handle {
+    & .vanilla-slider__handle {
       top: -0.35em;
       margin-left: -0.55em;
     }
   }
 
-  &-vertical {
+  &_vertical {
     height: 100%;
 
-    & .vanilla-handle {
+    & .vanilla-slider__handle {
       left: -0.35em;
       margin-bottom: -0.7em;
     }
   }
 
-  &-handle {
+  &__handle {
     position: absolute;
     display: block;
     z-index: 3;
@@ -38,12 +35,12 @@
       z-index: 5;
     }
 
-    &-fixed {
+    &_fixed {
       z-index: 2;
     }
   }
 
-  &-range {
+  &__range {
     position: absolute;
     display: block;
     z-index: 1;

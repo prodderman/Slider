@@ -3,12 +3,13 @@
 }
 
 html, body {
+  font-size: 15px;
   margin: 0;
   height: 100%;
 }
 
 .slider {
-  height: auto;
+  height: 20rem;
 }
 
 .container {
@@ -16,49 +17,57 @@ html, body {
   height: 100%;
 }
 
-#settings {
+.settings {
   position: fixed;
   top: 0;
   right: 0;
   width: 300px;
   height: 100vh;
   padding-right: 20px;
-  padding-top: 10vh;
-}
 
-label {
-  display: flex;
-  margin-bottom: 10px;
+  &__fields {
+    display: flex;
+    flex-wrap: wrap;
+  }
 
-  &.input {
+  &__field {
+    margin-right: 5px;
+    margin-bottom: 10px;
+  }
+
+  &__callbacks {
+    display: flex;
     justify-content: space-between;
+    margin-bottom: 30px
   }
 }
 
-.screen {
+.radio {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 30px
 }
 
-.callbacks {
+.field {
   display: flex;
   justify-content: space-between;
 
-  .callback {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    color: #ed5565;
-    background-color: white;
-    border: 1px solid #ed5565;
-    transition: 0.3s;
+  &__label {
+    min-width: 3.2rem;
+  }
+}
 
-    &.active {
-      color: white;
-      background-color: #ed5565;
-    }
+.callback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  color: #ed5565;
+  background-color: white;
+  border: 1px solid #ed5565;
+  transition: 0.3s;
+
+  &.active {
+    color: white;
+    background-color: #ed5565;
   }
 }

@@ -3,11 +3,11 @@ import './theme.scss';
 
 import IEvent from './../observer/observer';
 import { IModel as Model, IModelEvents, IModelOptions } from '../model/namespace';
-import { IViewOptions, IViewEvents } from './namespace';
+import { IViewOptions, IViewEvents, TType, TOrientation } from './namespace';
 
 interface IMandatoryOptions extends IViewOptions {
-  type: SliderTypes;
-  orientation: Orient;
+  type: TType;
+  orientation: TOrientation;
   fromFixed: boolean;
   toFixed: boolean;
 }
@@ -20,8 +20,6 @@ interface INodes {
 }
 
 type Direction = 'top' | 'left' | 'right' | 'bottom';
-type Orient = 'horizontal' | 'vertical';
-type SliderTypes = 'single' | 'min' | 'max' | 'double';
 
 export default class View {
 
@@ -75,10 +73,10 @@ export default class View {
   public init(viewOptions: IViewOptions): void {
     const opt = this.options;
     if (viewOptions.type) {
-      opt.type = <SliderTypes>viewOptions.type;
+      opt.type = <TType>viewOptions.type;
     }
     if (viewOptions.orientation) {
-      opt.orientation = <Orient>viewOptions.orientation;
+      opt.orientation = <TOrientation>viewOptions.orientation;
     }
     if (!this.isUndefined(viewOptions.fromFixed)) {
       opt.fromFixed = <boolean>viewOptions.fromFixed;
@@ -186,21 +184,17 @@ export default class View {
 
     const nodes = this.nodes;
 
-    if (this.root.className.indexOf('vanilla') < 0) {
-      this.root.className += ' vanilla';
-    }
-    nodes.track.setAttribute('class', `vanilla-slider vanilla-${opt.type} vanilla-${opt.orientation}`);
-
+    nodes.track.setAttribute('class', `vanilla-slider vanilla-slider_${opt.type} vanilla-slider_${opt.orientation}`);
     nodes.from.setAttribute('tabindex', `0`);
-    nodes.from.setAttribute('class', `vanilla-handle vanilla-handle-from`);
+    nodes.from.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_from`);
 
     if (opt.fromFixed) {
-      nodes.from.classList.add(`vanilla-handle-fixed`);
+      nodes.from.classList.add(`vanilla-slider__handle_fixed`);
     }
 
     if (opt.type !== 'single') {
       nodes.range = document.createElement('div');
-      nodes.range.setAttribute('class', `vanilla-range vanilla-range-${opt.type}`);
+      nodes.range.setAttribute('class', `vanilla-slider__range vanilla-slider__range_${opt.type}`);
     } else {
       delete nodes.range;
     }
@@ -208,10 +202,10 @@ export default class View {
     if (opt.type === 'double') {
       nodes.to = document.createElement('span');
       nodes.to.setAttribute('tabindex', `0`);
-      nodes.to.setAttribute('class', `vanilla-handle vanilla-handle-to`);
+      nodes.to.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_to`);
 
       if (opt.toFixed) {
-        nodes.to.classList.add(`vanilla-handle-fixed`);
+        nodes.to.classList.add(`vanilla-slider__handle_fixed`);
       }
     } else {
       delete nodes.to;

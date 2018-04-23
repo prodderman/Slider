@@ -1,33 +1,29 @@
 .vanilla-slider {
   position: relative;
   text-align: left; }
-
-.vanilla-horizontal {
-  width: 100%; }
-  .vanilla-horizontal .vanilla-handle {
-    top: -0.35em;
-    margin-left: -0.55em; }
-
-.vanilla-vertical {
-  height: 100%; }
-  .vanilla-vertical .vanilla-handle {
-    left: -0.35em;
-    margin-bottom: -0.7em; }
-
-.vanilla-handle {
-  position: absolute;
-  display: block;
-  z-index: 3;
-  cursor: default;
-  white-space: nowrap; }
-  .vanilla-handle.last-type {
-    z-index: 4; }
-  .vanilla-handle.active {
-    z-index: 5; }
-  .vanilla-handle-fixed {
-    z-index: 2; }
-
-.vanilla-range {
-  position: absolute;
-  display: block;
-  z-index: 1; }
+  .vanilla-slider_horizontal {
+    width: 100%; }
+    .vanilla-slider_horizontal .vanilla-slider__handle {
+      top: -0.35em;
+      margin-left: -0.55em; }
+  .vanilla-slider_vertical {
+    height: 100%; }
+    .vanilla-slider_vertical .vanilla-slider__handle {
+      left: -0.35em;
+      margin-bottom: -0.7em; }
+  .vanilla-slider__handle {
+    position: absolute;
+    display: block;
+    z-index: 3;
+    cursor: default;
+    white-space: nowrap; }
+    .vanilla-slider__handle.last-type {
+      z-index: 4; }
+    .vanilla-slider__handle.active {
+      z-index: 5; }
+    .vanilla-slider__handle_fixed {
+      z-index: 2; }
+  .vanilla-slider__range {
+    position: absolute;
+    display: block;
+    z-index: 1; }

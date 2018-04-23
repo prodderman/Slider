@@ -21,6 +21,7 @@ interface ModelOptions {
   to?: number;
   toFixed?: boolean;
   step?: number;
+  [key: string]: number | boolean | undefined;
 }
 
 const optionsMap = new Map<SupposedOptions, ModelOptions>();

@@ -35,15 +35,15 @@ export default class Controller {
     if (isUpdated) {
       this.customEvents.update = this.createSliderEvent('vanillaupdate');
       this.callFunction(this.customEvents.update, {
-        from: this.model.data.from,
-        to: this.model.data.to
+        ...this.model.data,
+        ...this.view.data
       }, this.callbacks.onUpdate);
       this.view.rootObject.dispatchEvent(this.customEvents.update);
     } else {
       this.customEvents.create =  this.createSliderEvent('vanillacreate');
       this.callFunction(this.customEvents.create, {
-        from: this.model.data.from,
-        to: this.model.data.to
+        ...this.model.data,
+        ...this.view.data
       }, this.callbacks.onCreate);
       this.view.rootObject.dispatchEvent(this.customEvents.create);
     }
@@ -76,60 +76,66 @@ export default class Controller {
   }
 
   private attachViewEvents() {
-    this.view.events.fromChanged.attach((handle: HTMLSpanElement, realValue: number) => {
-      this.model.calcFromWithStep(this.convertToReal(realValue));
+    const model = this.model;
+    const view = this.view;
+
+    view.events.fromChanged.attach((handle: HTMLSpanElement, realValue: number) => { // убрать handle
+      model.calcFromWithStep(this.convertToReal(realValue));
     });
 
-    this.view.events.toChanged.attach((handle: HTMLSpanElement, realValue: number) => {
-      this.model.calcToWithStep(this.convertToReal(realValue));
+    view.events.toChanged.attach((handle: HTMLSpanElement, realValue: number) => {
+      model.calcToWithStep(this.convertToReal(realValue));
     });
 
-    this.view.events.slideStart.attach((handle: HTMLSpanElement) => {
+    view.events.slideStart.attach((handle: HTMLSpanElement) => {
       this.customEvents.start =  this.createSliderEvent('vanillastart');
       this.callFunction(this.customEvents.start, {
         handle: handle,
-        from: this.model.data.from,
-        to: this.model.data.to
+        ...model.data,
+        ...view.data
       }, this.callbacks.onStart);
       handle.dispatchEvent(this.customEvents.start);
     });
 
-    this.view.events.slideEnd.attach((handle: HTMLSpanElement) => {
+    view.events.slideEnd.attach((handle: HTMLSpanElement) => {
       this.customEvents.end = this.createSliderEvent('vanillaend');
       this.callFunction(this.customEvents.end, {
         handle: handle,
-        from: this.model.data.from,
-        to: this.model.data.to
+        ...model.data,
+        ...view.data
       }, this.callbacks.onEnd);
       handle.dispatchEvent(this.customEvents.end);
     });
   }
 
   private attachModelEvents() {
-    this.model.events.fromChanged.attach((fromValue: number) => {
-      this.view.calcFrom(this.convertToPercent(fromValue));
+    const model = this.model;
+    const view = this.view;
+
+    model.events.fromChanged.attach((fromValue: number) => {
+      view.calcFrom(this.convertToPercent(fromValue));
       this.customEvents.slide =  this.createSliderEvent('vanillaslide');
       if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
-        handle: this.view.nodesData.from,
-        from: this.model.data.from,
-        to: this.model.data.to
+        handle: view.nodesData.from,
+        ...model.data,
+        ...view.data
       }, this.callbacks.onSlide);
-      this.view.nodesData.from.dispatchEvent(this.customEvents.slide);
+      view.nodesData.from.dispatchEvent(this.customEvents.slide);
     });
 
-    this.model.events.toChanged.attach((toValue: number) => {
-      this.view.calcTo(this.convertToPercent(toValue));
+    model.events.toChanged.attach((toValue: number) => {
+      view.calcTo(this.convertToPercent(toValue));
       this.customEvents.slide =  this.createSliderEvent('vanillaslide');
       if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
-        handle: this.view.nodesData.to,
-        from: this.model.data.from,
-        to: this.model.data.to
+        handle: view.nodesData.to,
+        ...model.data,
+        ...view.data
       }, this.callbacks.onSlide);
-      (<HTMLSpanElement>this.view.nodesData.to).dispatchEvent(this.customEvents.slide);
+      (<HTMLSpanElement>view.nodesData.to).dispatchEvent(this.customEvents.slide);
     });
 
   }

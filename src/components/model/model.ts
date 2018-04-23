@@ -68,9 +68,9 @@ export default class Model implements IModel {
 
     let valueInDiapason;
     if (opt.type) {
-      valueInDiapason = this.inDaipason(valueOffset, opt.min, opt.to);
+      valueInDiapason = this.correctDiapason(valueOffset, opt.min, opt.to);
     } else {
-      valueInDiapason = this.inDaipason(valueOffset, opt.min, opt.max);
+      valueInDiapason = this.correctDiapason(valueOffset, opt.min, opt.max);
     }
 
     if (valueInDiapason !== opt.from) {
@@ -87,7 +87,7 @@ export default class Model implements IModel {
 
     const valueWithStep = Math.round(( realValue - opt.min ) / opt.step);
     const valueOffset = valueWithStep  * opt.step + opt.min;
-    const valueInDiapason = this.inDaipason(valueOffset, opt.from, opt.max);
+    const valueInDiapason = this.correctDiapason(valueOffset, opt.from, opt.max);
 
     if (valueInDiapason !== opt.to) {
       opt.to = valueInDiapason;
@@ -137,14 +137,14 @@ export default class Model implements IModel {
 
   private updateFromTo(): void {
     const opt = this.options;
-    opt.from = this.inDaipason(opt.from, opt.min, opt.max);
+    opt.from = this.correctDiapason(opt.from, opt.min, opt.max);
 
     if (opt.type) {
-      opt.to = this.inDaipason(opt.to, opt.from, opt.max);
+      opt.to = this.correctDiapason(opt.to, opt.from, opt.max);
     }
   }
 
-  private inDaipason(value: number, min = this.options.min, max = this.options.min): number {
+  private correctDiapason(value: number, min = this.options.min, max = this.options.min): number {
     if (value < min) {
       return min;
     } else if (value > max) {

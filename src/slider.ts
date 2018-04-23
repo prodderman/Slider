@@ -3,13 +3,15 @@ import View from './components/view/view';
 import Controller from './components/controller/controller';
 
 import { IModelOptions } from './components/model/namespace';
-import { IViewOptions, SliderTypes, Orient } from './components/view/namespace';
+import { IViewOptions, TType, TOrientation  } from './components/view/namespace';
 import { IControllerOptions } from './components/controller/namespace';
-import { IOptions, Selector } from 'namespace';
+import { IOptions, TNode } from 'namespace';
+
+type TRoot = HTMLDivElement | HTMLSpanElement;
 
 class SliderConstructor {
 
-  public root: HTMLDivElement | HTMLSpanElement;
+  public root: TRoot;
 
   private modelOptions: IModelOptions;
   private viewOptions: IViewOptions;
@@ -19,10 +21,9 @@ class SliderConstructor {
   private model: Model;
   private controller: Controller;
 
-  constructor(rootObject: Selector, options: IOptions = {}, public wrap: VanillaSlider) {
-    if (this.setRoot(rootObject)) {
-      this.init(options);
-    }
+  constructor(rootObject: TNode, options: IOptions = {}, public context: VanillaSlider) {
+    this.root = SliderConstructor.getValidateNode(rootObject);
+    this.init(options);
   }
 
   get data(): IOptions {
@@ -49,36 +50,27 @@ class SliderConstructor {
     this.controllerOptions = {};
 
     if (options.type && ['single', 'min', 'max', 'double'].includes(options.type)) {
-      this.viewOptions.type = <SliderTypes>options.type;
+      this.viewOptions.type = <TType>options.type;
       this.modelOptions.type = options.type === 'double' ? true : false;
     }
-    if (options.orientation && ['horizontal', 'vertical'].includes(options.orientation)) {
-      this.viewOptions.orientation = <Orient>options.orientation;
+    if (options.orientation && ['vertical', 'horizontal'].includes(options.orientation)) {
+      this.viewOptions.orientation = <TOrientation>options.orientation;
     }
-    if (!this.isUndefined(options.min) && !Number.isNaN(Number(options.min))) {
-      this.modelOptions.min = Number(options.min);
-    }
-    if (!this.isUndefined(options.max) && !Number.isNaN(Number(options.max))) {
-      this.modelOptions.max = Number(options.max);
-    }
-    if (!this.isUndefined(options.from) && !Number.isNaN(Number(options.from))) {
-      this.modelOptions.from = Number(options.from);
-    }
-    if (!this.isUndefined(options.to) && !Number.isNaN(Number(options.to))) {
-      this.modelOptions.to = Number(options.to);
-    }
+    this.setModelOption('min', options.min);
+    this.setModelOption('max', options.max);
+    this.setModelOption('from', options.from);
+    this.setModelOption('to', options.to);
+    this.setModelOption('step', options.step);
+
     if (!this.isUndefined(options.fromFixed)) {
-      const check = (/true/i).test((<boolean | string>options.fromFixed).toString());
-      this.modelOptions.fromFixed = check;
-      this.viewOptions.fromFixed = check;
+      const fromFixed = (/true/i).test((<boolean | string>options.fromFixed).toString());
+      this.modelOptions.fromFixed = fromFixed;
+      this.viewOptions.fromFixed = fromFixed;
     }
     if (!this.isUndefined(options.toFixed)) {
-      const check = (/true/i).test((<boolean | string>options.toFixed).toString());
-      this.modelOptions.toFixed = check;
-      this.viewOptions.toFixed = check;
-    }
-    if (!this.isUndefined(options.step) && !Number.isNaN(Number(options.step))) {
-      this.modelOptions.step = Number(options.step);
+      const toFixed = (/true/i).test((<boolean | string>options.toFixed).toString());
+      this.modelOptions.toFixed = toFixed;
+      this.viewOptions.toFixed = toFixed;
     }
 
     this.controllerOptions.onCreate = options.onCreate;
@@ -88,33 +80,28 @@ class SliderConstructor {
     this.controllerOptions.onUpdate = options.onUpdate;
   }
 
-  private setRoot(root: Selector): boolean {
-    const check = SliderConstructor.checkNode(root);
-
-    if (check) {
-      this.root = check as HTMLDivElement | HTMLSpanElement;
+  private setModelOption(optionName: string, value?: string | number) {
+    if (!this.isUndefined(value) && !Number.isNaN(Number(value))) {
+      this.modelOptions[optionName] = Number(value);
     }
-    else {
-      throw 'Invalid node type, expected \'div\'';
-    }
-    return true;
   }
 
   private isUndefined(value: any): boolean {
     return value === undefined;
   }
 
-  static checkNode(node: Selector): HTMLDivElement | HTMLSpanElement | undefined {
-    if (node instanceof HTMLDivElement || node instanceof HTMLSpanElement) {
-      return node;
-    } else if (node instanceof HTMLCollection && node[0] instanceof HTMLDivElement) {
-      return <HTMLDivElement | HTMLSpanElement>node[0];
+  static getValidateNode(node: TNode): TRoot {
+    if ((node instanceof HTMLDivElement) || (node instanceof HTMLSpanElement)) {
+      return <TRoot>node;
+    } else if ((node instanceof HTMLCollection) && (node[0] instanceof HTMLDivElement)) {
+      return <TRoot>node[0];
     } else if (typeof node === 'string') {
       const t = document.querySelector(node);
-      if (t instanceof HTMLDivElement || t instanceof HTMLSpanElement) {
+      if ((t instanceof HTMLDivElement) || (t instanceof HTMLSpanElement)) {
         return t;
       }
     }
+    throw 'Invalid node type, expected \'div\' or \'span\'';
   }
 }
 
@@ -124,18 +111,18 @@ export default class VanillaSlider {
 
   private static instances: Array<SliderConstructor> = [];
 
-  constructor(root: Selector, options: IOptions = {}) {
+  constructor(root: TNode, options: IOptions = {}) {
     const instance = new SliderConstructor(root, options, this);
     this.set = instance.set.bind(instance);
     this.data = instance.data;
     VanillaSlider.instances.push(instance);
   }
 
-  static for(node: Selector) {
-    const n = SliderConstructor.checkNode(node);
+  static getInstance(node: TNode) {
+    const n = SliderConstructor.getValidateNode(node);
     for (let ins of VanillaSlider.instances) {
       if (n && n === ins.root) {
-        return ins.wrap;
+        return ins.context;
       }
     }
   }
