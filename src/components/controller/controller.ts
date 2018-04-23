@@ -88,7 +88,7 @@ export default class Controller {
     });
 
     view.events.slideStart.attach((handle: HTMLSpanElement) => {
-      this.customEvents.start =  this.createSliderEvent('vanillastart');
+      this.customEvents.start = this.createSliderEvent('vanillastart');
       this.callFunction(this.customEvents.start, {
         handle: handle,
         ...model.data,
@@ -114,7 +114,7 @@ export default class Controller {
 
     model.events.fromChanged.attach((fromValue: number) => {
       view.calcFrom(this.convertToPercent(fromValue));
-      this.customEvents.slide =  this.createSliderEvent('vanillaslide');
+      this.customEvents.slide = this.createSliderEvent('vanillaslide');
       if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
@@ -127,7 +127,7 @@ export default class Controller {
 
     model.events.toChanged.attach((toValue: number) => {
       view.calcTo(this.convertToPercent(toValue));
-      this.customEvents.slide =  this.createSliderEvent('vanillaslide');
+      this.customEvents.slide = this.createSliderEvent('vanillaslide');
       if (!this.customEvents.slide) { return; }
 
       this.callFunction(this.customEvents.slide, {
