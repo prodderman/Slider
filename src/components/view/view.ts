@@ -3,11 +3,7 @@ import './theme.scss';
 import { bind } from 'decko';
 
 import IEvent from './../observer/observer';
-import { IOptions, IEvents, INodes, TRoot, initialOptions } from './namespace';
-
-interface IHandle extends HTMLSpanElement {
-  [key: string]: any;
-}
+import { IOptions, IEvents, INodes, TRoot, initialOptions, IHandle } from './namespace';
 
 export default class View {
   private handle: IHandle | null = null;
@@ -32,6 +28,7 @@ export default class View {
   get nodesData(): INodes { return this.nodes; }
   get rootObject(): TRoot { return this.root; }
 
+  @bind
   public update(viewOptions: IOptions) {
     this.setOptions(viewOptions);
     this.nodes.track.innerHTML = '';
@@ -39,7 +36,8 @@ export default class View {
     this.render();
   }
 
-  public calcFrom(from: number): void {
+  @bind
+  public calcFrom(from: number) {
     const opt = this.options;
     const nodes = this.nodes;
     const base = opt.orientation === 'vertical' ? 'bottom' : 'left';
@@ -47,7 +45,8 @@ export default class View {
     this.calcRange();
   }
 
-  public calcTo(to: number): void {
+  @bind
+  public calcTo(to: number) {
     if (this.options.type !== 'double') { return; }
     const opt = this.options;
     const nodes = this.nodes;
@@ -56,7 +55,7 @@ export default class View {
     this.calcRange();
   }
 
-  private init(): void {
+  private init() {
     this.nodes = {
       track: document.createElement('div'),
       from: document.createElement('span'),
@@ -75,7 +74,7 @@ export default class View {
     this.options = {...options};
   }
 
-  private render(): void {
+  private render() {
     const opt = this.options;
     const nodes = this.nodes;
     nodes.track.appendChild(nodes.from);
@@ -89,13 +88,13 @@ export default class View {
     }
   }
 
-  private setHandlers(): void {
+  private setHandlers() {
     window.removeEventListener('mousemove', this.mouseMove);
     window.removeEventListener('mouseup', this.mouseUp);
     this.nodes.track.addEventListener('mousedown', this.mouseDown);
   }
 
-  private calcRange(): void {
+  private calcRange() {
     if (this.options.type === 'single') { return; }
     const opt = this.options;
     const nodes = this.nodes;
@@ -106,7 +105,7 @@ export default class View {
     nodes.range.style[baseEnd] = opt.type === 'from-end' ? '0' : `${100 - parseFloat(<string>nodes[handle].style[baseStart])}%`;
   }
 
-  private setNodes(): void {
+  private setNodes() {
     const opt = this.options;
     const nodes = this.nodes;
     nodes.track.setAttribute('class', `vanilla-slider vanilla-slider_${opt.type} vanilla-slider_${opt.orientation}`);
@@ -121,45 +120,44 @@ export default class View {
   }
 
   @bind
-  private mouseDown(event: MouseEvent): void {
+  private mouseDown(event: MouseEvent) {
     const nodes = this.nodes;
     const coord = this.getRelativeCoord(event);
+    nodes.from.classList.remove('vanilla-slider__handle_last-type');
+    nodes.to.classList.remove('vanilla-slider__handle_last-type');
 
     if (event.target === nodes.from) {
       this.handle = nodes.from;
-    } 
-    
-    if (event.target === nodes.to) {
-      this.handle = nodes.to;
-    } 
-    
-    if (event.target === nodes.range || event.target === nodes.track) {
-      this.handle = this.chooseHandle(coord);
-      this.mouseMove(event);
     }
 
-    nodes.from.classList.remove('vanilla-slider__handle_last-type');
-    nodes.to.classList.remove('vanilla-slider__handle_last-type');
+    if (event.target === nodes.to) {
+      this.handle = nodes.to;
+    }
+
+    if (event.target === nodes.range || event.target === nodes.track) {
+      this.handle = this.chooseHandle(coord);
+    }
 
     if (this.handle) {
       this.handle.classList.add('active');
       this.handle.classList.add('vanilla-slider__handle_last-type');
-      this.viewEvents.slideStart.notify<IHandle>(this.handle);
+      this.viewEvents.slideStart.notify(this.handle);
+      this.mouseMove(event);
     }
     window.addEventListener('mousemove', this.mouseMove);
     window.addEventListener('mouseup', this.mouseUp);
   }
 
   @bind
-  private mouseMove(event: MouseEvent): void {
+  private mouseMove(event: MouseEvent) {
     const nodes = this.nodes;
     const coord = this.getRelativeCoord(event);
     const eventForNotify = this.handle === nodes.from ? 'fromChanged' : 'toChanged';
-    this.viewEvents[eventForNotify].notify<number>(coord);
+    this.viewEvents[eventForNotify].notify(coord);
   }
 
   @bind
-  private mouseUp(event: MouseEvent): void {
+  private mouseUp(event: MouseEvent) {
     if (!this.handle) { return; }
     window.removeEventListener('mousemove', this.mouseMove);
     window.removeEventListener('mouseup', this.mouseUp);
@@ -173,9 +171,9 @@ export default class View {
     const nodes = this.nodes;
     if (this.handle) { return this.handle; }
     if (opt.type !== 'double') { return nodes.from; }
-    if (opt.fromFixed && opt.toFixed) { return null; } 
-    if (opt.fromFixed) { return nodes.to; } 
-    if (opt.toFixed) { return nodes.from;}
+    if (opt.fromFixed && opt.toFixed) { return null; }
+    if (opt.fromFixed) { return nodes.to; }
+    if (opt.toFixed) { return nodes.from; }
 
     const fromCoord = this.getHandleCoord(nodes.from);
     const toCoord = this.getHandleCoord(nodes.to);
@@ -196,7 +194,7 @@ export default class View {
 
   private getHandleCoord(handle: IHandle): number {
     const offset = this.options.orientation === 'horizontal' ? 'offsetLeft' : 'offsetRight';
-    const size = this.options.orientation === 'horizontal' ? 'offsetWidth' : 'offsetHeight'
+    const size = this.options.orientation === 'horizontal' ? 'offsetWidth' : 'offsetHeight';
     return handle[offset] + handle[size] / 2;
   }
 }

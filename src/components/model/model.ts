@@ -1,5 +1,6 @@
 import IEvent from './../observer/observer';
 import { IModel, IOptions, IEvents, initialOptions } from './namespace';
+import { bind } from 'decko';
 
 export default class Model implements IModel {
   private modelEvents: IEvents = {
@@ -17,6 +18,7 @@ export default class Model implements IModel {
     return this.modelEvents;
   }
 
+  @bind
   public update(options: IOptions): void {
     this.setType(options.type);
     this.setStep(options.step);
@@ -25,6 +27,7 @@ export default class Model implements IModel {
     this.setValues(options.from, options.to);
   }
 
+  @bind
   public calcFromWithStep(realValue: number): void {
     const opt = this.options;
     if (opt.fromFixed) { return; }
@@ -39,6 +42,7 @@ export default class Model implements IModel {
     }
   }
 
+  @bind
   public calcToWithStep(realValue: number): void {
     const opt = this.options;
     if (!opt.type || opt.toFixed) { return; }

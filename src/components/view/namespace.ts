@@ -23,6 +23,11 @@ export interface IEvents {
   toChanged: IEvent;
   [key: string]: IEvent;
 }
+
+export interface IHandle extends HTMLSpanElement {
+  [key: string]: any;
+}
+
 export type TSliderType = 'single' | 'from-start' | 'from-end' | 'double';
 export type TOrientation = 'vertical' | 'horizontal';
 export type TRoot = HTMLDivElement | HTMLSpanElement;
