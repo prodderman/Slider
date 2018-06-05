@@ -57,8 +57,8 @@ class SliderConstructor {
     this.setNumberOption('to', options.to);
     this.setNumberOption('step', options.step);
 
-    this.setBooleanOption('fromFixed', options.fromFixed);
-    this.setBooleanOption('toFixed', options.toFixed);
+    this.setFixedOption('fromFixed', options.fromFixed);
+    this.setFixedOption('toFixed', options.toFixed);
 
     this.setCallback('onCreate', options.onCreate);
     this.setCallback('onStart', options.onStart);
@@ -73,7 +73,7 @@ class SliderConstructor {
     }
   }
 
-  private setBooleanOption(optionName: string, value?: string | boolean) {
+  private setFixedOption(optionName: string, value?: string | boolean) {
     if (value !== void(0)) {
       this.modelOptions[optionName] = JSON.parse(value.toString());
       this.viewOptions[optionName] = JSON.parse(value.toString());
