@@ -1,7 +1,8 @@
-import { TType, TOrientation  } from './components/view/namespace';
+import { TSliderType, TOrientation  } from './components/view/namespace';
+import { TCallback  } from './components/controller/namespace';
 
 export interface IOptions {
-    type?: TType;
+    type?: TSliderType;
     orientation?: TOrientation;
     min?: number | string;
     max?: number | string;
@@ -18,5 +19,4 @@ export interface IOptions {
     onUpdate?: TCallback;
   }
 
-export type TNode = HTMLElement | HTMLCollection | string;
-export type TCallback = (event?: Event, data?: IOptions) => void;
+export type TNode = Element | HTMLElement | HTMLCollection | string | null;

@@ -1,89 +1,47 @@
 import IEvent from './../observer/observer';
-import { IModel, IModelOptions, IMandatoryOptions, IModelEvents } from './namespace';
+import { IModel, IOptions, IEvents, initialOptions } from './namespace';
 
 export default class Model implements IModel {
-  private triggers: IModelEvents = {
+  private modelEvents: IEvents = {
     fromChanged: new IEvent(),
     toChanged: new IEvent(),
   };
 
-  private options: IMandatoryOptions  = {
-    type: false,
-    min: 0,
-    max: 100,
-    from: 0,
-    fromFixed: false,
-    to: 0,
-    toFixed: false,
-    step: 1
-  };
+  private options: IOptions = {...initialOptions};
 
-  public constructor(modelOptions: IModelOptions = {}) {
-    this.init(modelOptions);
-  }
-
-  // accessors
-
-  get data(): IMandatoryOptions {
+  get data(): IOptions {
     return this.options;
   }
 
-  get events(): IModelEvents {
-    return this.triggers;
+  get events(): IEvents {
+    return this.modelEvents;
   }
 
-  // public methods
-
-  public init(options: IModelOptions = {}): void {
-
-    if (!this.isUndefined(options.type)) {
-      this.setType(options.type as boolean);
-    }
-
-    if (!this.isUndefined(options.step)) {
-      this.setStep(options.step as number);
-    }
-
-    if (!this.isUndefined(options.min) || !this.isUndefined(options.max)) {
-      this.setRange(options.min, options.max);
-    }
-
-    if (!this.isUndefined(options.fromFixed) || !this.isUndefined(options.toFixed)) {
-      this.setFixed(options.fromFixed, options.toFixed);
-    }
-
-    if (!this.isUndefined(options.from) || !this.isUndefined(options.to)) {
-      this.setValues(options.from, options.to);
-    }
+  public update(options: IOptions): void {
+    this.setType(options.type);
+    this.setStep(options.step);
+    this.setRange(options.min, options.max);
+    this.setFixed(options.fromFixed, options.toFixed);
+    this.setValues(options.from, options.to);
   }
 
   public calcFromWithStep(realValue: number): void {
     const opt = this.options;
-    if (opt.fromFixed) {
-      return;
-    }
+    if (opt.fromFixed) { return; }
 
     const valueWithStep = Math.round(( realValue - opt.min ) / opt.step);
     const valueOffset = valueWithStep * opt.step + opt.min;
-
-    let valueInDiapason;
-    if (opt.type) {
-      valueInDiapason = this.correctDiapason(valueOffset, opt.min, opt.to);
-    } else {
-      valueInDiapason = this.correctDiapason(valueOffset, opt.min, opt.max);
-    }
+    const valueInDiapason = opt.type ? this.correctDiapason(valueOffset, opt.min, opt.to) : this.correctDiapason(valueOffset, opt.min, opt.max);
 
     if (valueInDiapason !== opt.from) {
       opt.from = valueInDiapason;
-      this.triggers.fromChanged.notify(opt.from);
+      this.modelEvents.fromChanged.notify(opt.from);
     }
   }
 
   public calcToWithStep(realValue: number): void {
     const opt = this.options;
-    if (!opt.type || opt.toFixed) {
-      return;
-    }
+    if (!opt.type || opt.toFixed) { return; }
 
     const valueWithStep = Math.round(( realValue - opt.min ) / opt.step);
     const valueOffset = valueWithStep  * opt.step + opt.min;
@@ -91,18 +49,12 @@ export default class Model implements IModel {
 
     if (valueInDiapason !== opt.to) {
       opt.to = valueInDiapason;
-      this.triggers.toChanged.notify(opt.to);
+      this.modelEvents.toChanged.notify(opt.to);
     }
   }
 
-  // private methods
-
   private setRange(min = this.options.min, max = this.options.max): void {
-     if (min > max) {
-      max = min;
-    }
-
-    this.options.min = min;
+    this.options.min = min > max ? max : min;
     this.options.max = max;
     this.updateFromTo();
   }
@@ -116,13 +68,17 @@ export default class Model implements IModel {
   private setStep(step: number): void {
     const opt = this.options;
     const range = opt.max - opt.min;
+
     if (step <= 0) {
       opt.step = 1;
-    } else if (step > range) {
-      opt.step = range;
-    } else {
-      opt.step = step;
+      return;
     }
+
+    if (step > range) {
+      opt.step = range;
+      return;
+    }
+    opt.step = step;
   }
 
   private setType(type: boolean): void {
@@ -138,23 +94,12 @@ export default class Model implements IModel {
   private updateFromTo(): void {
     const opt = this.options;
     opt.from = this.correctDiapason(opt.from, opt.min, opt.max);
-
-    if (opt.type) {
-      opt.to = this.correctDiapason(opt.to, opt.from, opt.max);
-    }
+    opt.to = opt.type ? this.correctDiapason(opt.to, opt.from, opt.max) : opt.to;
   }
 
   private correctDiapason(value: number, min = this.options.min, max = this.options.min): number {
-    if (value < min) {
-      return min;
-    } else if (value > max) {
-      return max;
-    } else {
-      return value;
-    }
-  }
-
-  private isUndefined(value: any): boolean {
-    return value === undefined;
+    if (value < min) { return min; }
+    if (value > max) { return max; }
+    return value;
   }
 }
