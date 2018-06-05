@@ -17,13 +17,18 @@ $(document).ready(function() {
         $step = $('input[name="step"]'),
         $fromFixed = $('input[name="fixed-from"]'),
         $toFixed = $('input[name="fixed-to"]');
-  let timeId;
+  let onCreateTimeId,
+      onStartTimeId,
+      onSlideTimeId,
+      onEndTimeId,
+      onUpdateTimeId;
 
   const remove = function() {
     $('.callback').removeClass('active');
   }
 
   const slider = new VanillaSlider('.js-slider', {
+    type: 'single',
     min: -100,
     from: 10,
     to: 50,
@@ -35,32 +40,32 @@ $(document).ready(function() {
       $step.val(data.step);
       $fromFixed.attr('checked', data.fromFixed);
       $toFixed.attr('checked', data.toFixed);
-      $type.attr('checked', data.type);
-      $orientation.attr('checked', data.orientation);
+      $type.filter(`input[value=${data.type}]`).prop('checked', true);
+      $orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
       $create.addClass('active');
-      clearTimeout(timeId);
-      timeId = setTimeout(remove, 200);
+      clearTimeout(onCreateTimeId);
+      onCreateTimeId = setTimeout(remove, 200);
     },
     onStart: (event, data) => {
       $from.val(data.from);
       $to.val(data.to);
       $start.addClass('active');
-      clearTimeout(timeId);
-      timeId = setTimeout(remove, 200);
+      clearTimeout(onStartTimeId);
+      onStartTimeId = setTimeout(remove, 200);
     },
     onSlide: (event, data) => {
       $from.val(data.from);
       $to.val(data.to);
       $slide.addClass('active');
-      clearTimeout(timeId);
-      timeId = setTimeout(remove, 200);
+      clearTimeout(onSlideTimeId);
+      onSlideTimeId = setTimeout(remove, 200);
     },
     onEnd: (event, data) => {
       $from.val(data.from);
       $to.val(data.to);
       $end.addClass('active');
-      clearTimeout(timeId);
-      timeId = setTimeout(remove, 200);
+      clearTimeout(onEndTimeId);
+      onEndTimeId = setTimeout(remove, 200);
     },
     onUpdate: (event, data) => {
       $from.val(data.from);
@@ -70,11 +75,11 @@ $(document).ready(function() {
       $step.val(data.step);
       $fromFixed.attr('checked', data.fromFixed);
       $toFixed.attr('checked', data.toFixed);
-      $type.attr('checked', data.type);
-      $orientation.attr('checked', data.orientation);
+      $type.filter(`input[value=${data.type}]`).prop('checked', true);
+      $orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
       $update.addClass('active');
-      clearTimeout(timeId);
-      timeId = setTimeout(remove, 200);
+      clearTimeout(onUpdateTimeId);
+      onUpdateTimeId = setTimeout(remove, 200);
     }
   });
 
@@ -116,7 +121,7 @@ $(document).ready(function() {
 });
 
 function setSliderOption(slider, optionName, value) {
-  slider.set({
+  slider.setOptions({
     [optionName]: value
   })
 }
