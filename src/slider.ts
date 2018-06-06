@@ -83,9 +83,9 @@ class SliderConstructor {
     }
   }
 
-  private setCallback(optionName: keyof ICallbacks, value?: TCallback) {
-    if (value !== void(0) && typeof value === 'function')
-    this.controllerCallbacks[optionName] = value;
+  private setCallback(optionName: keyof ICallbacks, callback?: TCallback) {
+    if (callback !== void(0) && typeof callback === 'function')
+    this.controllerCallbacks[optionName] = callback;
   }
 }
 

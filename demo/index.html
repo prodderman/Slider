@@ -16,25 +16,25 @@
       <div class="settings__fields">
         <div class="settings__field">
           <label class="radio">
-            <input class="radio__input" type="radio" name="type" value="single" checked>
+            <input class="radio__input js-field__input-type" type="radio" name="type" value="single" checked>
             <span class="radio__label">single</span>
           </label>
         </div>
         <div class="settings__field">
           <label class="radio">
-            <input class="radio__input" type="radio" name="type" value="from-start">
+            <input class="radio__input js-field__input-type" type="radio" name="type" value="from-start">
             <span class="radio__label">from-start</span>
           </label>
         </div>
         <div class="settings__field">
           <label class="radio">
-            <input class="radio__input" type="radio" name="type" value="from-end">
+            <input class="radio__input js-field__input-type" type="radio" name="type" value="from-end">
             <span class="radio__label">from-end</span>
           </label>
         </div>
         <div class="settings__field">
           <label class="radio">
-            <input class="radio__input" type="radio" name="type" value="double">
+            <input class="radio__input js-field__input-type" type="radio" name="type" value="double">
             <span class="radio__label">double</span>
           </label>
         </div>
@@ -45,13 +45,13 @@
       <div class="settings__fields">
         <div class="settings__field">
           <label class="radio">
-            <input class="radio__input" type="radio" name="orientation" value="horizontal" checked>
+            <input class="radio__input js-field__input-orientaion" type="radio" name="orientation" value="horizontal" checked>
             <span class="radio__label">horizontal</span>
           </label>
         </div>
         <div class="settings__field">
           <label class="radio">
-            <input class="radio__input" type="radio" name="orientation" value="vertical">
+            <input class="radio__input js-field__input-orientaion" type="radio" name="orientation" value="vertical">
             <span class="radio__label">vertical</span>
           </label>
         </div>
@@ -63,13 +63,13 @@
         <div class="settings__field">
           <label class="field">
             <span class="field__label">min:</span>
-            <input class="field__input" type="text" name="min" value="0">
+            <input class="field__input js-field__input-min" type="text" name="min" value="0">
           </label>
         </div>
         <div class="settings__field">
           <label class="field">
             <span class="field__label">max:</span>
-            <input class="field__input" type="text" name="max" value="100">
+            <input class="field__input js-field__input-max" type="text" name="max" value="100">
           </label>
         </div>
       </div>
@@ -80,13 +80,13 @@
         <div class="settings__field">
           <label class="field">
             <span class="field__label">from:</span>
-            <input class="field__input" type="text" name="from" value="10">
+            <input class="field__input js-field__input-from" type="text" name="from" value="10">
           </label>
         </div>
         <div class="settings__field">
           <label class="field">
             <span class="field__label">to:</span>
-            <input class="field__input" type="text" name="to" value="50">
+            <input class="field__input js-field__input-to" type="text" name="to" value="50">
           </label>
         </div>
       </div>
@@ -94,13 +94,13 @@
       <h2 class="settings__title">fixed values:</h2>
       <div class="settings__field">
         <label class="checkbox">
-          <input class="checkbox__input" type="checkbox" name="fixed-from" value="100">
+          <input class="checkbox__input js-field__input-from-fixed" type="checkbox" name="fixed-from" value="100">
           <span class="checkbox__label">fixed from</span>
         </label>
       </div>
       <div class="settings__field">
         <label class="fixed">
-          <input class="checkbox__input" type="checkbox" name="fixed-to" value="100">
+          <input class="checkbox__input js-field__input-to-fixed" type="checkbox" name="fixed-to" value="100">
           <span class="checkbox__label">fixed to</span>
         </label>
       </div>
@@ -111,26 +111,26 @@
         <div class="settings__field">
           <label class="field">
             <span class="field__label">step:</span>
-            <input class="field__input" type="text" name="step" value="1">
+            <input class="field__input js-field__input-step" type="text" name="step" value="1">
           </label>
         </div>
       </div>
     </div>
-    <div class="settings__callbacks">
-      <div class="settings__callback">
-        <div class="callback callback_create js-callback_create">create</div>
+    <div class="settings__indicators">
+      <div class="settings__indicator">
+        <div class="indicator js-indicator js-indicator-oncreate">create</div>
       </div>
-      <div class="settings__callback">
-        <div class="callback callback_start js-callback_start">start</div>
+      <div class="settings__indicator">
+        <div class="indicator js-indicator js-indicator-onstart">start</div>
       </div>
-      <div class="settings__callback">
-        <div class="callback callback_slide js-callback_slide">slide</div>
+      <div class="settings__indicator">
+        <div class="indicator js-indicator js-indicator-onslide">slide</div>
       </div>
-      <div class="settings__callback">
-        <div class="callback callback_end js-callback_end">end</div>
+      <div class="settings__indicator">
+        <div class="indicator js-indicator js-indicator-onend">end</div>
       </div>
-      <div class="settings__callback">
-        <div class="callback callback_update js-callback_update">update</div>
+      <div class="settings__indicator">
+        <div class="indicator js-indicator js-indicator-onupdate">update</div>
       </div>
     </div>  
   </div>

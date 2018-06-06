@@ -1,5 +1,6 @@
 import IEvent from './../observer/observer';
-import { IModel, IOptions, IEvents, initialOptions } from './namespace';
+import { IModel, IOptions, IEvents } from './namespace';
+import { initialOptions } from './initial';
 import { bind } from 'decko';
 
 export default class Model implements IModel {

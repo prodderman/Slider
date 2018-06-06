@@ -8,16 +8,6 @@ export interface ICallbacks {
   onUpdate: TCallback | null;
 }
 
-export type TEvent = MouseEvent | KeyboardEvent | TouchEvent | CustomEvent;
-
-export interface CustomEvents {
-  create: TEvent;
-  start: TEvent;
-  slide: TEvent;
-  end: TEvent;
-  update: TEvent;
-}
-
 export interface IModelViewData {
   type?: TSliderType;
   orientation?: TOrientation;
@@ -30,4 +20,7 @@ export interface IModelViewData {
   step?: number;
 }
 
+export type TCustomEvents =
+  |'vanillastart' | 'vanillaend' | 'vanillaslide' | 'vanillaupdate' | 'vanillacreate';
+export type TEvent = MouseEvent | KeyboardEvent | TouchEvent | CustomEvent;
 export type TCallback = (event: Event, data: IModelViewData) => void;
