@@ -3,20 +3,26 @@ import VanillaSlider from './slider';
 import $ from 'jquery';
 
 $(document).ready(function() { 
-  const $create = $('.js-callback_create'),
-        $slide =$('.js-callback_slide'),
-        $start =$('.js-callback_start'),
-        $end =$('.js-callback_end'),
-        $update =$('.js-callback_update'),
-        $from = $('input[name="from"]'),
-        $to = $('input[name="to"]'),
-        $min = $('input[name="min"]'),
-        $max = $('input[name="max"]'),
-        $type = $('input[name="type"]'),
-        $orientation = $('input[name="orientation"]'),
-        $step = $('input[name="step"]'),
-        $fromFixed = $('input[name="fixed-from"]'),
-        $toFixed = $('input[name="fixed-to"]');
+  const constrols = {
+    $from: $('.js-field__input-from'),
+    $to: $('.js-field__input-to'),
+    $min: $('.js-field__input-min'),
+    $max: $('.js-field__input-max'),
+    $type: $('.js-field__input-type'),
+    $orientation: $('.js-field__input-orientaion'),
+    $step: $('.js-field__input-step'),
+    $fromFixed: $('.js-field__input-from-fixed'),
+    $toFixed: $('.js-field__input-to-fixed')
+  }
+
+  const indicators = {
+    $create: $('.js-indicator-oncreate'),
+    $slide: $('.js-indicator-onslide'),
+    $start: $('.js-indicator-onstart'),
+    $end: $('.js-indicator-onend'),
+    $update: $('.js-indicator-onupdate'),
+  }
+
   let onCreateTimeId,
       onStartTimeId,
       onSlideTimeId,
@@ -24,7 +30,7 @@ $(document).ready(function() {
       onUpdateTimeId;
 
   const remove = function() {
-    $('.callback').removeClass('active');
+    $('.js-indicator').removeClass('active');
   }
 
   const slider = new VanillaSlider('.js-slider', {
@@ -33,89 +39,89 @@ $(document).ready(function() {
     from: 10,
     to: 50,
     onCreate: (event, data) => {
-      $from.val(data.from);
-      $to.val(data.to);
-      $min.val(data.min);
-      $max.val(data.max);
-      $step.val(data.step);
-      $fromFixed.attr('checked', data.fromFixed);
-      $toFixed.attr('checked', data.toFixed);
-      $type.filter(`input[value=${data.type}]`).prop('checked', true);
-      $orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
-      $create.addClass('active');
+      constrols.$from.val(data.from);
+      constrols.$to.val(data.to);
+      constrols.$min.val(data.min);
+      constrols.$max.val(data.max);
+      constrols.$step.val(data.step);
+      constrols.$fromFixed.attr('checked', data.fromFixed);
+      constrols.$toFixed.attr('checked', data.toFixed);
+      constrols.$type.filter(`input[value=${data.type}]`).prop('checked', true);
+      constrols.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
+      indicators.$create.addClass('active');
       clearTimeout(onCreateTimeId);
       onCreateTimeId = setTimeout(remove, 200);
     },
     onStart: (event, data) => {
-      $from.val(data.from);
-      $to.val(data.to);
-      $start.addClass('active');
+      constrols.$from.val(data.from);
+      constrols.$to.val(data.to);
+      indicators.$start.addClass('active');
       clearTimeout(onStartTimeId);
       onStartTimeId = setTimeout(remove, 200);
     },
     onSlide: (event, data) => {
-      $from.val(data.from);
-      $to.val(data.to);
-      $slide.addClass('active');
+      constrols.$from.val(data.from);
+      constrols.$to.val(data.to);
+      indicators.$slide.addClass('active');
       clearTimeout(onSlideTimeId);
       onSlideTimeId = setTimeout(remove, 200);
     },
     onEnd: (event, data) => {
-      $from.val(data.from);
-      $to.val(data.to);
-      $end.addClass('active');
+      constrols.$from.val(data.from);
+      constrols.$to.val(data.to);
+      indicators.$end.addClass('active');
       clearTimeout(onEndTimeId);
       onEndTimeId = setTimeout(remove, 200);
     },
     onUpdate: (event, data) => {
-      $from.val(data.from);
-      $to.val(data.to);
-      $min.val(data.min);
-      $max.val(data.max);
-      $step.val(data.step);
-      $fromFixed.attr('checked', data.fromFixed);
-      $toFixed.attr('checked', data.toFixed);
-      $type.filter(`input[value=${data.type}]`).prop('checked', true);
-      $orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
-      $update.addClass('active');
+      constrols.$from.val(data.from);
+      constrols.$to.val(data.to);
+      constrols.$min.val(data.min);
+      constrols.$max.val(data.max);
+      constrols.$step.val(data.step);
+      constrols.$fromFixed.attr('checked', data.fromFixed);
+      constrols.$toFixed.attr('checked', data.toFixed);
+      constrols.$type.filter(`input[value=${data.type}]`).prop('checked', true);
+      constrols.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
+      indicators.$update.addClass('active');
       clearTimeout(onUpdateTimeId);
       onUpdateTimeId = setTimeout(remove, 200);
     }
   });
 
-  $type.change((event) => {
+  constrols.$type.change((event) => {
     setSliderOption(slider, 'type', event.target.value);
   });
 
-  $orientation.change((event) => {
+  constrols.$orientation.change((event) => {
     setSliderOption(slider, 'orientation', event.target.value);
   });
 
-  $min.focusout((event) => {
+  constrols.$min.focusout((event) => {
     setSliderOption(slider, 'min', event.target.value);
   });
 
-  $max.focusout((event) => {
+  constrols.$max.focusout((event) => {
     setSliderOption(slider, 'max', event.target.value);
   });
 
-  $from.focusout((event) => {
+  constrols.$from.focusout((event) => {
     setSliderOption(slider, 'from', event.target.value);
   });
 
-  $to.focusout((event) => {
+  constrols.$to.focusout((event) => {
     setSliderOption(slider, 'to', event.target.value);
   });
 
-  $fromFixed.change((event) => {
+  constrols.$fromFixed.change((event) => {
     setSliderOption(slider, 'fromFixed', event.target.checked);
   });
 
-  $toFixed.change((event) => {
+  constrols.$toFixed.change((event) => {
     setSliderOption(slider, 'toFixed', event.target.checked);
   });
 
-  $step.focusout((event) => {
+  constrols.$step.focusout((event) => {
     setSliderOption(slider, 'step', event.target.value);
   });
 });
