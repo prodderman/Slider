@@ -3,10 +3,11 @@ import './theme.scss';
 import { bind } from 'decko';
 
 import IEvent from './../observer/observer';
-import { IOptions, IEvents, INodes, TRoot, initialOptions, IHandle } from './namespace';
+import { IOptions, IEvents, INodes, TRoot } from './namespace';
+import { initialOptions } from './initial';
 
 export default class View {
-  private handle: IHandle | null = null;
+  private handle: HTMLSpanElement | null = null;
 
   private viewEvents: IEvents  = {
     slideStart: new IEvent(),
@@ -166,7 +167,7 @@ export default class View {
     this.handle = null;
   }
 
-  private chooseHandle(mouseCoord: number): IHandle | null {
+  private chooseHandle(mouseCoord: number): HTMLSpanElement | null {
     const opt = this.options;
     const nodes = this.nodes;
     if (this.handle) { return this.handle; }
@@ -192,8 +193,8 @@ export default class View {
     return event[axis] - nodes.track[offset];
   }
 
-  private getHandleCoord(handle: IHandle): number {
-    const offset = this.options.orientation === 'horizontal' ? 'offsetLeft' : 'offsetRight';
+  private getHandleCoord(handle: HTMLSpanElement): number {
+    const offset: keyof HTMLSpanElement = this.options.orientation === 'horizontal' ? 'offsetLeft' : 'offsetTop';
     const size = this.options.orientation === 'horizontal' ? 'offsetWidth' : 'offsetHeight';
     return handle[offset] + handle[size] / 2;
   }

@@ -2,9 +2,12 @@ import Model from './components/model/model';
 import View from './components/view/view';
 import Controller from './components/controller/controller';
 
-import { IOptions as IModelOptions, initialOptions as initialModel } from './components/model/namespace';
-import { IOptions as IViewOptions, TOrientation, TRoot, initialOptions as initialView } from './components/view/namespace';
-import { ICallbacks, TCallback, initialOptions as initialController } from './components/controller/namespace';
+import { IOptions as IModelOptions } from './components/model/namespace';
+import { initialOptions as initialModel } from './components/model/initial';
+import { IOptions as IViewOptions, TOrientation, TRoot } from './components/view/namespace';
+import { initialOptions as initialView } from './components/view/initial';
+import { ICallbacks, TCallback } from './components/controller/namespace';
+import { initialOptions as initialController } from './components/controller/initial';
 import { IOptions, TNode } from 'namespace';
 
 class SliderConstructor {
@@ -67,28 +70,28 @@ class SliderConstructor {
     this.setCallback('onUpdate', options.onUpdate);
   }
 
-  private setNumberOption(optionName: string, value?: string | number) {
+  private setNumberOption(optionName: keyof IModelOptions, value?: string | number) {
     if (value !== void(0) && !Number.isNaN(Number(value))) {
       this.modelOptions[optionName] = Number(value);
     }
   }
 
-  private setFixedOption(optionName: string, value?: string | boolean) {
+  private setFixedOption(optionName: keyof IModelOptions & keyof IViewOptions & ('fromFixed' | 'toFixed'), value?: string | boolean) {
     if (value !== void(0)) {
       this.modelOptions[optionName] = JSON.parse(value.toString());
       this.viewOptions[optionName] = JSON.parse(value.toString());
     }
   }
 
-  private setCallback(optionName: string, value?: TCallback) {
+  private setCallback(optionName: keyof ICallbacks, value?: TCallback) {
     if (value !== void(0) && typeof value === 'function')
     this.controllerCallbacks[optionName] = value;
   }
 }
 
 export default class VanillaSlider {
-  setOptions: (options: IOptions) => void;
-  data: IOptions;
+  public setOptions: (options: IOptions) => void;
+  public data: IOptions;
 
   private static instances: Map<TRoot, VanillaSlider> = new Map();
 
@@ -100,7 +103,7 @@ export default class VanillaSlider {
     VanillaSlider.instances.set(validatedNode, this);
   }
 
-  static getInstance(node: TNode): VanillaSlider | undefined {
+  public static getInstance(node: TNode): VanillaSlider | undefined {
     const validatedNode = VanillaSlider.getValidateNode(node);
     return VanillaSlider.instances.has(validatedNode) ? VanillaSlider.instances.get(validatedNode) : undefined;
   }
