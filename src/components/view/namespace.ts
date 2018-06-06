@@ -5,7 +5,6 @@ export interface IOptions {
   orientation: TOrientation;
   fromFixed: boolean;
   toFixed: boolean;
-  [key: string]: any;
 }
 
 export interface INodes {
@@ -13,7 +12,6 @@ export interface INodes {
   from: HTMLSpanElement;
   to: HTMLSpanElement;
   range: HTMLDivElement;
-  [key: string]: HTMLDivElement | HTMLSpanElement;
 }
 
 export interface IEvents {
@@ -21,20 +19,8 @@ export interface IEvents {
   slideEnd: IEvent;
   fromChanged: IEvent;
   toChanged: IEvent;
-  [key: string]: IEvent;
-}
-
-export interface IHandle extends HTMLSpanElement {
-  [key: string]: any;
 }
 
 export type TSliderType = 'single' | 'from-start' | 'from-end' | 'double';
 export type TOrientation = 'vertical' | 'horizontal';
 export type TRoot = HTMLDivElement | HTMLSpanElement;
-
-export const initialOptions: IOptions = {
-  type: 'single',
-  orientation: 'horizontal',
-  fromFixed: false,
-  toFixed: false
-};

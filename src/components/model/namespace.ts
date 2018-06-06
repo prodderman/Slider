@@ -14,21 +14,9 @@ export interface IOptions {
   to: number;
   toFixed: boolean;
   step: number;
-  [key: string]: any;
 }
 
 export interface IEvents {
   fromChanged: IEvent;
   toChanged: IEvent;
 }
-
-export const initialOptions: IOptions = {
-    type: false,
-    min: 0,
-    max: 100,
-    from: 0,
-    fromFixed: false,
-    to: 0,
-    toFixed: false,
-    step: 1
-};
