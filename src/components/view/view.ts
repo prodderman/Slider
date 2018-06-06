@@ -90,7 +90,7 @@ export default class View {
   }
 
   private setHandlers() {
-    window.removeEventListener('mousemove', this.continueDragging);
+    window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.finishDragging);
     this.nodes.track.addEventListener('mousedown', this.startDragging);
   }
@@ -143,14 +143,14 @@ export default class View {
       this.handle.classList.add('active');
       this.handle.classList.add('vanilla-slider__handle_last-type');
       this.viewEvents.slideStart.notify(this.handle);
-      this.continueDragging(event);
+      this.drag(event);
     }
-    window.addEventListener('mousemove', this.continueDragging);
+    window.addEventListener('mousemove', this.drag);
     window.addEventListener('mouseup', this.finishDragging);
   }
 
   @bind
-  private continueDragging(event: MouseEvent) {
+  private drag(event: MouseEvent) {
     const nodes = this.nodes;
     const coord = this.getRelativeCoord(event);
     const eventForNotify = this.handle === nodes.from ? 'fromChanged' : 'toChanged';
@@ -160,7 +160,7 @@ export default class View {
   @bind
   private finishDragging(event: MouseEvent) {
     if (!this.handle) { return; }
-    window.removeEventListener('mousemove', this.continueDragging);
+    window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.finishDragging);
     this.handle.classList.remove('active');
     this.viewEvents.slideEnd.notify(this.handle);
