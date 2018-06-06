@@ -3,10 +3,10 @@ import './theme.scss';
 import { bind } from 'decko';
 
 import IEvent from './../observer/observer';
-import { IOptions, IEvents, INodes, TRoot } from './namespace';
+import { IOptions, IEvents, INodes, TRoot, IView } from './namespace';
 import { initialOptions } from './initial';
 
-export default class View {
+class View implements IView {
   private handle: HTMLSpanElement | null = null;
 
   private viewEvents: IEvents  = {
@@ -16,7 +16,7 @@ export default class View {
     toChanged: new IEvent(),
   };
 
-  private options: IOptions = {...initialOptions};
+  private options: IOptions = { ...initialOptions };
 
   private nodes!: INodes;
 
@@ -38,21 +38,21 @@ export default class View {
   }
 
   @bind
-  public calcFrom(from: number) {
-    const opt = this.options;
-    const nodes = this.nodes;
-    const base = opt.orientation === 'vertical' ? 'bottom' : 'left';
-    nodes.from.style[base] = `${from}%`;
+  public calcFrom(fromValue: number) {
+    const orientation = this.options.orientation;
+    const from = this.nodes.from;
+    const base: keyof CSSStyleDeclaration = orientation === 'vertical' ? 'bottom' : 'left';
+    from.style[base] = `${fromValue}%`;
     this.calcRange();
   }
 
   @bind
-  public calcTo(to: number) {
+  public calcTo(toValue: number) {
     if (this.options.type !== 'double') { return; }
-    const opt = this.options;
-    const nodes = this.nodes;
-    const base = opt.orientation === 'vertical' ? 'bottom' : 'left';
-    nodes.to.style[base] = `${to}%`;
+    const orientation = this.options.orientation;
+    const to = this.nodes.to;
+    const base: keyof CSSStyleDeclaration = orientation === 'vertical' ? 'bottom' : 'left';
+    to.style[base] = `${toValue}%`;
     this.calcRange();
   }
 
@@ -72,19 +72,19 @@ export default class View {
   }
 
   private setOptions(options: IOptions) {
-    this.options = {...options};
+    this.options = { ...options };
   }
 
   private render() {
-    const opt = this.options;
+    const type = this.options.type;
     const nodes = this.nodes;
     nodes.track.appendChild(nodes.from);
 
-    if (opt.type !== 'single') {
+    if (type !== 'single') {
       nodes.track.appendChild(nodes.range);
     }
 
-    if (opt.type === 'double') {
+    if (type === 'double') {
       nodes.track.appendChild(nodes.to);
     }
   }
@@ -99,8 +99,8 @@ export default class View {
     if (this.options.type === 'single') { return; }
     const opt = this.options;
     const nodes = this.nodes;
-    const baseStart = opt.orientation === 'vertical' ? 'bottom' : 'left';
-    const baseEnd = opt.orientation === 'vertical' ? 'top' : 'right';
+    const baseStart: keyof CSSStyleDeclaration = opt.orientation === 'vertical' ? 'bottom' : 'left';
+    const baseEnd: keyof CSSStyleDeclaration = opt.orientation === 'vertical' ? 'top' : 'right';
     const handle = opt.type === 'double' ? 'to' : 'from';
     nodes.range.style[baseStart] = opt.type === 'from-start' ? '0' : nodes.from.style[baseStart];
     nodes.range.style[baseEnd] = opt.type === 'from-end' ? '0' : `${100 - parseFloat(<string>nodes[handle].style[baseStart])}%`;
@@ -144,9 +144,9 @@ export default class View {
       this.handle.classList.add('vanilla-slider__handle_last-type');
       this.viewEvents.slideStart.notify(this.handle);
       this.drag(event);
+      window.addEventListener('mousemove', this.drag);
+      window.addEventListener('mouseup', this.finishDragging);
     }
-    window.addEventListener('mousemove', this.drag);
-    window.addEventListener('mouseup', this.finishDragging);
   }
 
   @bind
@@ -194,8 +194,10 @@ export default class View {
   }
 
   private getHandleCoord(handle: HTMLSpanElement): number {
-    const offset: keyof HTMLSpanElement = this.options.orientation === 'horizontal' ? 'offsetLeft' : 'offsetTop';
+    const offset: keyof typeof handle = this.options.orientation === 'horizontal' ? 'offsetLeft' : 'offsetTop';
     const size = this.options.orientation === 'horizontal' ? 'offsetWidth' : 'offsetHeight';
     return handle[offset] + handle[size] / 2;
   }
 }
+
+export default View;

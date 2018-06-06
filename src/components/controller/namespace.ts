@@ -1,5 +1,9 @@
 import { TSliderType, TOrientation } from '../view/namespace';
 
+export interface IController {
+  update: (callback: ICallbacks) => void;
+}
+
 export interface ICallbacks {
   onCreate: TCallback | null;
   onStart: TCallback | null;

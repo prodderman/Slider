@@ -11,9 +11,9 @@ import { initialOptions as initialController } from './components/controller/ini
 import { IOptions, TNode } from 'namespace';
 
 class SliderConstructor {
-  private modelOptions: IModelOptions = {...initialModel};
-  private viewOptions: IViewOptions = {...initialView};
-  private controllerCallbacks: ICallbacks = {...initialController};
+  private modelOptions: IModelOptions = { ...initialModel };
+  private viewOptions: IViewOptions = { ...initialView };
+  private controllerCallbacks: ICallbacks = { ...initialController };
 
   private view!: View;
   private model!: Model;
@@ -24,7 +24,7 @@ class SliderConstructor {
   }
 
   get data(): IOptions {
-    return {...this.model.data, ...this.view.data};
+    return { ...this.model.data, ...this.view.data };
   }
 
   public update(options: IOptions): void {
@@ -44,8 +44,8 @@ class SliderConstructor {
   }
 
   private setOptions(options: IOptions): void {
-    this.modelOptions = {...this.model.data};
-    this.viewOptions = {...this.view.data};
+    this.modelOptions = { ...this.model.data };
+    this.viewOptions = { ...this.view.data };
 
     if (options.type && ['single', 'from-start', 'from-end', 'double'].includes(options.type)) {
       this.viewOptions.type = options.type;

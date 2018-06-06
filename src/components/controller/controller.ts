@@ -1,15 +1,13 @@
-import Model from './../model/model';
-import View from './../view/view';
-
-import { TRoot } from '../view/namespace';
-import { ICallbacks, TEvent, TCallback, TCustomEvents, IModelViewData } from './namespace';
+import { IModel } from './../model/namespace';
+import { TRoot, IView } from '../view/namespace';
+import { ICallbacks, TEvent, TCallback, TCustomEvents, IModelViewData, IController } from './namespace';
 import { initialOptions } from './initial';
 
-export default class Controller {
+class Controller implements IController {
 
   private callbacks: ICallbacks = {...initialOptions};
 
-  constructor(private model: Model, private view: View, callbacks: ICallbacks) {
+  constructor(private model: IModel, private view: IView, callbacks: ICallbacks) {
     this.init(callbacks);
   }
 
@@ -20,7 +18,7 @@ export default class Controller {
     this.view.calcTo(this.convertToPercent(this.model.data.to));
   }
 
-  private init(callbacks: ICallbacks): void {
+  private init(callbacks: ICallbacks) {
     this.setCallbacks(callbacks);
     this.emitEvent('vanillacreate', this.view.rootObject, this.callbacks.onCreate, this.getModelViewData());
     this.attachModelEvents();
@@ -92,7 +90,7 @@ export default class Controller {
     this.callClientCallback(customEvent, eventData, clientCallback);
   }
 
-  private callClientCallback(event: TEvent, data: IModelViewData, callback: TCallback | null): void {
+  private callClientCallback(event: TEvent, data: IModelViewData, callback: TCallback | null) {
     if (callback) {
       callback(event, data);
     }
@@ -110,3 +108,5 @@ export default class Controller {
     return { ...this.model.data, ...this.view.data };
   }
 }
+
+export default Controller;

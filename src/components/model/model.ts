@@ -3,7 +3,7 @@ import { IModel, IOptions, IEvents } from './namespace';
 import { initialOptions } from './initial';
 import { bind } from 'decko';
 
-export default class Model implements IModel {
+class Model implements IModel {
   private modelEvents: IEvents = {
     fromChanged: new IEvent(),
     toChanged: new IEvent(),
@@ -20,7 +20,7 @@ export default class Model implements IModel {
   }
 
   @bind
-  public update(options: IOptions): void {
+  public update(options: IOptions) {
     this.setType(options.type);
     this.setStep(options.step);
     this.setRange(options.min, options.max);
@@ -29,7 +29,7 @@ export default class Model implements IModel {
   }
 
   @bind
-  public calcFromWithStep(realValue: number): void {
+  public calcFromWithStep(realValue: number) {
     const opt = this.options;
     if (opt.fromFixed) { return; }
 
@@ -44,7 +44,7 @@ export default class Model implements IModel {
   }
 
   @bind
-  public calcToWithStep(realValue: number): void {
+  public calcToWithStep(realValue: number) {
     const opt = this.options;
     if (!opt.type || opt.toFixed) { return; }
 
@@ -58,22 +58,21 @@ export default class Model implements IModel {
     }
   }
 
-  private setRange(min = this.options.min, max = this.options.max): void {
+  private setRange(min = this.options.min, max = this.options.max) {
     this.options.min = min > max ? max : min;
     this.options.max = max;
     this.updateFromTo();
   }
 
-  private setValues(from = this.options.from, to = this.options.to): void {
+  private setValues(from = this.options.from, to = this.options.to) {
     this.options.from = from;
     this.options.to = to;
     this.updateFromTo();
   }
 
-  private setStep(step: number): void {
+  private setStep(step: number) {
     const opt = this.options;
     const range = opt.max - opt.min;
-
     if (step <= 0) {
       opt.step = 1;
       return;
@@ -86,25 +85,27 @@ export default class Model implements IModel {
     opt.step = step;
   }
 
-  private setType(type: boolean): void {
+  private setType(type: boolean) {
     this.options.type = type;
     this.updateFromTo();
   }
 
-  private setFixed(from = this.options.fromFixed, to = this.options.toFixed): void {
+  private setFixed(from = this.options.fromFixed, to = this.options.toFixed) {
     this.options.fromFixed = from;
     this.options.toFixed = to;
   }
 
-  private updateFromTo(): void {
+  private updateFromTo() {
     const opt = this.options;
     opt.from = this.correctDiapason(opt.from, opt.min, opt.max);
     opt.to = opt.type ? this.correctDiapason(opt.to, opt.from, opt.max) : opt.to;
   }
 
-  private correctDiapason(value: number, min = this.options.min, max = this.options.min): number {
-    if (value < min) { return min; }
-    if (value > max) { return max; }
+  private correctDiapason(value: number, min: number, max: number): number {
+    if (value <= min) { return min; }
+    if (value >= max) { return max; }
     return value;
   }
 }
+
+export default Model;

@@ -1,5 +1,15 @@
 import IEvent from './../observer/observer';
 
+export interface IView {
+  readonly data: IOptions;
+  readonly events: IEvents;
+  readonly nodesData: INodes;
+  readonly rootObject: TRoot;
+  update: (viewOptions: IOptions) => void;
+  calcFrom: (from: number) => void;
+  calcTo: (to: number) => void;
+}
+
 export interface IOptions {
   type: TSliderType;
   orientation: TOrientation;

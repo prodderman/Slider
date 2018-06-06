@@ -3,6 +3,9 @@ import IEvent from './../observer/observer';
 export interface IModel {
   readonly data: IOptions;
   readonly events: IEvents;
+  update: (options: IOptions) => void;
+  calcFromWithStep: (realValue: number) => void;
+  calcToWithStep: (realValue: number) => void;
 }
 
 export interface IOptions {
