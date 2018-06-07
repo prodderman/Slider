@@ -1,5 +1,5 @@
-export interface IEvent {
+export interface IObserver<A> {
   attach(listener: Function): void;
   remove(listener: Function): void;
-  notify<A>(args?: A): void;
+  notify(...args: A[]): void;
 }

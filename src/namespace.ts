@@ -13,10 +13,10 @@ export interface IOptions {
     step?: number | string;
 
     onCreate?: TCallback;
-    onStart?: TCallback;
+    onSlideStart?: TCallback;
     onSlide?: TCallback;
-    onEnd?: TCallback;
+    onSlideFinish?: TCallback;
     onUpdate?: TCallback;
   }
 
-export type TNode = Element | HTMLElement | HTMLCollection | string | null;
+export type TNode = Element | HTMLCollection | string | null;

@@ -1,14 +1,14 @@
 import { TSliderType, TOrientation } from '../view/namespace';
 
 export interface IController {
-  update: (callback: ICallbacks) => void;
+  updateClientsCallbacks(callbacks: ICallbacks): void;
 }
 
 export interface ICallbacks {
   onCreate: TCallback | null;
-  onStart: TCallback | null;
+  onSlideStart: TCallback | null;
   onSlide: TCallback | null;
-  onEnd: TCallback | null;
+  onSlideFinish: TCallback | null;
   onUpdate: TCallback | null;
 }
 
@@ -25,6 +25,5 @@ export interface IModelViewData {
 }
 
 export type TCustomEvents =
-  |'vanillastart' | 'vanillaend' | 'vanillaslide' | 'vanillaupdate' | 'vanillacreate';
-export type TEvent = MouseEvent | KeyboardEvent | TouchEvent | CustomEvent;
+  |'vanillastart' | 'vanillafinish' | 'vanillaslide' | 'vanillaupdate' | 'vanillacreate';
 export type TCallback = (event: Event, data: IModelViewData) => void;

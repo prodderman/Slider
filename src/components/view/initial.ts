@@ -1,8 +1,8 @@
-import { IOptions } from './namespace';
+import { IOptions, TSliderType, TOrientation } from './namespace';
 
 export const initialOptions: IOptions = {
-  type: 'single',
-  orientation: 'horizontal',
+  type: TSliderType.single,
+  orientation: TOrientation.horizontal,
   fromFixed: false,
   toFixed: false
 };

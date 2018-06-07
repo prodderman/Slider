@@ -3,13 +3,13 @@ import VanillaSlider from './slider';
 import $ from 'jquery';
 
 $(document).ready(function() { 
-  const constrols = {
+  const controls = {
     $from: $('.js-field__input-from'),
     $to: $('.js-field__input-to'),
     $min: $('.js-field__input-min'),
     $max: $('.js-field__input-max'),
     $type: $('.js-field__input-type'),
-    $orientation: $('.js-field__input-orientaion'),
+    $orientation: $('.js-field__input-orientation'),
     $step: $('.js-field__input-step'),
     $fromFixed: $('.js-field__input-from-fixed'),
     $toFixed: $('.js-field__input-to-fixed')
@@ -19,7 +19,7 @@ $(document).ready(function() {
     $create: $('.js-indicator-oncreate'),
     $slide: $('.js-indicator-onslide'),
     $start: $('.js-indicator-onstart'),
-    $end: $('.js-indicator-onend'),
+    $finish: $('.js-indicator-onfinish'),
     $update: $('.js-indicator-onupdate'),
   }
 
@@ -39,89 +39,95 @@ $(document).ready(function() {
     from: 10,
     to: 50,
     onCreate: (event, data) => {
-      constrols.$from.val(data.from);
-      constrols.$to.val(data.to);
-      constrols.$min.val(data.min);
-      constrols.$max.val(data.max);
-      constrols.$step.val(data.step);
-      constrols.$fromFixed.attr('checked', data.fromFixed);
-      constrols.$toFixed.attr('checked', data.toFixed);
-      constrols.$type.filter(`input[value=${data.type}]`).prop('checked', true);
-      constrols.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
+      controls.$from.val(data.from);
+      controls.$to.val(data.to);
+      controls.$min.val(data.min);
+      controls.$max.val(data.max);
+      controls.$step.val(data.step);
+      controls.$fromFixed.attr('checked', data.fromFixed);
+      controls.$toFixed.attr('checked', data.toFixed);
+      controls.$type.filter(`input[value=${data.type}]`).prop('checked', true);
+      controls.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
       indicators.$create.addClass('active');
       clearTimeout(onCreateTimeId);
       onCreateTimeId = setTimeout(remove, 200);
     },
-    onStart: (event, data) => {
-      constrols.$from.val(data.from);
-      constrols.$to.val(data.to);
+    onSlideStart: (event, data) => {
+      controls.$from.val(data.from);
+      controls.$to.val(data.to);
       indicators.$start.addClass('active');
       clearTimeout(onStartTimeId);
       onStartTimeId = setTimeout(remove, 200);
     },
     onSlide: (event, data) => {
-      constrols.$from.val(data.from);
-      constrols.$to.val(data.to);
+      controls.$from.val(data.from);
+      controls.$to.val(data.to);
       indicators.$slide.addClass('active');
       clearTimeout(onSlideTimeId);
       onSlideTimeId = setTimeout(remove, 200);
     },
-    onEnd: (event, data) => {
-      constrols.$from.val(data.from);
-      constrols.$to.val(data.to);
-      indicators.$end.addClass('active');
+    onSlideFinish: (event, data) => {
+      controls.$from.val(data.from);
+      controls.$to.val(data.to);
+      indicators.$finish.addClass('active');
       clearTimeout(onEndTimeId);
       onEndTimeId = setTimeout(remove, 200);
     },
     onUpdate: (event, data) => {
-      constrols.$from.val(data.from);
-      constrols.$to.val(data.to);
-      constrols.$min.val(data.min);
-      constrols.$max.val(data.max);
-      constrols.$step.val(data.step);
-      constrols.$fromFixed.attr('checked', data.fromFixed);
-      constrols.$toFixed.attr('checked', data.toFixed);
-      constrols.$type.filter(`input[value=${data.type}]`).prop('checked', true);
-      constrols.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
+      controls.$from.val(data.from);
+      controls.$to.val(data.to);
+      controls.$min.val(data.min);
+      controls.$max.val(data.max);
+      controls.$step.val(data.step);
+      controls.$fromFixed.attr('checked', data.fromFixed);
+      controls.$toFixed.attr('checked', data.toFixed);
+      controls.$type.filter(`input[value=${data.type}]`).prop('checked', true);
+      controls.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
       indicators.$update.addClass('active');
       clearTimeout(onUpdateTimeId);
       onUpdateTimeId = setTimeout(remove, 200);
     }
   });
 
-  constrols.$type.change((event) => {
+  // get slider instance by node
+  const slider2 = VanillaSlider.getInstance(document.getElementsByClassName('js-slider')[0]);
+
+  // change options
+  slider2.setOptions({min: -200, max: 200});
+
+  controls.$type.change((event) => {
     setSliderOption(slider, 'type', event.target.value);
   });
 
-  constrols.$orientation.change((event) => {
+  controls.$orientation.change((event) => {
     setSliderOption(slider, 'orientation', event.target.value);
   });
 
-  constrols.$min.focusout((event) => {
+  controls.$min.focusout((event) => {
     setSliderOption(slider, 'min', event.target.value);
   });
 
-  constrols.$max.focusout((event) => {
+  controls.$max.focusout((event) => {
     setSliderOption(slider, 'max', event.target.value);
   });
 
-  constrols.$from.focusout((event) => {
+  controls.$from.focusout((event) => {
     setSliderOption(slider, 'from', event.target.value);
   });
 
-  constrols.$to.focusout((event) => {
+  controls.$to.focusout((event) => {
     setSliderOption(slider, 'to', event.target.value);
   });
 
-  constrols.$fromFixed.change((event) => {
+  controls.$fromFixed.change((event) => {
     setSliderOption(slider, 'fromFixed', event.target.checked);
   });
 
-  constrols.$toFixed.change((event) => {
+  controls.$toFixed.change((event) => {
     setSliderOption(slider, 'toFixed', event.target.checked);
   });
 
-  constrols.$step.focusout((event) => {
+  controls.$step.focusout((event) => {
     setSliderOption(slider, 'step', event.target.value);
   });
 });

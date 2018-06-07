@@ -2,25 +2,19 @@ import IEvent from './../observer/observer';
 import { IModel, IOptions, IEvents } from './namespace';
 import { initialOptions } from './initial';
 import { bind } from 'decko';
+import { THandle } from '../view/namespace';
 
 class Model implements IModel {
   private modelEvents: IEvents = {
-    fromChanged: new IEvent(),
-    toChanged: new IEvent(),
+    stateChanged: new IEvent(),
   };
 
   private options: IOptions = {...initialOptions};
 
-  get data(): IOptions {
-    return this.options;
-  }
+  get data(): IOptions { return { ...this.options }; }
+  get events(): IEvents { return { ...this.modelEvents }; }
 
-  get events(): IEvents {
-    return this.modelEvents;
-  }
-
-  @bind
-  public update(options: IOptions) {
+  public updateState(options: IOptions) {
     this.setType(options.type);
     this.setStep(options.step);
     this.setRange(options.min, options.max);
@@ -28,33 +22,22 @@ class Model implements IModel {
     this.setValues(options.from, options.to);
   }
 
-  @bind
-  public calcFromWithStep(realValue: number) {
+  public updateHandleValue(handle: THandle, rawHandleValue: number) {
     const opt = this.options;
-    if (opt.fromFixed) { return; }
+    const valueFixed = handle === 'from' ? opt.fromFixed : opt.toFixed;
+    if (valueFixed) { return; }
+    const minLimitForHandle = handle === 'from' ? opt.min : opt.from;
+    const maxLimitForHandle = handle === 'from' ? opt.to : opt.max;
 
-    const valueWithStep = Math.round(( realValue - opt.min ) / opt.step);
+    const valueWithStep = Math.round(( rawHandleValue - opt.min ) / opt.step);
     const valueOffset = valueWithStep * opt.step + opt.min;
-    const valueInDiapason = opt.type ? this.correctDiapason(valueOffset, opt.min, opt.to) : this.correctDiapason(valueOffset, opt.min, opt.max);
+    const valueInDiapason = opt.type ?
+      this.correctDiapason(valueOffset, minLimitForHandle, maxLimitForHandle) :
+      this.correctDiapason(valueOffset, minLimitForHandle, opt.max);
 
-    if (valueInDiapason !== opt.from) {
-      opt.from = valueInDiapason;
-      this.modelEvents.fromChanged.notify(opt.from);
-    }
-  }
-
-  @bind
-  public calcToWithStep(realValue: number) {
-    const opt = this.options;
-    if (!opt.type || opt.toFixed) { return; }
-
-    const valueWithStep = Math.round(( realValue - opt.min ) / opt.step);
-    const valueOffset = valueWithStep  * opt.step + opt.min;
-    const valueInDiapason = this.correctDiapason(valueOffset, opt.from, opt.max);
-
-    if (valueInDiapason !== opt.to) {
-      opt.to = valueInDiapason;
-      this.modelEvents.toChanged.notify(opt.to);
+    if (valueInDiapason !== opt[handle]) {
+      opt[handle] = valueInDiapason;
+      this.modelEvents.stateChanged.notify<THandle | number>(handle, opt[handle]);
     }
   }
 

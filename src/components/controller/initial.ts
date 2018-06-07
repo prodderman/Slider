@@ -2,8 +2,8 @@ import { ICallbacks } from './namespace';
 
 export const initialOptions: ICallbacks = {
   onCreate: null,
-  onStart: null,
+  onSlideStart: null,
   onSlide: null,
-  onEnd: null,
+  onSlideFinish: null,
   onUpdate: null
 };

@@ -1,17 +1,17 @@
-import { IEvent } from './namespace';
+import { IObserver } from './namespace';
 
-export default class Event implements IEvent {
-  private listeners: Set<Function>;
+class Observer<T extends Function> implements IObserver<T> {
+  private listeners: Set<T>;
 
   public constructor() {
     this.listeners = new Set();
   }
 
-  public attach(listener: Function): void {
+  public attach(listener: T): void {
     this.listeners.add(listener);
   }
 
-  public remove(listener: Function) {
+  public remove(listener: T) {
     this.listeners.delete(listener);
   }
 
@@ -21,3 +21,5 @@ export default class Event implements IEvent {
     });
   }
 }
+
+export default Observer;

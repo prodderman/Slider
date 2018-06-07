@@ -1,37 +1,37 @@
-import { IModel } from './../model/namespace';
-import { TRoot, IView } from '../view/namespace';
-import { ICallbacks, TEvent, TCallback, TCustomEvents, IModelViewData, IController } from './namespace';
+import { IModel, THandle as TModelHandle } from './../model/namespace';
+import { IView, TEvent, INodes, THandle as TViewHandle, TOrientation } from '../view/namespace';
+import { ICallbacks, TCallback, TCustomEvents, IModelViewData, IController } from './namespace';
 import { initialOptions } from './initial';
 
 class Controller implements IController {
 
-  private callbacks: ICallbacks = {...initialOptions};
+  private callbacks: ICallbacks = { ...initialOptions };
 
   constructor(private model: IModel, private view: IView, callbacks: ICallbacks) {
     this.init(callbacks);
   }
 
-  public update(callback: ICallbacks) {
-    this.setCallbacks(callback);
-    this.emitEvent('vanillaupdate', this.view.rootObject, this.callbacks.onUpdate, this.getModelViewData());
-    this.view.calcFrom(this.convertToPercent(this.model.data.from));
-    this.view.calcTo(this.convertToPercent(this.model.data.to));
+  public updateClientsCallbacks(callbacks: ICallbacks) {
+    this.setCallbacks(callbacks);
+    this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate, this.getModelViewData());
+    this.view.changeHandlePosition('from', this.convertToPercent(this.model.data.from));
+    this.view.changeHandlePosition('to', this.convertToPercent(this.model.data.to));
   }
 
   private init(callbacks: ICallbacks) {
     this.setCallbacks(callbacks);
-    this.emitEvent('vanillacreate', this.view.rootObject, this.callbacks.onCreate, this.getModelViewData());
+    this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate, this.getModelViewData());
     this.attachModelEvents();
     this.attachViewEvents();
-    this.view.calcFrom(this.convertToPercent(this.model.data.from));
-    this.view.calcTo(this.convertToPercent(this.model.data.to));
+    this.view.changeHandlePosition('from', this.convertToPercent(this.model.data.from));
+    this.view.changeHandlePosition('to', this.convertToPercent(this.model.data.to));
   }
 
   private setCallbacks(callbacks: ICallbacks) {
     this.callbacks.onCreate = callbacks.onCreate;
-    this.callbacks.onStart = callbacks.onStart;
+    this.callbacks.onSlideStart = callbacks.onSlideStart;
     this.callbacks.onSlide = callbacks.onSlide;
-    this.callbacks.onEnd = callbacks.onEnd;
+    this.callbacks.onSlideFinish = callbacks.onSlideFinish;
     this.callbacks.onUpdate = callbacks.onUpdate;
   }
 
@@ -39,18 +39,15 @@ class Controller implements IController {
     const model = this.model;
     const view = this.view;
 
-    view.events.fromChanged.attach((realValue: number) => {
-      model.calcFromWithStep(this.convertToReal(realValue));
-    });
-    view.events.toChanged.attach((realValue: number) => {
-      model.calcToWithStep(this.convertToReal(realValue));
+    view.events.slide.attach((handle: TViewHandle, pixels: number) => {
+      model.updateHandleValue(handle, this.convertToReal(pixels));
     });
 
-    view.events.slideStart.attach((handle: HTMLSpanElement) => {
-      this.emitEvent('vanillastart', handle, this.callbacks.onStart, this.getModelViewData());
+    view.events.slideStart.attach((handle: TViewHandle) => {
+      this.emitEvent('vanillastart', handle, this.callbacks.onSlideStart, this.getModelViewData());
     });
-    view.events.slideEnd.attach((handle: HTMLSpanElement) => {
-      this.emitEvent('vanillaend', handle, this.callbacks.onEnd, this.getModelViewData());
+    view.events.slideFinish.attach((handle: keyof INodes) => {
+      this.emitEvent('vanillafinish', handle, this.callbacks.onSlideFinish, this.getModelViewData());
     });
   }
 
@@ -58,14 +55,9 @@ class Controller implements IController {
     const model = this.model;
     const view = this.view;
 
-    model.events.fromChanged.attach((fromValue: number) => {
-      view.calcFrom(this.convertToPercent(fromValue));
-      this.emitEvent('vanillaslide', view.nodesData.from, this.callbacks.onSlide, this.getModelViewData());
-    });
-
-    model.events.toChanged.attach((toValue: number) => {
-      view.calcTo(this.convertToPercent(toValue));
-      this.emitEvent('vanillaslide', view.nodesData.to, this.callbacks.onSlide, this.getModelViewData());
+    model.events.stateChanged.attach((handle: TModelHandle, value: number) => {
+      view.changeHandlePosition(handle, this.convertToPercent(value));
+      this.emitEvent('vanillaslide', handle, this.callbacks.onSlide, this.getModelViewData());
     });
   }
 
@@ -77,16 +69,16 @@ class Controller implements IController {
 
   private convertToReal(pixels: number): number {
     const modelData = this.model.data;
-    const viewNodes = this.view.nodesData;
+    const sliderSize = this.view.sliderSize;
     const range = modelData.max - modelData.min;
-    return this.view.data.orientation === 'horizontal' ?
-      Number((pixels * range / viewNodes.track.clientWidth + modelData.min).toFixed(10)) :
-      Number(((viewNodes.track.clientHeight - pixels) * range / viewNodes.track.clientHeight + modelData.min).toFixed(10));
+    return this.view.data.orientation === TOrientation.horizontal ?
+      Number((pixels * range / sliderSize.width + modelData.min).toFixed(10)) :
+      Number(((sliderSize.height - pixels) * range / sliderSize.height + modelData.min).toFixed(10));
   }
 
-  private emitEvent(eventName: TCustomEvents, eventSrc: TRoot, clientCallback: TCallback | null, eventData: IModelViewData) {
+  private emitEvent(eventName: TCustomEvents, eventSrc: keyof INodes, clientCallback: TCallback | null, eventData: IModelViewData) {
     const customEvent = this.createSliderEvent(eventName, eventData);
-    eventSrc.dispatchEvent(customEvent);
+    this.view.emitCustomEvent(customEvent, eventSrc);
     this.callClientCallback(customEvent, eventData, clientCallback);
   }
 

@@ -1,11 +1,10 @@
-import IEvent from './../observer/observer';
+import IObserver from './../observer/observer';
 
 export interface IModel {
   readonly data: IOptions;
   readonly events: IEvents;
-  update: (options: IOptions) => void;
-  calcFromWithStep: (realValue: number) => void;
-  calcToWithStep: (realValue: number) => void;
+  updateState(options: IOptions): void;
+  updateHandleValue(handle: THandle, rawHandleValue: number): void;
 }
 
 export interface IOptions {
@@ -20,6 +19,7 @@ export interface IOptions {
 }
 
 export interface IEvents {
-  fromChanged: IEvent;
-  toChanged: IEvent;
+  stateChanged: IObserver<(handle: THandle, value: number) => void>;
 }
+
+export type THandle = 'from' | 'to';

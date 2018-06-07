@@ -4,7 +4,7 @@ import Controller from './components/controller/controller';
 
 import { IOptions as IModelOptions } from './components/model/namespace';
 import { initialOptions as initialModel } from './components/model/initial';
-import { IOptions as IViewOptions, TOrientation, TRoot } from './components/view/namespace';
+import { IOptions as IViewOptions, TOrientation, TRoot, TSliderType } from './components/view/namespace';
 import { initialOptions as initialView } from './components/view/initial';
 import { ICallbacks, TCallback } from './components/controller/namespace';
 import { initialOptions as initialController } from './components/controller/initial';
@@ -29,17 +29,17 @@ class SliderConstructor {
 
   public update(options: IOptions): void {
     this.setOptions(options);
-    this.model.update(this.modelOptions);
-    this.view.update(this.viewOptions);
-    this.controller.update(this.controllerCallbacks);
+    this.model.updateState(this.modelOptions);
+    this.view.updateState(this.viewOptions);
+    this.controller.updateClientsCallbacks(this.controllerCallbacks);
   }
 
   private init(options: IOptions): void {
     this.model = new Model();
     this.view = new View(this.root);
     this.setOptions(options);
-    this.model.update(this.modelOptions);
-    this.view.update(this.viewOptions);
+    this.model.updateState(this.modelOptions);
+    this.view.updateState(this.viewOptions);
     this.controller = new Controller(this.model, this.view, this.controllerCallbacks);
   }
 
@@ -47,11 +47,11 @@ class SliderConstructor {
     this.modelOptions = { ...this.model.data };
     this.viewOptions = { ...this.view.data };
 
-    if (options.type && ['single', 'from-start', 'from-end', 'double'].includes(options.type)) {
+    if (options.type && options.type in TSliderType) {
       this.viewOptions.type = options.type;
-      this.modelOptions.type = options.type === 'double' ? true : false;
+      this.modelOptions.type = options.type === TSliderType.double ? true : false;
     }
-    if (options.orientation && ['vertical', 'horizontal'].includes(options.orientation)) {
+    if (options.orientation && options.orientation in TOrientation) {
       this.viewOptions.orientation = options.orientation;
     }
     this.setNumberOption('min', options.min);
@@ -59,14 +59,12 @@ class SliderConstructor {
     this.setNumberOption('from', options.from);
     this.setNumberOption('to', options.to);
     this.setNumberOption('step', options.step);
-
     this.setFixedOption('fromFixed', options.fromFixed);
     this.setFixedOption('toFixed', options.toFixed);
-
     this.setCallback('onCreate', options.onCreate);
-    this.setCallback('onStart', options.onStart);
+    this.setCallback('onSlideStart', options.onSlideStart);
     this.setCallback('onSlide', options.onSlide);
-    this.setCallback('onEnd', options.onEnd);
+    this.setCallback('onSlideFinish', options.onSlideFinish);
     this.setCallback('onUpdate', options.onUpdate);
   }
 
@@ -84,28 +82,32 @@ class SliderConstructor {
   }
 
   private setCallback(optionName: keyof ICallbacks, callback?: TCallback) {
-    if (callback !== void(0) && typeof callback === 'function')
-    this.controllerCallbacks[optionName] = callback;
+    if (callback !== void(0) && typeof callback === 'function') {
+      this.controllerCallbacks[optionName] = callback;
+    }
   }
 }
 
 export default class VanillaSlider {
-  public setOptions: (options: IOptions) => void;
-  public data: IOptions;
+  public setOptions!: (options: IOptions) => void;
+  public data!: IOptions;
 
   private static instances: Map<TRoot, VanillaSlider> = new Map();
 
   constructor(node: TNode, options: IOptions = {}) {
     const validatedNode = VanillaSlider.getValidateNode(node);
+    if (VanillaSlider.instances.has(validatedNode)) {
+      return VanillaSlider.instances.get(validatedNode) as VanillaSlider;
+    }
     const slider = new SliderConstructor(validatedNode, options);
     this.setOptions = slider.update.bind(slider);
     this.data = slider.data;
     VanillaSlider.instances.set(validatedNode, this);
   }
 
-  public static getInstance(node: TNode): VanillaSlider | undefined {
-    const validatedNode = VanillaSlider.getValidateNode(node);
-    return VanillaSlider.instances.has(validatedNode) ? VanillaSlider.instances.get(validatedNode) : undefined;
+  public static getInstance(node: HTMLElement): VanillaSlider | undefined {
+    if (!this.isDivOrSpan(node)) { return undefined; }
+    return VanillaSlider.instances.get(node);
   }
 
   private static getValidateNode(node: TNode): TRoot {

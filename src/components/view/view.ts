@@ -3,69 +3,60 @@ import './theme.scss';
 import { bind } from 'decko';
 
 import IEvent from './../observer/observer';
-import { IOptions, IEvents, INodes, TRoot, IView } from './namespace';
+import { IOptions, IEvents, INodes, TRoot, IView, THandle, ISliderSize, TSliderType, TOrientation } from './namespace';
 import { initialOptions } from './initial';
 
 class View implements IView {
-  private handle: HTMLSpanElement | null = null;
+  private handle: THandle | null = null;
 
   private viewEvents: IEvents  = {
     slideStart: new IEvent(),
-    slideEnd: new IEvent(),
-    fromChanged: new IEvent(),
-    toChanged: new IEvent(),
+    slideFinish: new IEvent(),
+    slide: new IEvent(),
   };
 
   private options: IOptions = { ...initialOptions };
 
   private nodes!: INodes;
 
-  constructor(private root: TRoot) {
-    this.init();
+  constructor(root: TRoot) {
+    this.init(root);
   }
 
-  get data(): IOptions { return this.options; }
-  get events(): IEvents { return this.viewEvents; }
-  get nodesData(): INodes { return this.nodes; }
-  get rootObject(): TRoot { return this.root; }
+  get data(): IOptions { return { ...this.options }; }
+  get sliderSize(): ISliderSize { return this.getSliderSize(); }
+  get events(): IEvents { return { ...this.viewEvents }; }
 
-  @bind
-  public update(viewOptions: IOptions) {
+  public updateState(viewOptions: IOptions) {
     this.setOptions(viewOptions);
     this.nodes.track.innerHTML = '';
     this.setNodes();
     this.render();
   }
 
-  @bind
-  public calcFrom(fromValue: number) {
+  public emitCustomEvent(event: CustomEvent, target: keyof INodes) {
+    this.nodes[target].dispatchEvent(event);
+  }
+
+  public changeHandlePosition(handle: THandle, position: number) {
     const orientation = this.options.orientation;
-    const from = this.nodes.from;
-    const base: keyof CSSStyleDeclaration = orientation === 'vertical' ? 'bottom' : 'left';
-    from.style[base] = `${fromValue}%`;
+    const handleNode = this.nodes[handle];
+    const base: keyof CSSStyleDeclaration = orientation === TOrientation.vertical ? 'bottom' : 'left';
+    handleNode.style[base] = `${position}%`;
     this.calcRange();
   }
 
-  @bind
-  public calcTo(toValue: number) {
-    if (this.options.type !== 'double') { return; }
-    const orientation = this.options.orientation;
-    const to = this.nodes.to;
-    const base: keyof CSSStyleDeclaration = orientation === 'vertical' ? 'bottom' : 'left';
-    to.style[base] = `${toValue}%`;
-    this.calcRange();
-  }
-
-  private init() {
+  private init(root: TRoot) {
     this.nodes = {
+      root: root,
       track: document.createElement('div'),
       from: document.createElement('span'),
       to: document.createElement('span'),
       range: document.createElement('div')
     };
 
-    this.root.innerHTML = '';
-    this.root.appendChild(this.nodes.track);
+    this.nodes.root.innerHTML = '';
+    this.nodes.root.appendChild(this.nodes.track);
     this.setNodes();
     this.render();
     this.setHandlers();
@@ -80,11 +71,11 @@ class View implements IView {
     const nodes = this.nodes;
     nodes.track.appendChild(nodes.from);
 
-    if (type !== 'single') {
+    if (type !== TSliderType.single) {
       nodes.track.appendChild(nodes.range);
     }
 
-    if (type === 'double') {
+    if (type === TSliderType.double) {
       nodes.track.appendChild(nodes.to);
     }
   }
@@ -96,14 +87,14 @@ class View implements IView {
   }
 
   private calcRange() {
-    if (this.options.type === 'single') { return; }
+    if (this.options.type === TSliderType.single) { return; }
     const opt = this.options;
     const nodes = this.nodes;
-    const baseStart: keyof CSSStyleDeclaration = opt.orientation === 'vertical' ? 'bottom' : 'left';
-    const baseEnd: keyof CSSStyleDeclaration = opt.orientation === 'vertical' ? 'top' : 'right';
-    const handle = opt.type === 'double' ? 'to' : 'from';
-    nodes.range.style[baseStart] = opt.type === 'from-start' ? '0' : nodes.from.style[baseStart];
-    nodes.range.style[baseEnd] = opt.type === 'from-end' ? '0' : `${100 - parseFloat(<string>nodes[handle].style[baseStart])}%`;
+    const baseStart: keyof CSSStyleDeclaration = opt.orientation === TOrientation.vertical ? 'bottom' : 'left';
+    const baseEnd: keyof CSSStyleDeclaration = opt.orientation === TOrientation.vertical ? 'top' : 'right';
+    const handle = opt.type === TSliderType.double ? 'to' : 'from';
+    nodes.range.style[baseStart] = opt.type === TSliderType['from-start'] ? '0' : nodes.from.style[baseStart];
+    nodes.range.style[baseEnd] = opt.type === TSliderType['from-end'] ? '0' : `${100 - parseFloat(<string>nodes[handle].style[baseStart])}%`;
   }
 
   private setNodes() {
@@ -128,11 +119,11 @@ class View implements IView {
     nodes.to.classList.remove('vanilla-slider__handle_last-type');
 
     if (event.target === nodes.from) {
-      this.handle = nodes.from;
+      this.handle = 'from';
     }
 
     if (event.target === nodes.to) {
-      this.handle = nodes.to;
+      this.handle = 'to';
     }
 
     if (event.target === nodes.range || event.target === nodes.track) {
@@ -140,8 +131,8 @@ class View implements IView {
     }
 
     if (this.handle) {
-      this.handle.classList.add('active');
-      this.handle.classList.add('vanilla-slider__handle_last-type');
+      nodes[this.handle].classList.add('active');
+      nodes[this.handle].classList.add('vanilla-slider__handle_last-type');
       this.viewEvents.slideStart.notify(this.handle);
       this.drag(event);
       window.addEventListener('mousemove', this.drag);
@@ -151,52 +142,59 @@ class View implements IView {
 
   @bind
   private drag(event: MouseEvent) {
-    const nodes = this.nodes;
     const coord = this.getRelativeCoord(event);
-    const eventForNotify = this.handle === nodes.from ? 'fromChanged' : 'toChanged';
-    this.viewEvents[eventForNotify].notify(coord);
+    if (this.handle) {
+      this.viewEvents.slide.notify<THandle | number>(this.handle, coord);
+    }
   }
 
   @bind
-  private finishDragging(event: MouseEvent) {
+  private finishDragging() {
     if (!this.handle) { return; }
     window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.finishDragging);
-    this.handle.classList.remove('active');
-    this.viewEvents.slideEnd.notify(this.handle);
+    this.nodes[this.handle].classList.remove('active');
+    this.viewEvents.slideFinish.notify(this.handle);
     this.handle = null;
   }
 
-  private chooseHandle(mouseCoord: number): HTMLSpanElement | null {
+  private chooseHandle(mouseCoord: number): THandle | null {
     const opt = this.options;
     const nodes = this.nodes;
     if (this.handle) { return this.handle; }
-    if (opt.type !== 'double') { return nodes.from; }
+    if (opt.type !== TSliderType.double) { return 'from'; }
     if (opt.fromFixed && opt.toFixed) { return null; }
-    if (opt.fromFixed) { return nodes.to; }
-    if (opt.toFixed) { return nodes.from; }
+    if (opt.fromFixed) { return 'to'; }
+    if (opt.toFixed) { return 'from'; }
 
     const fromCoord = this.getHandleCoord(nodes.from);
     const toCoord = this.getHandleCoord(nodes.to);
 
-    if (opt.orientation === 'horizontal' && (mouseCoord < fromCoord)) { return nodes.from; }
-    if (opt.orientation === 'horizontal' && (mouseCoord > toCoord)) { return nodes.to; }
-    if (opt.orientation === 'vertical' && (mouseCoord > fromCoord)) { return nodes.from; }
-    if (opt.orientation === 'vertical' && (mouseCoord < toCoord)) { return nodes.to; }
-    return Math.abs(fromCoord - mouseCoord) < Math.abs(toCoord - mouseCoord) ? nodes.from : nodes.to;
+    if (opt.orientation === TOrientation.horizontal && (mouseCoord < fromCoord)) { return 'from'; }
+    if (opt.orientation === TOrientation.horizontal && (mouseCoord > toCoord)) { return 'to'; }
+    if (opt.orientation === TOrientation.vertical && (mouseCoord > fromCoord)) { return 'from'; }
+    if (opt.orientation === TOrientation.vertical && (mouseCoord < toCoord)) { return 'to'; }
+    return Math.abs(fromCoord - mouseCoord) < Math.abs(toCoord - mouseCoord) ? 'from' : 'to';
   }
 
   private getRelativeCoord(event: MouseEvent): number {
     const nodes = this.nodes;
-    const axis = this.options.orientation === 'horizontal' ? 'pageX' : 'pageY';
-    const offset = this.options.orientation === 'horizontal' ? 'offsetLeft' : 'offsetTop';
+    const axis = this.options.orientation === TOrientation.horizontal ? 'pageX' : 'pageY';
+    const offset = this.options.orientation === TOrientation.horizontal ? 'offsetLeft' : 'offsetTop';
     return event[axis] - nodes.track[offset];
   }
 
   private getHandleCoord(handle: HTMLSpanElement): number {
-    const offset: keyof typeof handle = this.options.orientation === 'horizontal' ? 'offsetLeft' : 'offsetTop';
-    const size = this.options.orientation === 'horizontal' ? 'offsetWidth' : 'offsetHeight';
+    const offset: keyof typeof handle = this.options.orientation === TOrientation.horizontal ? 'offsetLeft' : 'offsetTop';
+    const size = this.options.orientation === TOrientation.horizontal ? 'offsetWidth' : 'offsetHeight';
     return handle[offset] + handle[size] / 2;
+  }
+
+  private getSliderSize(): ISliderSize {
+    return {
+      width: this.nodes.track.clientWidth,
+      height: this.nodes.track.clientHeight
+    };
   }
 }
 
