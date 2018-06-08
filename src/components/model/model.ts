@@ -1,7 +1,6 @@
 import IEvent from './../observer/observer';
 import { IModel, IOptions, IEvents } from './namespace';
 import { initialOptions } from './initial';
-import { bind } from 'decko';
 import { THandle } from '../view/namespace';
 
 class Model implements IModel {
@@ -29,7 +28,7 @@ class Model implements IModel {
     const minLimitForHandle = handle === 'from' ? opt.min : opt.from;
     const maxLimitForHandle = handle === 'from' ? opt.to : opt.max;
 
-    const valueWithStep = Math.round(( rawHandleValue - opt.min ) / opt.step);
+    const valueWithStep = Math.round((rawHandleValue - opt.min) / opt.step);
     const valueOffset = valueWithStep * opt.step + opt.min;
     const valueInDiapason = opt.type ?
       this.correctDiapason(valueOffset, minLimitForHandle, maxLimitForHandle) :
@@ -37,7 +36,7 @@ class Model implements IModel {
 
     if (valueInDiapason !== opt[handle]) {
       opt[handle] = valueInDiapason;
-      this.modelEvents.stateChanged.notify<THandle | number>(handle, opt[handle]);
+      this.modelEvents.stateChanged.notify({ handle, value: opt[handle]});
     }
   }
 

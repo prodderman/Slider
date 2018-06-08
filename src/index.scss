@@ -2,10 +2,11 @@
   box-sizing: border-box;
 }
 
-html, body {
-  font-size: 15px;
+html,
+body {
   margin: 0;
   height: 100%;
+  font-size: 0.9375rem;
 }
 
 .slider {
@@ -21,9 +22,9 @@ html, body {
   position: fixed;
   top: 0;
   right: 0;
-  width: 320px;
+  padding-right: 1.25rem;
+  width: 20rem;
   height: 100vh;
-  padding-right: 20px;
 
   &__fields {
     display: flex;
@@ -31,14 +32,14 @@ html, body {
   }
 
   &__field {
-    margin-right: 5px;
-    margin-bottom: 10px;
+    margin-right: 0.3125rem;
+    margin-bottom: 0.625rem;
   }
 
   &__indicators {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 30px
+    margin-bottom: 1.875rem;
   }
 }
 
@@ -59,15 +60,15 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
-  color: #ed5565;
-  background-color: white;
+  width: 3.125rem;
+  height: 3.125rem;
   border: 1px solid #ed5565;
+  background-color: white;
+  color: #ed5565;
   transition: 0.3s;
 
   &.active {
-    color: white;
     background-color: #ed5565;
+    color: white;
   }
 }

@@ -5,38 +5,38 @@
   "main": "index.js",
   "scripts": {
     "dev": "better-npm-run dev",
-    "demo": "better-npm-run dev:demo",
-    "prod": "better-npm-run prod",
+    "prod": "better-npm-run prod && better-npm-run demo",
     "test": "better-npm-run test",
-    "singleTest": "better-npm-run test:single"
+    "singleTest": "better-npm-run test:single",
+    "stylelint-autofix": "./node_modules/.bin/stylelint \"./src/**/*.scss\" --fix"
   },
   "betterScripts": {
     "test": {
-      "command": "karma start karma.config.js",
+      "command": "./node_modules/.bin/karma start karma.config.js",
       "env": {
         "NODE_ENV": "testing"
       }
     },
     "test:single": {
-      "command": "karma start karma.config.js --single-run",
+      "command": "./node_modules/.bin/karma start karma.config.js --single-run",
       "env": {
         "NODE_ENV": "testing"
       }
     },
     "dev": {
-      "command": "webpack-dev-server --progress --colors --config webpack/dev.config.js",
+      "command": "./node_modules/.bin/webpack-dev-server --progress --colors --config webpack/dev.config.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
-    "dev:demo": {
-      "command": "webpack --progress --colors --config webpack/dev.config.js",
+    "demo": {
+      "command": "./node_modules/.bin/webpack --progress --colors --config webpack/dev.config.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "prod": {
-      "command": "webpack --progress --display-error-details --colors --config webpack/prod.config.js",
+      "command": "./node_modules/.bin/webpack --progress --display-error-details --colors --config webpack/prod.config.js",
       "env": {
         "NODE_ENV": "production"
       }
@@ -76,6 +76,8 @@
     "mocha": "^3.5.3",
     "node-sass": "^3.13.1",
     "normalize": "^0.3.1",
+    "stylelint": "^9.2.1",
+    "stylelint-order": "^0.8.1",
     "typescript": "^2.9"
   },
   "devDependencies": {
@@ -99,11 +101,13 @@
     "sass-loader": "^6.0.6",
     "sinon": "^4.0.0",
     "style-loader": "^0.18.2",
+    "stylelint-config-standard": "^18.2.0",
+    "stylelint-scss": "^3.1.0",
     "ts-loader": "^2.3.7",
     "tslint": "^5.9.1",
     "tslint-eslint-rules": "^4.1.1",
     "url-loader": "^0.5.9",
     "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.8.2"
+    "webpack-dev-server": "^2.5.1"
   }
 }

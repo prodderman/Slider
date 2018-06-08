@@ -1,6 +1,26 @@
 .vanilla-slider {
-    position: relative;
-    text-align: left;
+  position: relative;
+  text-align: left;
+
+  &__handle {
+    position: absolute;
+    z-index: 3;
+    display: block;
+    white-space: nowrap;
+    cursor: default;
+
+    &.last-type {
+      z-index: 4;
+    }
+
+    &.active {
+      z-index: 5;
+    }
+
+    &_fixed {
+      z-index: 2;
+    }
+  }
 
   &_horizontal {
     width: 100%;
@@ -20,29 +40,9 @@
     }
   }
 
-  &__handle {
-    position: absolute;
-    display: block;
-    z-index: 3;
-    cursor: default;
-    white-space: nowrap;
-
-    &.last-type {
-      z-index: 4;
-    }
-
-    &.active {
-      z-index: 5;
-    }
-
-    &_fixed {
-      z-index: 2;
-    }
-  }
-
   &__range {
     position: absolute;
-    display: block;
     z-index: 1;
+    display: block;
   }
 }

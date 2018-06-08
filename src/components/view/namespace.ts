@@ -25,9 +25,9 @@ export interface INodes {
 }
 
 export interface IEvents {
-  slideStart: IObserver<(handle: THandle) => void>;
-  slideFinish: IObserver<(handle: THandle) => void>;
-  slide: IObserver<(handle: THandle, coordinates: number) => void>;
+  slideStart: IObserver<{handle: THandle}>;
+  slideFinish: IObserver<{handle: THandle}>;
+  slide: IObserver<{handle: THandle, coords: number}>;
 }
 
 export interface ISliderSize {

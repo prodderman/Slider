@@ -93,7 +93,7 @@ $(document).ready(function() {
   const slider2 = VanillaSlider.getInstance(document.getElementsByClassName('js-slider')[0]);
 
   // change options
-  slider2.setOptions({min: -200, max: 200});
+  slider2.setOptions({ min: -200, max: 200 });
 
   controls.$type.change((event) => {
     setSliderOption(slider, 'type', event.target.value);

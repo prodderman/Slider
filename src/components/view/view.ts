@@ -48,11 +48,11 @@ class View implements IView {
 
   private init(root: TRoot) {
     this.nodes = {
-      root: root,
+      root,
       track: document.createElement('div'),
       from: document.createElement('span'),
       to: document.createElement('span'),
-      range: document.createElement('div')
+      range: document.createElement('div'),
     };
 
     this.nodes.root.innerHTML = '';
@@ -94,7 +94,8 @@ class View implements IView {
     const baseEnd: keyof CSSStyleDeclaration = opt.orientation === TOrientation.vertical ? 'top' : 'right';
     const handle = opt.type === TSliderType.double ? 'to' : 'from';
     nodes.range.style[baseStart] = opt.type === TSliderType['from-start'] ? '0' : nodes.from.style[baseStart];
-    nodes.range.style[baseEnd] = opt.type === TSliderType['from-end'] ? '0' : `${100 - parseFloat(<string>nodes[handle].style[baseStart])}%`;
+    // tslint:disable-next-line:max-line-length
+    nodes.range.style[baseEnd] = opt.type === TSliderType['from-end'] ? '0' : `${100 - parseFloat(nodes[handle].style[baseStart] as string)}%`;
   }
 
   private setNodes() {
@@ -104,9 +105,11 @@ class View implements IView {
     nodes.range.setAttribute('class', `vanilla-slider__range vanilla-slider__range_${opt.type}`);
     nodes.range.removeAttribute('style');
     nodes.from.setAttribute('tabindex', `0`);
+    // tslint:disable-next-line:max-line-length
     nodes.from.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_from${opt.fromFixed ? ' vanilla-slider__handle_fixed' : ''}`);
     nodes.from.removeAttribute('style');
     nodes.to.setAttribute('tabindex', `1`);
+    // tslint:disable-next-line:max-line-length
     nodes.to.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_to${opt.toFixed ? ' vanilla-slider__handle_fixed' : ''}`);
     nodes.to.removeAttribute('style');
   }
@@ -133,7 +136,7 @@ class View implements IView {
     if (this.handle) {
       nodes[this.handle].classList.add('active');
       nodes[this.handle].classList.add('vanilla-slider__handle_last-type');
-      this.viewEvents.slideStart.notify(this.handle);
+      this.viewEvents.slideStart.notify({ handle: this.handle });
       this.drag(event);
       window.addEventListener('mousemove', this.drag);
       window.addEventListener('mouseup', this.finishDragging);
@@ -142,9 +145,9 @@ class View implements IView {
 
   @bind
   private drag(event: MouseEvent) {
-    const coord = this.getRelativeCoord(event);
+    const coords = this.getRelativeCoord(event);
     if (this.handle) {
-      this.viewEvents.slide.notify<THandle | number>(this.handle, coord);
+      this.viewEvents.slide.notify({ handle: this.handle, coords });
     }
   }
 
@@ -154,7 +157,7 @@ class View implements IView {
     window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.finishDragging);
     this.nodes[this.handle].classList.remove('active');
-    this.viewEvents.slideFinish.notify(this.handle);
+    this.viewEvents.slideFinish.notify({ handle: this.handle });
     this.handle = null;
   }
 
@@ -185,6 +188,7 @@ class View implements IView {
   }
 
   private getHandleCoord(handle: HTMLSpanElement): number {
+    // tslint:disable-next-line:max-line-length
     const offset: keyof typeof handle = this.options.orientation === TOrientation.horizontal ? 'offsetLeft' : 'offsetTop';
     const size = this.options.orientation === TOrientation.horizontal ? 'offsetWidth' : 'offsetHeight';
     return handle[offset] + handle[size] / 2;
@@ -193,7 +197,7 @@ class View implements IView {
   private getSliderSize(): ISliderSize {
     return {
       width: this.nodes.track.clientWidth,
-      height: this.nodes.track.clientHeight
+      height: this.nodes.track.clientHeight,
     };
   }
 }

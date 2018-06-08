@@ -1,5 +1,5 @@
-import { IModel, THandle as TModelHandle } from './../model/namespace';
-import { IView, TEvent, INodes, THandle as TViewHandle, TOrientation } from '../view/namespace';
+import { IModel } from './../model/namespace';
+import { IView, TEvent, INodes, TOrientation } from '../view/namespace';
 import { ICallbacks, TCallback, TCustomEvents, IModelViewData, IController } from './namespace';
 import { initialOptions } from './initial';
 
@@ -39,14 +39,18 @@ class Controller implements IController {
     const model = this.model;
     const view = this.view;
 
-    view.events.slide.attach((handle: TViewHandle, pixels: number) => {
-      model.updateHandleValue(handle, this.convertToReal(pixels));
+    view.events.slide.attach(() => {
+      console.log();
     });
 
-    view.events.slideStart.attach((handle: TViewHandle) => {
+    view.events.slide.attach(({ handle, coords }) => {
+      model.updateHandleValue(handle, this.convertToReal(coords));
+    });
+
+    view.events.slideStart.attach(({ handle }) => {
       this.emitEvent('vanillastart', handle, this.callbacks.onSlideStart, this.getModelViewData());
     });
-    view.events.slideFinish.attach((handle: keyof INodes) => {
+    view.events.slideFinish.attach(({ handle }) => {
       this.emitEvent('vanillafinish', handle, this.callbacks.onSlideFinish, this.getModelViewData());
     });
   }
@@ -55,7 +59,7 @@ class Controller implements IController {
     const model = this.model;
     const view = this.view;
 
-    model.events.stateChanged.attach((handle: TModelHandle, value: number) => {
+    model.events.stateChanged.attach(({ handle, value }) => {
       view.changeHandlePosition(handle, this.convertToPercent(value));
       this.emitEvent('vanillaslide', handle, this.callbacks.onSlide, this.getModelViewData());
     });
@@ -64,7 +68,7 @@ class Controller implements IController {
   private convertToPercent(realValue: number): number {
     const modelData = this.model.data;
     const range = modelData.max - modelData.min;
-    return Number( ((realValue - modelData.min) * 100 / range).toFixed(10) );
+    return Number(((realValue - modelData.min) * 100 / range).toFixed(10));
   }
 
   private convertToReal(pixels: number): number {
@@ -76,6 +80,7 @@ class Controller implements IController {
       Number(((sliderSize.height - pixels) * range / sliderSize.height + modelData.min).toFixed(10));
   }
 
+  // tslint:disable-next-line:max-line-length
   private emitEvent(eventName: TCustomEvents, eventSrc: keyof INodes, clientCallback: TCallback | null, eventData: IModelViewData) {
     const customEvent = this.createSliderEvent(eventName, eventData);
     this.view.emitCustomEvent(customEvent, eventSrc);

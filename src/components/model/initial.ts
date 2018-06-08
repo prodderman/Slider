@@ -8,5 +8,5 @@ export const initialOptions: IOptions = {
   fromFixed: false,
   to: 0,
   toFixed: false,
-  step: 1
+  step: 1,
 };

@@ -1,23 +1,23 @@
 import { IObserver } from './namespace';
 
-class Observer<T extends Function> implements IObserver<T> {
-  private listeners: Set<T>;
+class Observer<A> implements IObserver<A> {
+  private listeners: Set<(args: A) => void>;
 
   public constructor() {
     this.listeners = new Set();
   }
 
-  public attach(listener: T): void {
+  public attach(listener: (args: A) => void): void {
     this.listeners.add(listener);
   }
 
-  public remove(listener: T) {
+  public remove(listener: (...args: A[]) => void) {
     this.listeners.delete(listener);
   }
 
-  public notify<A>(...args: A[]): void {
+  public notify(args: A): void {
     this.listeners.forEach((listener) => {
-      listener(...args);
+      listener(args);
     });
   }
 }

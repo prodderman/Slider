@@ -1,6 +1,9 @@
 .vanilla-slider {
-  background-color: #f6f6f6;
-  border-radius: 0.3em; }
+  border-radius: 0.3em;
+  background-color: #f6f6f6; }
+  .vanilla-slider__range {
+    border-radius: 0.3em;
+    background-color: #ed5565; }
   .vanilla-slider_horizontal {
     height: 0.6em; }
     .vanilla-slider_horizontal .vanilla-slider__range {
@@ -12,18 +15,15 @@
   .vanilla-slider__handle {
     width: 1.2em;
     height: 1.2em;
+    outline: none;
+    border: 1px solid #ed5565;
     border-radius: 0.3em;
     background-color: #f6f6f6;
-    border: 1px solid #ed5565;
-    cursor: pointer;
-    outline: none; }
+    cursor: pointer; }
     .vanilla-slider__handle:hover {
       border-color: #c71528; }
     .vanilla-slider__handle:focus {
-      box-shadow: 0 0 2px 0 blue;
-      border-color: #c71528; }
+      border-color: #c71528;
+      box-shadow: 0 0 2px 0 blue; }
     .vanilla-slider__handle-active {
       background-color: #c71528; }
-  .vanilla-slider__range {
-    background-color: #ed5565;
-    border-radius: 0.3em; }

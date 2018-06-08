@@ -19,7 +19,7 @@ export interface IOptions {
 }
 
 export interface IEvents {
-  stateChanged: IObserver<(handle: THandle, value: number) => void>;
+  stateChanged: IObserver<{ handle: THandle, value: number }>;
 }
 
 export type THandle = 'from' | 'to';

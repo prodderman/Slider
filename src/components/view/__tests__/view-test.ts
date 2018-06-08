@@ -1,10 +1,10 @@
-import View from './../view';
-import { assert, expect } from 'chai';
+// import View from './../view';
+// import { assert, expect } from 'chai';
 
-describe('( Test View )', () => {
-  describe('( method init )', () => {
-    it('', () => {
+// describe('( Test View )', () => {
+//   describe('( method init )', () => {
+//     it('', () => {
 
-    });
-  });
-});
+//     });
+//   });
+// });

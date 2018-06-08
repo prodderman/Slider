@@ -5,5 +5,5 @@ export const initialOptions: ICallbacks = {
   onSlideStart: null,
   onSlide: null,
   onSlideFinish: null,
-  onUpdate: null
+  onUpdate: null,
 };
