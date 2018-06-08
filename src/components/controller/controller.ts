@@ -1,6 +1,6 @@
 import { IModel } from './../model/namespace';
 import { IView, TEvent, INodes, TOrientation } from '../view/namespace';
-import { ICallbacks, TCallback, TCustomEvents, IModelViewData, IController } from './namespace';
+import { ICallbacks, TCallback, TCustomEvents, IClientData, IController } from './namespace';
 import { initialOptions } from './initial';
 
 class Controller implements IController {
@@ -14,8 +14,8 @@ class Controller implements IController {
   public updateClientsCallbacks(callbacks: ICallbacks) {
     this.setCallbacks(callbacks);
     this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate, this.getModelViewData());
-    this.view.changeHandlePosition('from', this.convertToPercent(this.model.data.from));
-    this.view.changeHandlePosition('to', this.convertToPercent(this.model.data.to));
+    this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
+    this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
   }
 
   private init(callbacks: ICallbacks) {
@@ -23,8 +23,8 @@ class Controller implements IController {
     this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate, this.getModelViewData());
     this.attachModelEvents();
     this.attachViewEvents();
-    this.view.changeHandlePosition('from', this.convertToPercent(this.model.data.from));
-    this.view.changeHandlePosition('to', this.convertToPercent(this.model.data.to));
+    this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
+    this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
   }
 
   private setCallbacks(callbacks: ICallbacks) {
@@ -43,8 +43,8 @@ class Controller implements IController {
       console.log();
     });
 
-    view.events.slide.attach(({ handle, coords }) => {
-      model.updateHandleValue(handle, this.convertToReal(coords));
+    view.events.slide.attach(({ handle, pixels }) => {
+      model.updateState({[handle]: this.convertToSliderValue(pixels)});
     });
 
     view.events.slideStart.attach(({ handle }) => {
@@ -65,34 +65,34 @@ class Controller implements IController {
     });
   }
 
-  private convertToPercent(realValue: number): number {
-    const modelData = this.model.data;
+  private convertToPercent(sliderValue: number): number {
+    const modelData = this.model.options;
     const range = modelData.max - modelData.min;
-    return Number(((realValue - modelData.min) * 100 / range).toFixed(10));
+    return Number(((sliderValue - modelData.min) * 100 / range).toFixed(10));
   }
 
-  private convertToReal(pixels: number): number {
-    const modelData = this.model.data;
+  private convertToSliderValue(pixels: number): number {
+    const modelData = this.model.options;
     const sliderSize = this.view.sliderSize;
     const range = modelData.max - modelData.min;
-    return this.view.data.orientation === TOrientation.horizontal ?
+    return this.view.options.orientation === TOrientation.horizontal ?
       Number((pixels * range / sliderSize.width + modelData.min).toFixed(10)) :
       Number(((sliderSize.height - pixels) * range / sliderSize.height + modelData.min).toFixed(10));
   }
 
-  private emitEvent(eventName: TCustomEvents, eventSrc: keyof INodes, clientCallback: TCallback | null, eventData: IModelViewData) {
+  private emitEvent(eventName: TCustomEvents, eventSource: keyof INodes, clientCallback: TCallback | null, eventData: IClientData) {
     const customEvent = this.createSliderEvent(eventName, eventData);
-    this.view.emitCustomEvent(customEvent, eventSrc);
+    this.view.emitCustomEvent(customEvent, eventSource);
     this.callClientCallback(customEvent, eventData, clientCallback);
   }
 
-  private callClientCallback(event: TEvent, data: IModelViewData, callback: TCallback | null) {
+  private callClientCallback(event: TEvent, data: IClientData, callback: TCallback | null) {
     if (callback) {
       callback(event, data);
     }
   }
 
-  private createSliderEvent(eventName: TCustomEvents, data: IModelViewData) {
+  private createSliderEvent(eventName: TCustomEvents, data: IClientData) {
     return new CustomEvent(eventName, {
       detail: data,
       bubbles: true,
@@ -100,8 +100,11 @@ class Controller implements IController {
     });
   }
 
-  private getModelViewData() {
-    return { ...this.model.data, ...this.view.data };
+  private getModelViewData(): IClientData {
+    return {
+      from: this.model.state.from,
+      to: this.model.state.to,
+    };
   }
 }
 

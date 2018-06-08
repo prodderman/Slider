@@ -16,13 +16,7 @@
       <div class="settings__fields">
         <div class="settings__field">
           <label class="radio">
-            <input class="radio__input js-field__input-type" type="radio" name="type" value="single" checked>
-            <span class="radio__label">single</span>
-          </label>
-        </div>
-        <div class="settings__field">
-          <label class="radio">
-            <input class="radio__input js-field__input-type" type="radio" name="type" value="from-start">
+            <input class="radio__input js-field__input-type" type="radio" name="type" value="from-start" checked>
             <span class="radio__label">from-start</span>
           </label>
         </div>
@@ -57,8 +51,8 @@
         </div>
       </div>
     </div>
-    <div class="settings__range">
-      <h2 class="settings__title">range:</h2>
+    <div class="settings__diapason">
+      <h2 class="settings__title">diapason:</h2>
       <div class="settings__fields">
         <div class="settings__field">
           <label class="field">
@@ -90,21 +84,21 @@
           </label>
         </div>
       </div>
-    <div class="settings__fixed">
-      <h2 class="settings__title">fixed values:</h2>
-      <div class="settings__field">
-        <label class="checkbox">
-          <input class="checkbox__input js-field__input-from-fixed" type="checkbox" name="fixed-from" value="100">
-          <span class="checkbox__label">fixed from</span>
-        </label>
+      <div class="settings__fixed">
+        <h2 class="settings__title">fixed values:</h2>
+        <div class="settings__field">
+          <label class="checkbox">
+            <input class="checkbox__input js-field__input-from-fixed" type="checkbox" name="fixed-from" value="100">
+            <span class="checkbox__label">fixed from</span>
+          </label>
+        </div>
+        <div class="settings__field">
+          <label class="fixed">
+            <input class="checkbox__input js-field__input-to-fixed" type="checkbox" name="fixed-to" value="100">
+            <span class="checkbox__label">fixed to</span>
+          </label>
+        </div>
       </div>
-      <div class="settings__field">
-        <label class="fixed">
-          <input class="checkbox__input js-field__input-to-fixed" type="checkbox" name="fixed-to" value="100">
-          <span class="checkbox__label">fixed to</span>
-        </label>
-      </div>
-    </div>
     </div>
     <div class="settings__step">
       <div class="settings__fields">
@@ -112,6 +106,16 @@
           <label class="field">
             <span class="field__label">step:</span>
             <input class="field__input js-field__input-step" type="text" name="step" value="1">
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="settings__range">
+      <div class="settings__fields">
+        <div class="settings__field">
+          <label class="field">
+            <input class="field__input js-field__input-range" type="checkbox" name="range" checked>
+            <span class="field__label">has range</span>
           </label>
         </div>
       </div>
@@ -132,7 +136,7 @@
       <div class="settings__indicator">
         <div class="indicator js-indicator js-indicator-onupdate">update</div>
       </div>
-    </div>  
+    </div>
   </div>
 <script type="text/javascript" src="js/bundle.js"></script></body>
 </html>

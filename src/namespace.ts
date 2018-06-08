@@ -7,10 +7,11 @@ export interface IOptions {
     min?: number | string;
     max?: number | string;
     from?: number | string;
-    fromFixed?: boolean | string;
+    isFromFixed?: boolean | string;
     to?: number | string;
-    toFixed?: boolean | string;
+    isToFixed?: boolean | string;
     step?: number | string;
+    hasRange?: boolean | string;
 
     onCreate?: TCallback;
     onSlideStart?: TCallback;

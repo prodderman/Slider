@@ -1,92 +1,97 @@
 import IEvent from './../observer/observer';
-import { IModel, IOptions, IEvents } from './namespace';
+import { IModel, IOptions, IEvents, Partial, IState } from './namespace';
 import { initialOptions } from './initial';
-import { THandle } from '../view/namespace';
 
 class Model implements IModel {
   private modelEvents: IEvents = {
     stateChanged: new IEvent(),
   };
 
-  private options: IOptions = {...initialOptions};
+  private _options: IOptions = { ...initialOptions };
+  private _state: IState = { from: initialOptions.from, to: initialOptions.to };
 
-  get data(): IOptions { return { ...this.options }; }
+  get options(): IOptions { return { ...this._options }; }
+  get state(): IState { return { ...this._state }; }
   get events(): IEvents { return { ...this.modelEvents }; }
 
-  public updateState(options: IOptions) {
-    this.setType(options.type);
+  public updateOptions(options: IOptions) {
+    this.setType(options.isDouble);
     this.setStep(options.step);
     this.setRange(options.min, options.max);
-    this.setFixed(options.fromFixed, options.toFixed);
     this.setValues(options.from, options.to);
   }
 
-  public updateHandleValue(handle: THandle, rawHandleValue: number) {
+  public updateState(nextState: Partial<IState>) {
     const opt = this.options;
-    const valueFixed = handle === 'from' ? opt.fromFixed : opt.toFixed;
-    if (valueFixed) { return; }
-    const minLimitForHandle = handle === 'from' ? opt.min : opt.from;
-    const maxLimitForHandle = handle === 'from' ? opt.to : opt.max;
+    if (nextState.from !== void(0)) {
+      const fromWithStep =  this.calcValueWithStep(nextState.from, opt.min, opt.step);
+      const fromInDiapason = opt.isDouble
+        ? this.correctDiapason(fromWithStep, opt.min, this._state.to)
+        : this.correctDiapason(fromWithStep, opt.min, opt.max);
 
-    const valueWithStep = Math.round((rawHandleValue - opt.min) / opt.step);
-    const valueOffset = valueWithStep * opt.step + opt.min;
-    const valueInDiapason = opt.type ?
-      this.correctDiapason(valueOffset, minLimitForHandle, maxLimitForHandle) :
-      this.correctDiapason(valueOffset, minLimitForHandle, opt.max);
+      if (fromInDiapason !== this._state.from) {
+        this._state.from = fromInDiapason;
+        this.modelEvents.stateChanged.notify({ handle: 'from', value: this._state.from });
+      }
+    }
 
-    if (valueInDiapason !== opt[handle]) {
-      opt[handle] = valueInDiapason;
-      this.modelEvents.stateChanged.notify({ handle, value: opt[handle]});
+    if (nextState.to !== void(0)) {
+      const toWithStep = this.calcValueWithStep(nextState.to, opt.min, opt.step);
+      const toInDiapason = opt.isDouble
+        ? this.correctDiapason(toWithStep, this._state.from, opt.max)
+        : this.correctDiapason(toWithStep, opt.min, opt.max);
+
+      if (toInDiapason !== this._state.to) {
+        this._state.to = toInDiapason;
+        this.modelEvents.stateChanged.notify({ handle: 'to', value: this._state.to });
+      }
     }
   }
 
-  private setRange(min = this.options.min, max = this.options.max) {
-    this.options.min = min > max ? max : min;
-    this.options.max = max;
-    this.updateFromTo();
+  private setRange(min = this._options.min, max = this._options.max) {
+    this._options.min = min > max ? max : min;
+    this._options.max = max;
+    this.correctFromTo();
   }
 
-  private setValues(from = this.options.from, to = this.options.to) {
-    this.options.from = from;
-    this.options.to = to;
-    this.updateFromTo();
+  private setValues(from = this._options.from, to = this._options.to) {
+    this._options.from = from;
+    this._options.to = to;
+    this.correctFromTo();
   }
 
   private setStep(step: number) {
-    const opt = this.options;
+    const opt = this._options;
     const range = opt.max - opt.min;
-    if (step <= 0) {
-      opt.step = 1;
-      return;
-    }
-
-    if (step > range) {
-      opt.step = range;
-      return;
-    }
-    opt.step = step;
+    opt.step = this.correctStep(step, range);
   }
 
   private setType(type: boolean) {
-    this.options.type = type;
-    this.updateFromTo();
+    this._options.isDouble = type;
+    this.correctFromTo();
   }
 
-  private setFixed(from = this.options.fromFixed, to = this.options.toFixed) {
-    this.options.fromFixed = from;
-    this.options.toFixed = to;
-  }
-
-  private updateFromTo() {
-    const opt = this.options;
+  private correctFromTo() {
+    const opt = this._options;
     opt.from = this.correctDiapason(opt.from, opt.min, opt.max);
-    opt.to = opt.type ? this.correctDiapason(opt.to, opt.from, opt.max) : opt.to;
+    opt.to = opt.isDouble ? this.correctDiapason(opt.to, opt.from, opt.max) : opt.to;
+    this._state = { from: opt.from, to: opt.to };
+  }
+
+  private calcValueWithStep(value: number, offset: number, step: number) {
+    return Math.round((value - offset) / step) * step + offset;
   }
 
   private correctDiapason(value: number, min: number, max: number): number {
     if (value <= min) { return min; }
     if (value >= max) { return max; }
     return value;
+  }
+
+  private correctStep(step: number, maxStep: number) {
+    if (step <= 0) { return 1; }
+    if (step > maxStep) { return maxStep; }
+    return step;
   }
 }
 

@@ -2,7 +2,7 @@ import './index.scss';
 import VanillaSlider from './slider';
 import $ from 'jquery';
 
-$(document).ready(function() { 
+$(document).ready(function() {
   const controls = {
     $from: $('.js-field__input-from'),
     $to: $('.js-field__input-to'),
@@ -12,7 +12,8 @@ $(document).ready(function() {
     $orientation: $('.js-field__input-orientation'),
     $step: $('.js-field__input-step'),
     $fromFixed: $('.js-field__input-from-fixed'),
-    $toFixed: $('.js-field__input-to-fixed')
+    $toFixed: $('.js-field__input-to-fixed'),
+    $hasRange: $('.js-field__input-range'),
   }
 
   const indicators = {
@@ -34,20 +35,17 @@ $(document).ready(function() {
   }
 
   const slider = new VanillaSlider('.js-slider', {
-    type: 'single',
-    min: -100,
-    from: 10,
-    to: 50,
-    onCreate: (event, data) => {
-      controls.$from.val(data.from);
-      controls.$to.val(data.to);
-      controls.$min.val(data.min);
-      controls.$max.val(data.max);
-      controls.$step.val(data.step);
-      controls.$fromFixed.attr('checked', data.fromFixed);
-      controls.$toFixed.attr('checked', data.toFixed);
-      controls.$type.filter(`input[value=${data.type}]`).prop('checked', true);
-      controls.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
+    type: controls.$type.filter(`:checked`).val(),
+    orientation: controls.$orientation.filter(`:checked`).val(),
+    min: controls.$min.val(),
+    max: controls.$max.val(),
+    from: controls.$from.val(),
+    to: controls.$to.val(),
+    isFromFixed: controls.$fromFixed.prop('checked'),
+    isToFixed: controls.$toFixed.prop('checked'),
+    step: controls.$step.val(),
+    range: controls.$orientation.filter(`:checked`).val(),
+    onCreate: () => {
       indicators.$create.addClass('active');
       clearTimeout(onCreateTimeId);
       onCreateTimeId = setTimeout(remove, 200);
@@ -76,24 +74,15 @@ $(document).ready(function() {
     onUpdate: (event, data) => {
       controls.$from.val(data.from);
       controls.$to.val(data.to);
-      controls.$min.val(data.min);
-      controls.$max.val(data.max);
-      controls.$step.val(data.step);
-      controls.$fromFixed.attr('checked', data.fromFixed);
-      controls.$toFixed.attr('checked', data.toFixed);
-      controls.$type.filter(`input[value=${data.type}]`).prop('checked', true);
-      controls.$orientation.filter(`input[value=${data.orientation}]`).prop('checked', true);
       indicators.$update.addClass('active');
       clearTimeout(onUpdateTimeId);
       onUpdateTimeId = setTimeout(remove, 200);
     }
   });
 
-  // get slider instance by node
-  const slider2 = VanillaSlider.getInstance(document.getElementsByClassName('js-slider')[0]);
-
-  // change options
-  slider2.setOptions({ min: -200, max: 200 });
+  document.addEventListener('vanillaslide', (event) => {
+    console.log(event.detail);
+  })
 
   controls.$type.change((event) => {
     setSliderOption(slider, 'type', event.target.value);
@@ -120,16 +109,20 @@ $(document).ready(function() {
   });
 
   controls.$fromFixed.change((event) => {
-    setSliderOption(slider, 'fromFixed', event.target.checked);
+    setSliderOption(slider, 'isFromFixed', event.target.checked);
   });
 
   controls.$toFixed.change((event) => {
-    setSliderOption(slider, 'toFixed', event.target.checked);
+    setSliderOption(slider, 'isToFixed', event.target.checked);
   });
 
   controls.$step.focusout((event) => {
     setSliderOption(slider, 'step', event.target.value);
   });
+
+  controls.$hasRange.change((event) => {
+    setSliderOption(slider, 'hasRange', event.target.checked);
+  })
 });
 
 function setSliderOption(slider, optionName, value) {

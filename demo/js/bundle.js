@@ -61,7 +61,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "4a8b5a819467a213fadd"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "963c67e55c3c338d9890"; // eslint-disable-line no-unused-vars
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
@@ -750,7 +750,7 @@ exports = module.exports = __webpack_require__("../node_modules/css-loader/lib/c
 
 
 // module
-exports.push([module.i, ".vanilla-slider {\n  position: relative;\n  text-align: left; }\n  .vanilla-slider__handle {\n    position: absolute;\n    z-index: 3;\n    display: block;\n    white-space: nowrap;\n    cursor: default; }\n    .vanilla-slider__handle.last-type {\n      z-index: 4; }\n    .vanilla-slider__handle.active {\n      z-index: 5; }\n    .vanilla-slider__handle_fixed {\n      z-index: 2; }\n  .vanilla-slider_horizontal {\n    width: 100%; }\n    .vanilla-slider_horizontal .vanilla-slider__handle {\n      top: -0.35em;\n      margin-left: -0.55em; }\n  .vanilla-slider_vertical {\n    height: 100%; }\n    .vanilla-slider_vertical .vanilla-slider__handle {\n      left: -0.35em;\n      margin-bottom: -0.7em; }\n  .vanilla-slider__range {\n    position: absolute;\n    z-index: 1;\n    display: block; }\n", ""]);
+exports.push([module.i, ".vanilla-slider {\n  position: relative;\n  text-align: left;\n  user-select: none; }\n  .vanilla-slider__handle {\n    position: absolute;\n    z-index: 2;\n    display: block;\n    white-space: nowrap;\n    cursor: default; }\n    .vanilla-slider__handle_last-type {\n      z-index: 3; }\n    .vanilla-slider__handle_active {\n      z-index: 4; }\n    .vanilla-slider__handle_fixed {\n      z-index: 1; }\n  .vanilla-slider_horizontal {\n    width: 100%; }\n    .vanilla-slider_horizontal .vanilla-slider__handle {\n      top: -0.35em;\n      margin-left: -0.55em; }\n  .vanilla-slider_vertical {\n    height: 100%; }\n    .vanilla-slider_vertical .vanilla-slider__handle {\n      left: -0.35em;\n      margin-bottom: -0.7em; }\n  .vanilla-slider__range {\n    position: absolute;\n    z-index: 1;\n    display: block; }\n", ""]);
 
 // exports
 
@@ -11920,16 +11920,16 @@ class Controller {
     updateClientsCallbacks(callbacks) {
         this.setCallbacks(callbacks);
         this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate, this.getModelViewData());
-        this.view.changeHandlePosition('from', this.convertToPercent(this.model.data.from));
-        this.view.changeHandlePosition('to', this.convertToPercent(this.model.data.to));
+        this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
+        this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
     }
     init(callbacks) {
         this.setCallbacks(callbacks);
         this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate, this.getModelViewData());
         this.attachModelEvents();
         this.attachViewEvents();
-        this.view.changeHandlePosition('from', this.convertToPercent(this.model.data.from));
-        this.view.changeHandlePosition('to', this.convertToPercent(this.model.data.to));
+        this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
+        this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
     }
     setCallbacks(callbacks) {
         this.callbacks.onCreate = callbacks.onCreate;
@@ -11944,8 +11944,8 @@ class Controller {
         view.events.slide.attach(() => {
             console.log();
         });
-        view.events.slide.attach(({ handle, coords }) => {
-            model.updateHandleValue(handle, this.convertToReal(coords));
+        view.events.slide.attach(({ handle, pixels }) => {
+            model.updateState({ [handle]: this.convertToSliderValue(pixels) });
         });
         view.events.slideStart.attach(({ handle }) => {
             this.emitEvent('vanillastart', handle, this.callbacks.onSlideStart, this.getModelViewData());
@@ -11962,23 +11962,22 @@ class Controller {
             this.emitEvent('vanillaslide', handle, this.callbacks.onSlide, this.getModelViewData());
         });
     }
-    convertToPercent(realValue) {
-        const modelData = this.model.data;
+    convertToPercent(sliderValue) {
+        const modelData = this.model.options;
         const range = modelData.max - modelData.min;
-        return Number(((realValue - modelData.min) * 100 / range).toFixed(10));
+        return Number(((sliderValue - modelData.min) * 100 / range).toFixed(10));
     }
-    convertToReal(pixels) {
-        const modelData = this.model.data;
+    convertToSliderValue(pixels) {
+        const modelData = this.model.options;
         const sliderSize = this.view.sliderSize;
         const range = modelData.max - modelData.min;
-        return this.view.data.orientation === __WEBPACK_IMPORTED_MODULE_0__view_namespace__["a" /* TOrientation */].horizontal ?
+        return this.view.options.orientation === __WEBPACK_IMPORTED_MODULE_0__view_namespace__["a" /* TOrientation */].horizontal ?
             Number((pixels * range / sliderSize.width + modelData.min).toFixed(10)) :
             Number(((sliderSize.height - pixels) * range / sliderSize.height + modelData.min).toFixed(10));
     }
-    // tslint:disable-next-line:max-line-length
-    emitEvent(eventName, eventSrc, clientCallback, eventData) {
+    emitEvent(eventName, eventSource, clientCallback, eventData) {
         const customEvent = this.createSliderEvent(eventName, eventData);
-        this.view.emitCustomEvent(customEvent, eventSrc);
+        this.view.emitCustomEvent(customEvent, eventSource);
         this.callClientCallback(customEvent, eventData, clientCallback);
     }
     callClientCallback(event, data, callback) {
@@ -11994,7 +11993,10 @@ class Controller {
         });
     }
     getModelViewData() {
-        return Object.assign({}, this.model.data, this.view.data);
+        return {
+            from: this.model.state.from,
+            to: this.model.state.to,
+        };
     }
 }
 /* harmony default export */ __webpack_exports__["a"] = (Controller);
@@ -12024,13 +12026,11 @@ const initialOptions = {
 
 "use strict";
 const initialOptions = {
-    type: false,
+    isDouble: false,
     min: 0,
     max: 100,
     from: 0,
-    fromFixed: false,
     to: 0,
-    toFixed: false,
     step: 1,
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = initialOptions;
@@ -12052,70 +12052,68 @@ class Model {
         this.modelEvents = {
             stateChanged: new __WEBPACK_IMPORTED_MODULE_0__observer_observer__["a" /* default */](),
         };
-        this.options = Object.assign({}, __WEBPACK_IMPORTED_MODULE_1__initial__["a" /* initialOptions */]);
+        this._options = Object.assign({}, __WEBPACK_IMPORTED_MODULE_1__initial__["a" /* initialOptions */]);
+        this._state = { from: __WEBPACK_IMPORTED_MODULE_1__initial__["a" /* initialOptions */].from, to: __WEBPACK_IMPORTED_MODULE_1__initial__["a" /* initialOptions */].to };
     }
-    get data() { return Object.assign({}, this.options); }
+    get options() { return Object.assign({}, this._options); }
+    get state() { return Object.assign({}, this._state); }
     get events() { return Object.assign({}, this.modelEvents); }
-    updateState(options) {
-        this.setType(options.type);
+    updateOptions(options) {
+        this.setType(options.isDouble);
         this.setStep(options.step);
         this.setRange(options.min, options.max);
-        this.setFixed(options.fromFixed, options.toFixed);
         this.setValues(options.from, options.to);
     }
-    updateHandleValue(handle, rawHandleValue) {
+    updateState(nextState) {
         const opt = this.options;
-        const valueFixed = handle === 'from' ? opt.fromFixed : opt.toFixed;
-        if (valueFixed) {
-            return;
+        if (nextState.from !== void (0)) {
+            const fromWithStep = this.calcValueWithStep(nextState.from, opt.min, opt.step);
+            const fromInDiapason = opt.isDouble
+                ? this.correctDiapason(fromWithStep, opt.min, this._state.to)
+                : this.correctDiapason(fromWithStep, opt.min, opt.max);
+            if (fromInDiapason !== this._state.from) {
+                this._state.from = fromInDiapason;
+                this.modelEvents.stateChanged.notify({ handle: 'from', value: this._state.from });
+            }
         }
-        const minLimitForHandle = handle === 'from' ? opt.min : opt.from;
-        const maxLimitForHandle = handle === 'from' ? opt.to : opt.max;
-        const valueWithStep = Math.round((rawHandleValue - opt.min) / opt.step);
-        const valueOffset = valueWithStep * opt.step + opt.min;
-        const valueInDiapason = opt.type ?
-            this.correctDiapason(valueOffset, minLimitForHandle, maxLimitForHandle) :
-            this.correctDiapason(valueOffset, minLimitForHandle, opt.max);
-        if (valueInDiapason !== opt[handle]) {
-            opt[handle] = valueInDiapason;
-            this.modelEvents.stateChanged.notify({ handle, value: opt[handle] });
+        if (nextState.to !== void (0)) {
+            const toWithStep = this.calcValueWithStep(nextState.to, opt.min, opt.step);
+            const toInDiapason = opt.isDouble
+                ? this.correctDiapason(toWithStep, this._state.from, opt.max)
+                : this.correctDiapason(toWithStep, opt.min, opt.max);
+            if (toInDiapason !== this._state.to) {
+                this._state.to = toInDiapason;
+                this.modelEvents.stateChanged.notify({ handle: 'to', value: this._state.to });
+            }
         }
     }
-    setRange(min = this.options.min, max = this.options.max) {
-        this.options.min = min > max ? max : min;
-        this.options.max = max;
-        this.updateFromTo();
+    setRange(min = this._options.min, max = this._options.max) {
+        this._options.min = min > max ? max : min;
+        this._options.max = max;
+        this.correctFromTo();
     }
-    setValues(from = this.options.from, to = this.options.to) {
-        this.options.from = from;
-        this.options.to = to;
-        this.updateFromTo();
+    setValues(from = this._options.from, to = this._options.to) {
+        this._options.from = from;
+        this._options.to = to;
+        this.correctFromTo();
     }
     setStep(step) {
-        const opt = this.options;
+        const opt = this._options;
         const range = opt.max - opt.min;
-        if (step <= 0) {
-            opt.step = 1;
-            return;
-        }
-        if (step > range) {
-            opt.step = range;
-            return;
-        }
-        opt.step = step;
+        opt.step = this.correctStep(step, range);
     }
     setType(type) {
-        this.options.type = type;
-        this.updateFromTo();
+        this._options.isDouble = type;
+        this.correctFromTo();
     }
-    setFixed(from = this.options.fromFixed, to = this.options.toFixed) {
-        this.options.fromFixed = from;
-        this.options.toFixed = to;
-    }
-    updateFromTo() {
-        const opt = this.options;
+    correctFromTo() {
+        const opt = this._options;
         opt.from = this.correctDiapason(opt.from, opt.min, opt.max);
-        opt.to = opt.type ? this.correctDiapason(opt.to, opt.from, opt.max) : opt.to;
+        opt.to = opt.isDouble ? this.correctDiapason(opt.to, opt.from, opt.max) : opt.to;
+        this._state = { from: opt.from, to: opt.to };
+    }
+    calcValueWithStep(value, offset, step) {
+        return Math.round((value - offset) / step) * step + offset;
     }
     correctDiapason(value, min, max) {
         if (value <= min) {
@@ -12125,6 +12123,15 @@ class Model {
             return max;
         }
         return value;
+    }
+    correctStep(step, maxStep) {
+        if (step <= 0) {
+            return 1;
+        }
+        if (step > maxStep) {
+            return maxStep;
+        }
+        return step;
     }
 }
 /* harmony default export */ __webpack_exports__["a"] = (Model);
@@ -12164,10 +12171,11 @@ class Observer {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__namespace__ = __webpack_require__("./components/view/namespace.ts");
 
 const initialOptions = {
-    type: __WEBPACK_IMPORTED_MODULE_0__namespace__["b" /* TSliderType */].single,
+    type: __WEBPACK_IMPORTED_MODULE_0__namespace__["b" /* TSliderType */]['from-start'],
     orientation: __WEBPACK_IMPORTED_MODULE_0__namespace__["a" /* TOrientation */].horizontal,
-    fromFixed: false,
-    toFixed: false
+    hasRange: true,
+    isFromFixed: false,
+    isToFixed: false,
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = initialOptions;
 
@@ -12183,7 +12191,6 @@ const initialOptions = {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TOrientation; });
 var TSliderType;
 (function (TSliderType) {
-    TSliderType["single"] = "single";
     TSliderType["from-start"] = "from-start";
     TSliderType["from-end"] = "from-end";
     TSliderType["double"] = "double";
@@ -12290,116 +12297,119 @@ class View {
             slideFinish: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
             slide: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
         };
-        this.options = Object.assign({}, __WEBPACK_IMPORTED_MODULE_6__initial__["a" /* initialOptions */]);
+        this._options = Object.assign({}, __WEBPACK_IMPORTED_MODULE_6__initial__["a" /* initialOptions */]);
         this.init(root);
     }
-    get data() { return Object.assign({}, this.options); }
+    get options() { return Object.assign({}, this._options); }
     get sliderSize() { return this.getSliderSize(); }
     get events() { return Object.assign({}, this.viewEvents); }
-    updateState(viewOptions) {
+    updateOptions(viewOptions) {
         this.setOptions(viewOptions);
-        this.nodes.track.innerHTML = '';
+        this._nodes.track.innerHTML = '';
         this.setNodes();
         this.render();
     }
     emitCustomEvent(event, target) {
-        this.nodes[target].dispatchEvent(event);
+        this._nodes[target].dispatchEvent(event);
     }
     changeHandlePosition(handle, position) {
-        const orientation = this.options.orientation;
-        const handleNode = this.nodes[handle];
+        const orientation = this._options.orientation;
+        const handleNode = this._nodes[handle];
         const base = orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
         handleNode.style[base] = `${position}%`;
         this.calcRange();
     }
     init(root) {
-        this.nodes = {
+        this._nodes = {
             root,
             track: document.createElement('div'),
             from: document.createElement('span'),
             to: document.createElement('span'),
             range: document.createElement('div'),
         };
-        this.nodes.root.innerHTML = '';
-        this.nodes.root.appendChild(this.nodes.track);
+        this._nodes.root.innerHTML = '';
+        this._nodes.root.appendChild(this._nodes.track);
         this.setNodes();
         this.render();
         this.setHandlers();
     }
     setOptions(options) {
-        this.options = Object.assign({}, options);
+        this._options = Object.assign({}, options);
     }
     render() {
-        const type = this.options.type;
-        const nodes = this.nodes;
-        nodes.track.appendChild(nodes.from);
-        if (type !== __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].single) {
+        const opt = this._options;
+        const nodes = this._nodes;
+        if (opt.hasRange) {
             nodes.track.appendChild(nodes.range);
         }
-        if (type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start']) {
+            nodes.track.appendChild(nodes.from);
+        }
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end']) {
+            nodes.track.appendChild(nodes.to);
+        }
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
+            nodes.track.appendChild(nodes.from);
             nodes.track.appendChild(nodes.to);
         }
     }
     setHandlers() {
         window.removeEventListener('mousemove', this.drag);
         window.removeEventListener('mouseup', this.finishDragging);
-        this.nodes.track.addEventListener('mousedown', this.startDragging);
+        this._nodes.track.addEventListener('mousedown', this.startDragging);
     }
     calcRange() {
-        if (this.options.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].single) {
+        if (!this._options.hasRange) {
             return;
         }
-        const opt = this.options;
-        const nodes = this.nodes;
+        const opt = this._options;
+        const nodes = this._nodes;
         const baseStart = opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
-        const baseEnd = opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'top' : 'right';
-        const handle = opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double ? 'to' : 'from';
-        nodes.range.style[baseStart] = opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start'] ? '0' : nodes.from.style[baseStart];
-        // tslint:disable-next-line:max-line-length
-        nodes.range.style[baseEnd] = opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end'] ? '0' : `${100 - parseFloat(nodes[handle].style[baseStart])}%`;
+        const baseSize = opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'top' : 'right';
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start']) {
+            nodes.range.style[baseStart] = '0';
+            nodes.range.style[baseSize] = `${100 - parseFloat(nodes.from.style[baseStart])}%`;
+        }
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end']) {
+            nodes.range.style[baseStart] = nodes.to.style[baseStart];
+            nodes.range.style[baseSize] = '0';
+        }
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
+            nodes.range.style[baseStart] = nodes.from.style[baseStart];
+            nodes.range.style[baseSize] = `${100 - parseFloat(nodes.to.style[baseStart])}%`;
+        }
     }
     setNodes() {
-        const opt = this.options;
-        const nodes = this.nodes;
+        const opt = this._options;
+        const nodes = this._nodes;
         nodes.track.setAttribute('class', `vanilla-slider vanilla-slider_${opt.type} vanilla-slider_${opt.orientation}`);
         nodes.range.setAttribute('class', `vanilla-slider__range vanilla-slider__range_${opt.type}`);
         nodes.range.removeAttribute('style');
         nodes.from.setAttribute('tabindex', `0`);
-        // tslint:disable-next-line:max-line-length
-        nodes.from.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_from${opt.fromFixed ? ' vanilla-slider__handle_fixed' : ''}`);
+        nodes.from.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_from${opt.isFromFixed ? ' vanilla-slider__handle_fixed' : ''}`);
         nodes.from.removeAttribute('style');
         nodes.to.setAttribute('tabindex', `1`);
-        // tslint:disable-next-line:max-line-length
-        nodes.to.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_to${opt.toFixed ? ' vanilla-slider__handle_fixed' : ''}`);
+        nodes.to.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_to${opt.isToFixed ? ' vanilla-slider__handle_fixed' : ''}`);
         nodes.to.removeAttribute('style');
     }
     startDragging(event) {
-        const nodes = this.nodes;
-        const coord = this.getRelativeCoord(event);
-        nodes.from.classList.remove('vanilla-slider__handle_last-type');
-        nodes.to.classList.remove('vanilla-slider__handle_last-type');
-        if (event.target === nodes.from) {
-            this.handle = 'from';
-        }
-        if (event.target === nodes.to) {
-            this.handle = 'to';
-        }
-        if (event.target === nodes.range || event.target === nodes.track) {
-            this.handle = this.chooseHandle(coord);
-        }
+        const nodes = this._nodes;
+        this.handle = this.chooseHandle(event);
         if (this.handle) {
-            nodes[this.handle].classList.add('active');
+            nodes.from.classList.remove('vanilla-slider__handle_last-type');
+            nodes.to.classList.remove('vanilla-slider__handle_last-type');
+            nodes[this.handle].classList.add('vanilla-slider__handle_active');
             nodes[this.handle].classList.add('vanilla-slider__handle_last-type');
-            this.viewEvents.slideStart.notify({ handle: this.handle });
             this.drag(event);
             window.addEventListener('mousemove', this.drag);
             window.addEventListener('mouseup', this.finishDragging);
+            this.viewEvents.slideStart.notify({ handle: this.handle });
         }
     }
     drag(event) {
-        const coords = this.getRelativeCoord(event);
+        const coords = this.getRelativeCoords(event);
         if (this.handle) {
-            this.viewEvents.slide.notify({ handle: this.handle, coords });
+            this.viewEvents.slide.notify({ handle: this.handle, pixels: coords });
         }
     }
     finishDragging() {
@@ -12408,60 +12418,67 @@ class View {
         }
         window.removeEventListener('mousemove', this.drag);
         window.removeEventListener('mouseup', this.finishDragging);
-        this.nodes[this.handle].classList.remove('active');
+        this._nodes[this.handle].classList.remove('vanilla-slider__handle_active');
         this.viewEvents.slideFinish.notify({ handle: this.handle });
         this.handle = null;
     }
-    chooseHandle(mouseCoord) {
-        const opt = this.options;
-        const nodes = this.nodes;
-        if (this.handle) {
-            return this.handle;
-        }
-        if (opt.type !== __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
-            return 'from';
-        }
-        if (opt.fromFixed && opt.toFixed) {
+    chooseHandle(event) {
+        const opt = this._options;
+        const nodes = this._nodes;
+        const target = event.target;
+        if (opt.isFromFixed && opt.isToFixed) {
             return null;
         }
-        if (opt.fromFixed) {
-            return 'to';
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start'] && opt.isFromFixed) {
+            return null;
         }
-        if (opt.toFixed) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end'] && opt.isToFixed) {
+            return null;
+        }
+        if (target === nodes.from) {
             return 'from';
         }
-        const fromCoord = this.getHandleCoord(nodes.from);
-        const toCoord = this.getHandleCoord(nodes.to);
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoord < fromCoord)) {
-            return 'from';
-        }
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoord > toCoord)) {
+        if (target === nodes.to) {
             return 'to';
         }
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoord > fromCoord)) {
-            return 'from';
-        }
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoord < toCoord)) {
+        if (opt.isFromFixed) {
             return 'to';
         }
-        return Math.abs(fromCoord - mouseCoord) < Math.abs(toCoord - mouseCoord) ? 'from' : 'to';
+        if (opt.isToFixed) {
+            return 'from';
+        }
+        const fromCoords = this.getHandleCoords(nodes.from);
+        const toCoords = this.getHandleCoords(nodes.to);
+        const mouseCoords = this.getRelativeCoords(event);
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords < fromCoords)) {
+            return 'from';
+        }
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords > toCoords)) {
+            return 'to';
+        }
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords > fromCoords)) {
+            return 'from';
+        }
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords < toCoords)) {
+            return 'to';
+        }
+        return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
     }
-    getRelativeCoord(event) {
-        const nodes = this.nodes;
-        const axis = this.options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'pageX' : 'pageY';
-        const offset = this.options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
+    getRelativeCoords(event) {
+        const nodes = this._nodes;
+        const axis = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'pageX' : 'pageY';
+        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
         return event[axis] - nodes.track[offset];
     }
-    getHandleCoord(handle) {
-        // tslint:disable-next-line:max-line-length
-        const offset = this.options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
-        const size = this.options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetWidth' : 'offsetHeight';
+    getHandleCoords(handle) {
+        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
+        const size = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetWidth' : 'offsetHeight';
         return handle[offset] + handle[size] / 2;
     }
     getSliderSize() {
         return {
-            width: this.nodes.track.clientWidth,
-            height: this.nodes.track.clientHeight,
+            width: this._nodes.track.clientWidth,
+            height: this._nodes.track.clientHeight,
         };
     }
 }
@@ -12509,7 +12526,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     $orientation: (0, _jquery2.default)('.js-field__input-orientation'),
     $step: (0, _jquery2.default)('.js-field__input-step'),
     $fromFixed: (0, _jquery2.default)('.js-field__input-from-fixed'),
-    $toFixed: (0, _jquery2.default)('.js-field__input-to-fixed')
+    $toFixed: (0, _jquery2.default)('.js-field__input-to-fixed'),
+    $hasRange: (0, _jquery2.default)('.js-field__input-range')
   };
 
   var indicators = {
@@ -12531,20 +12549,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   };
 
   var slider = new _slider2.default('.js-slider', {
-    type: 'single',
-    min: -100,
-    from: 10,
-    to: 50,
-    onCreate: function onCreate(event, data) {
-      controls.$from.val(data.from);
-      controls.$to.val(data.to);
-      controls.$min.val(data.min);
-      controls.$max.val(data.max);
-      controls.$step.val(data.step);
-      controls.$fromFixed.attr('checked', data.fromFixed);
-      controls.$toFixed.attr('checked', data.toFixed);
-      controls.$type.filter('input[value=' + data.type + ']').prop('checked', true);
-      controls.$orientation.filter('input[value=' + data.orientation + ']').prop('checked', true);
+    type: controls.$type.filter(':checked').val(),
+    orientation: controls.$orientation.filter(':checked').val(),
+    min: controls.$min.val(),
+    max: controls.$max.val(),
+    from: controls.$from.val(),
+    to: controls.$to.val(),
+    isFromFixed: controls.$fromFixed.prop('checked'),
+    isToFixed: controls.$toFixed.prop('checked'),
+    step: controls.$step.val(),
+    range: controls.$orientation.filter(':checked').val(),
+    onCreate: function onCreate() {
       indicators.$create.addClass('active');
       clearTimeout(onCreateTimeId);
       onCreateTimeId = setTimeout(remove, 200);
@@ -12573,24 +12588,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     onUpdate: function onUpdate(event, data) {
       controls.$from.val(data.from);
       controls.$to.val(data.to);
-      controls.$min.val(data.min);
-      controls.$max.val(data.max);
-      controls.$step.val(data.step);
-      controls.$fromFixed.attr('checked', data.fromFixed);
-      controls.$toFixed.attr('checked', data.toFixed);
-      controls.$type.filter('input[value=' + data.type + ']').prop('checked', true);
-      controls.$orientation.filter('input[value=' + data.orientation + ']').prop('checked', true);
       indicators.$update.addClass('active');
       clearTimeout(onUpdateTimeId);
       onUpdateTimeId = setTimeout(remove, 200);
     }
   });
 
-  // get slider instance by node
-  var slider2 = _slider2.default.getInstance(document.getElementsByClassName('js-slider')[0]);
-
-  // change options
-  slider2.setOptions({ min: -200, max: 200 });
+  document.addEventListener('vanillaslide', function (event) {
+    console.log(event.detail);
+  });
 
   controls.$type.change(function (event) {
     setSliderOption(slider, 'type', event.target.value);
@@ -12617,15 +12623,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   });
 
   controls.$fromFixed.change(function (event) {
-    setSliderOption(slider, 'fromFixed', event.target.checked);
+    setSliderOption(slider, 'isFromFixed', event.target.checked);
   });
 
   controls.$toFixed.change(function (event) {
-    setSliderOption(slider, 'toFixed', event.target.checked);
+    setSliderOption(slider, 'isToFixed', event.target.checked);
   });
 
   controls.$step.focusout(function (event) {
     setSliderOption(slider, 'step', event.target.value);
+  });
+
+  controls.$hasRange.change(function (event) {
+    setSliderOption(slider, 'hasRange', event.target.checked);
   });
 });
 
@@ -12698,29 +12708,27 @@ class SliderConstructor {
         this.controllerCallbacks = Object.assign({}, __WEBPACK_IMPORTED_MODULE_6__components_controller_initial__["a" /* initialOptions */]);
         this.init(options);
     }
-    get data() {
-        return Object.assign({}, this.model.data, this.view.data);
-    }
+    get data() { return this.getOptions(); }
     update(options) {
         this.setOptions(options);
-        this.model.updateState(this.modelOptions);
-        this.view.updateState(this.viewOptions);
+        this.model.updateOptions(this.modelOptions);
+        this.view.updateOptions(this.viewOptions);
         this.controller.updateClientsCallbacks(this.controllerCallbacks);
     }
     init(options) {
         this.model = new __WEBPACK_IMPORTED_MODULE_0__components_model_model__["a" /* default */]();
         this.view = new __WEBPACK_IMPORTED_MODULE_1__components_view_view__["a" /* default */](this.root);
         this.setOptions(options);
-        this.model.updateState(this.modelOptions);
-        this.view.updateState(this.viewOptions);
+        this.model.updateOptions(this.modelOptions);
+        this.view.updateOptions(this.viewOptions);
         this.controller = new __WEBPACK_IMPORTED_MODULE_2__components_controller_controller__["a" /* default */](this.model, this.view, this.controllerCallbacks);
     }
     setOptions(options) {
-        this.modelOptions = Object.assign({}, this.model.data);
-        this.viewOptions = Object.assign({}, this.view.data);
+        this.modelOptions = Object.assign({}, this.model.options);
+        this.viewOptions = Object.assign({}, this.view.options);
         if (options.type && options.type in __WEBPACK_IMPORTED_MODULE_4__components_view_namespace__["b" /* TSliderType */]) {
             this.viewOptions.type = options.type;
-            this.modelOptions.type = options.type === __WEBPACK_IMPORTED_MODULE_4__components_view_namespace__["b" /* TSliderType */].double ? true : false;
+            this.modelOptions.isDouble = options.type === __WEBPACK_IMPORTED_MODULE_4__components_view_namespace__["b" /* TSliderType */].double ? true : false;
         }
         if (options.orientation && options.orientation in __WEBPACK_IMPORTED_MODULE_4__components_view_namespace__["a" /* TOrientation */]) {
             this.viewOptions.orientation = options.orientation;
@@ -12730,8 +12738,9 @@ class SliderConstructor {
         this.setNumberOption('from', options.from);
         this.setNumberOption('to', options.to);
         this.setNumberOption('step', options.step);
-        this.setFixedOption('fromFixed', options.fromFixed);
-        this.setFixedOption('toFixed', options.toFixed);
+        this.setBoolOption('isFromFixed', options.isFromFixed);
+        this.setBoolOption('isToFixed', options.isToFixed);
+        this.setBoolOption('hasRange', options.hasRange);
         this.setCallback('onCreate', options.onCreate);
         this.setCallback('onSlideStart', options.onSlideStart);
         this.setCallback('onSlide', options.onSlide);
@@ -12743,9 +12752,8 @@ class SliderConstructor {
             this.modelOptions[optionName] = Number(value);
         }
     }
-    setFixedOption(optionName, value) {
+    setBoolOption(optionName, value) {
         if (value !== void (0)) {
-            this.modelOptions[optionName] = JSON.parse(value.toString());
             this.viewOptions[optionName] = JSON.parse(value.toString());
         }
     }
@@ -12754,7 +12762,21 @@ class SliderConstructor {
             this.controllerCallbacks[optionName] = callback;
         }
     }
+    getOptions() {
+        return {
+            type: this.view.options.type,
+            from: this.model.state.from,
+            to: this.model.state.to,
+            isFromFixed: this.view.options.isFromFixed,
+            isToFixed: this.view.options.isToFixed,
+            orientation: this.view.options.orientation,
+            min: this.model.options.min,
+            max: this.model.options.max,
+            step: this.model.options.step,
+        };
+    }
 }
+// tslint:disable-next-line:max-classes-per-file
 class VanillaSlider {
     constructor(node, options = {}) {
         const validatedNode = VanillaSlider.getValidateNode(node);
@@ -12780,7 +12802,7 @@ class VanillaSlider {
         if ((element instanceof HTMLCollection) && (this.isDivOrSpan(element[0]))) {
             return element[0];
         }
-        throw 'Invalid node type, expected \'div\' or \'span\'';
+        throw new Error('Invalid node type, expected \'div\' or \'span\'');
     }
     static isDivOrSpan(node) {
         return (node instanceof HTMLDivElement) || (node instanceof HTMLSpanElement);

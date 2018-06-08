@@ -1,19 +1,20 @@
 import IObserver from './../observer/observer';
 
 export interface IView {
-  readonly data: IOptions;
+  readonly options: IOptions;
   readonly events: IEvents;
   readonly sliderSize: ISliderSize;
-  updateState(viewOptions: IOptions): void;
-  changeHandlePosition(handle: THandle, position: number): void;
+  updateOptions(viewOptions: IOptions): void;
+  changeHandlePosition(handle: THandleType, position: number): void;
   emitCustomEvent(event: CustomEvent, target: keyof INodes): void;
 }
 
 export interface IOptions {
   type: TSliderType;
   orientation: TOrientation;
-  fromFixed: boolean;
-  toFixed: boolean;
+  hasRange: boolean;
+  isFromFixed: boolean;
+  isToFixed: boolean;
 }
 
 export interface INodes {
@@ -25,9 +26,9 @@ export interface INodes {
 }
 
 export interface IEvents {
-  slideStart: IObserver<{handle: THandle}>;
-  slideFinish: IObserver<{handle: THandle}>;
-  slide: IObserver<{handle: THandle, coords: number}>;
+  slideStart: IObserver<{ handle: THandleType }>;
+  slideFinish: IObserver<{ handle: THandleType }>;
+  slide: IObserver<{ handle: THandleType, pixels: number }>;
 }
 
 export interface ISliderSize {
@@ -36,11 +37,11 @@ export interface ISliderSize {
 }
 
 export enum TSliderType {
-  single = 'single',
   'from-start' = 'from-start',
   'from-end' = 'from-end',
-  double = 'double'}
+  'double' = 'double',
+}
 export enum TOrientation { vertical = 'vertical', horizontal = 'horizontal' }
-export type THandle = 'from' | 'to';
+export type THandleType = 'from' | 'to';
 export type TEvent = MouseEvent | KeyboardEvent | TouchEvent | CustomEvent;
 export type TRoot = HTMLDivElement | HTMLSpanElement;

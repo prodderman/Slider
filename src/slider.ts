@@ -3,17 +3,17 @@ import View from './components/view/view';
 import Controller from './components/controller/controller';
 
 import { IOptions as IModelOptions } from './components/model/namespace';
-import { initialOptions as initialModel } from './components/model/initial';
+import { initialOptions as initialModelOptions } from './components/model/initial';
 import { IOptions as IViewOptions, TOrientation, TRoot, TSliderType } from './components/view/namespace';
-import { initialOptions as initialView } from './components/view/initial';
+import { initialOptions as initialViewOptions } from './components/view/initial';
 import { ICallbacks, TCallback } from './components/controller/namespace';
-import { initialOptions as initialController } from './components/controller/initial';
+import { initialOptions as initialControllerCallbacks } from './components/controller/initial';
 import { IOptions, TNode } from 'namespace';
 
 class SliderConstructor {
-  private modelOptions: IModelOptions = { ...initialModel };
-  private viewOptions: IViewOptions = { ...initialView };
-  private controllerCallbacks: ICallbacks = { ...initialController };
+  private modelOptions: IModelOptions = { ...initialModelOptions };
+  private viewOptions: IViewOptions = { ...initialViewOptions };
+  private controllerCallbacks: ICallbacks = { ...initialControllerCallbacks };
 
   private view!: View;
   private model!: Model;
@@ -23,14 +23,12 @@ class SliderConstructor {
     this.init(options);
   }
 
-  get data(): IOptions {
-    return { ...this.model.data, ...this.view.data };
-  }
+  get data(): IOptions { return this.getOptions(); }
 
   public update(options: IOptions): void {
     this.setOptions(options);
-    this.model.updateState(this.modelOptions);
-    this.view.updateState(this.viewOptions);
+    this.model.updateOptions(this.modelOptions);
+    this.view.updateOptions(this.viewOptions);
     this.controller.updateClientsCallbacks(this.controllerCallbacks);
   }
 
@@ -38,18 +36,18 @@ class SliderConstructor {
     this.model = new Model();
     this.view = new View(this.root);
     this.setOptions(options);
-    this.model.updateState(this.modelOptions);
-    this.view.updateState(this.viewOptions);
+    this.model.updateOptions(this.modelOptions);
+    this.view.updateOptions(this.viewOptions);
     this.controller = new Controller(this.model, this.view, this.controllerCallbacks);
   }
 
   private setOptions(options: IOptions): void {
-    this.modelOptions = { ...this.model.data };
-    this.viewOptions = { ...this.view.data };
+    this.modelOptions = { ...this.model.options };
+    this.viewOptions = { ...this.view.options };
 
     if (options.type && options.type in TSliderType) {
       this.viewOptions.type = options.type;
-      this.modelOptions.type = options.type === TSliderType.double ? true : false;
+      this.modelOptions.isDouble = options.type === TSliderType.double ? true : false;
     }
     if (options.orientation && options.orientation in TOrientation) {
       this.viewOptions.orientation = options.orientation;
@@ -59,8 +57,9 @@ class SliderConstructor {
     this.setNumberOption('from', options.from);
     this.setNumberOption('to', options.to);
     this.setNumberOption('step', options.step);
-    this.setFixedOption('fromFixed', options.fromFixed);
-    this.setFixedOption('toFixed', options.toFixed);
+    this.setBoolOption('isFromFixed', options.isFromFixed);
+    this.setBoolOption('isToFixed', options.isToFixed);
+    this.setBoolOption('hasRange', options.hasRange);
     this.setCallback('onCreate', options.onCreate);
     this.setCallback('onSlideStart', options.onSlideStart);
     this.setCallback('onSlide', options.onSlide);
@@ -74,9 +73,8 @@ class SliderConstructor {
     }
   }
 
-  private setFixedOption(optionName: keyof IModelOptions & keyof IViewOptions & ('fromFixed' | 'toFixed'), value?: string | boolean) {
+  private setBoolOption(optionName: keyof IViewOptions, value?: string | boolean) {
     if (value !== void(0)) {
-      this.modelOptions[optionName] = JSON.parse(value.toString());
       this.viewOptions[optionName] = JSON.parse(value.toString());
     }
   }
@@ -85,6 +83,20 @@ class SliderConstructor {
     if (callback !== void(0) && typeof callback === 'function') {
       this.controllerCallbacks[optionName] = callback;
     }
+  }
+
+  private getOptions(): IOptions {
+    return {
+      type: this.view.options.type,
+      from: this.model.state.from,
+      to: this.model.state.to,
+      isFromFixed: this.view.options.isFromFixed,
+      isToFixed: this.view.options.isToFixed,
+      orientation : this.view.options.orientation,
+      min: this.model.options.min,
+      max: this.model.options.max,
+      step: this.model.options.step,
+    };
   }
 }
 

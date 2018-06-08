@@ -1,18 +1,22 @@
 .vanilla-slider {
   position: relative;
-  text-align: left; }
+  text-align: left;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none; }
   .vanilla-slider__handle {
     position: absolute;
-    z-index: 3;
+    z-index: 2;
     display: block;
     white-space: nowrap;
     cursor: default; }
-    .vanilla-slider__handle.last-type {
+    .vanilla-slider__handle_last-type {
+      z-index: 3; }
+    .vanilla-slider__handle_active {
       z-index: 4; }
-    .vanilla-slider__handle.active {
-      z-index: 5; }
     .vanilla-slider__handle_fixed {
-      z-index: 2; }
+      z-index: 1; }
   .vanilla-slider_horizontal {
     width: 100%; }
     .vanilla-slider_horizontal .vanilla-slider__handle {

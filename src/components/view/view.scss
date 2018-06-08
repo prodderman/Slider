@@ -1,24 +1,25 @@
 .vanilla-slider {
   position: relative;
   text-align: left;
+  user-select: none;
 
   &__handle {
     position: absolute;
-    z-index: 3;
+    z-index: 2;
     display: block;
     white-space: nowrap;
     cursor: default;
 
-    &.last-type {
+    &_last-type {
+      z-index: 3;
+    }
+
+    &_active {
       z-index: 4;
     }
 
-    &.active {
-      z-index: 5;
-    }
-
     &_fixed {
-      z-index: 2;
+      z-index: 1;
     }
   }
 
