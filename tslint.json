@@ -75,6 +75,7 @@
       "always"
     ],
     "no-eval": true,
+    "max-line-length": false,
     "no-internal-module": true,
     "no-trailing-whitespace": true,
     "no-unsafe-finally": true,

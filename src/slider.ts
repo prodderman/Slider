@@ -88,11 +88,32 @@ class SliderConstructor {
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 export default class VanillaSlider {
-  public setOptions!: (options: IOptions) => void;
-  public data!: IOptions;
+
+  public static getInstance(node: HTMLElement): VanillaSlider | undefined {
+    if (!this.isDivOrSpan(node)) { return undefined; }
+    return VanillaSlider.instances.get(node);
+  }
 
   private static instances: Map<TRoot, VanillaSlider> = new Map();
+
+  private static getValidateNode(node: TNode): TRoot {
+    const element = typeof node === 'string' ? document.querySelector(node) : node;
+
+    if (this.isDivOrSpan(element)) { return element as TRoot; }
+    if ((element instanceof HTMLCollection) && (this.isDivOrSpan(element[0]))) {
+      return element[0] as TRoot;
+    }
+    throw new Error('Invalid node type, expected \'div\' or \'span\'');
+  }
+
+  private static isDivOrSpan(node: TNode): boolean {
+    return (node instanceof HTMLDivElement) || (node instanceof HTMLSpanElement);
+  }
+
+  public setOptions!: (options: IOptions) => void;
+  public data!: IOptions;
 
   constructor(node: TNode, options: IOptions = {}) {
     const validatedNode = VanillaSlider.getValidateNode(node);
@@ -103,24 +124,5 @@ export default class VanillaSlider {
     this.setOptions = slider.update.bind(slider);
     this.data = slider.data;
     VanillaSlider.instances.set(validatedNode, this);
-  }
-
-  public static getInstance(node: HTMLElement): VanillaSlider | undefined {
-    if (!this.isDivOrSpan(node)) { return undefined; }
-    return VanillaSlider.instances.get(node);
-  }
-
-  private static getValidateNode(node: TNode): TRoot {
-    const element = typeof node === 'string' ? document.querySelector(node) : node;
-
-    if (this.isDivOrSpan(element)) { return <TRoot>element; }
-    if ((element instanceof HTMLCollection) && (this.isDivOrSpan(element[0]))) {
-      return <TRoot>element[0];
-    }
-    throw 'Invalid node type, expected \'div\' or \'span\'';
-  }
-
-  private static isDivOrSpan(node: TNode): boolean {
-    return (node instanceof HTMLDivElement) || (node instanceof HTMLSpanElement);
   }
 }

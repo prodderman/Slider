@@ -94,7 +94,6 @@ class View implements IView {
     const baseEnd: keyof CSSStyleDeclaration = opt.orientation === TOrientation.vertical ? 'top' : 'right';
     const handle = opt.type === TSliderType.double ? 'to' : 'from';
     nodes.range.style[baseStart] = opt.type === TSliderType['from-start'] ? '0' : nodes.from.style[baseStart];
-    // tslint:disable-next-line:max-line-length
     nodes.range.style[baseEnd] = opt.type === TSliderType['from-end'] ? '0' : `${100 - parseFloat(nodes[handle].style[baseStart] as string)}%`;
   }
 
@@ -105,11 +104,9 @@ class View implements IView {
     nodes.range.setAttribute('class', `vanilla-slider__range vanilla-slider__range_${opt.type}`);
     nodes.range.removeAttribute('style');
     nodes.from.setAttribute('tabindex', `0`);
-    // tslint:disable-next-line:max-line-length
     nodes.from.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_from${opt.fromFixed ? ' vanilla-slider__handle_fixed' : ''}`);
     nodes.from.removeAttribute('style');
     nodes.to.setAttribute('tabindex', `1`);
-    // tslint:disable-next-line:max-line-length
     nodes.to.setAttribute('class', `vanilla-slider__handle vanilla-slider__handle_to${opt.toFixed ? ' vanilla-slider__handle_fixed' : ''}`);
     nodes.to.removeAttribute('style');
   }
@@ -188,7 +185,6 @@ class View implements IView {
   }
 
   private getHandleCoord(handle: HTMLSpanElement): number {
-    // tslint:disable-next-line:max-line-length
     const offset: keyof typeof handle = this.options.orientation === TOrientation.horizontal ? 'offsetLeft' : 'offsetTop';
     const size = this.options.orientation === TOrientation.horizontal ? 'offsetWidth' : 'offsetHeight';
     return handle[offset] + handle[size] / 2;

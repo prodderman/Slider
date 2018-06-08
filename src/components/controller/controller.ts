@@ -80,7 +80,6 @@ class Controller implements IController {
       Number(((sliderSize.height - pixels) * range / sliderSize.height + modelData.min).toFixed(10));
   }
 
-  // tslint:disable-next-line:max-line-length
   private emitEvent(eventName: TCustomEvents, eventSrc: keyof INodes, clientCallback: TCallback | null, eventData: IModelViewData) {
     const customEvent = this.createSliderEvent(eventName, eventData);
     this.view.emitCustomEvent(customEvent, eventSrc);
