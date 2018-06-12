@@ -39,10 +39,6 @@ class Controller implements IController {
     const model = this.model;
     const view = this.view;
 
-    view.events.slide.attach(() => {
-      console.log();
-    });
-
     view.events.slide.attach(({ handle, pixels }) => {
       model.updateState({[handle]: this.convertToSliderValue(pixels)});
     });

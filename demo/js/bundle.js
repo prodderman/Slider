@@ -61,7 +61,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "963c67e55c3c338d9890"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "8b765f8997d06fb9c813"; // eslint-disable-line no-unused-vars
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
@@ -11941,9 +11941,6 @@ class Controller {
     attachViewEvents() {
         const model = this.model;
         const view = this.view;
-        view.events.slide.attach(() => {
-            console.log();
-        });
         view.events.slide.attach(({ handle, pixels }) => {
             model.updateState({ [handle]: this.convertToSliderValue(pixels) });
         });
@@ -12049,7 +12046,7 @@ const initialOptions = {
 
 class Model {
     constructor() {
-        this.modelEvents = {
+        this._events = {
             stateChanged: new __WEBPACK_IMPORTED_MODULE_0__observer_observer__["a" /* default */](),
         };
         this._options = Object.assign({}, __WEBPACK_IMPORTED_MODULE_1__initial__["a" /* initialOptions */]);
@@ -12057,7 +12054,7 @@ class Model {
     }
     get options() { return Object.assign({}, this._options); }
     get state() { return Object.assign({}, this._state); }
-    get events() { return Object.assign({}, this.modelEvents); }
+    get events() { return Object.assign({}, this._events); }
     updateOptions(options) {
         this.setType(options.isDouble);
         this.setStep(options.step);
@@ -12073,7 +12070,7 @@ class Model {
                 : this.correctDiapason(fromWithStep, opt.min, opt.max);
             if (fromInDiapason !== this._state.from) {
                 this._state.from = fromInDiapason;
-                this.modelEvents.stateChanged.notify({ handle: 'from', value: this._state.from });
+                this._events.stateChanged.notify({ handle: 'from', value: this._state.from });
             }
         }
         if (nextState.to !== void (0)) {
@@ -12083,7 +12080,7 @@ class Model {
                 : this.correctDiapason(toWithStep, opt.min, opt.max);
             if (toInDiapason !== this._state.to) {
                 this._state.to = toInDiapason;
-                this.modelEvents.stateChanged.notify({ handle: 'to', value: this._state.to });
+                this._events.stateChanged.notify({ handle: 'to', value: this._state.to });
             }
         }
     }
@@ -12292,7 +12289,7 @@ if(true) {
 class View {
     constructor(root) {
         this.handle = null;
-        this.viewEvents = {
+        this._events = {
             slideStart: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
             slideFinish: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
             slide: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
@@ -12302,33 +12299,33 @@ class View {
     }
     get options() { return Object.assign({}, this._options); }
     get sliderSize() { return this.getSliderSize(); }
-    get events() { return Object.assign({}, this.viewEvents); }
+    get events() { return Object.assign({}, this._events); }
     updateOptions(viewOptions) {
         this.setOptions(viewOptions);
-        this._nodes.track.innerHTML = '';
+        this.nodes.track.innerHTML = '';
         this.setNodes();
         this.render();
     }
     emitCustomEvent(event, target) {
-        this._nodes[target].dispatchEvent(event);
+        this.nodes[target].dispatchEvent(event);
     }
     changeHandlePosition(handle, position) {
         const orientation = this._options.orientation;
-        const handleNode = this._nodes[handle];
+        const handleNode = this.nodes[handle];
         const base = orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
         handleNode.style[base] = `${position}%`;
         this.calcRange();
     }
     init(root) {
-        this._nodes = {
+        this.nodes = {
             root,
             track: document.createElement('div'),
             from: document.createElement('span'),
             to: document.createElement('span'),
             range: document.createElement('div'),
         };
-        this._nodes.root.innerHTML = '';
-        this._nodes.root.appendChild(this._nodes.track);
+        this.nodes.root.innerHTML = '';
+        this.nodes.root.appendChild(this.nodes.track);
         this.setNodes();
         this.render();
         this.setHandlers();
@@ -12338,7 +12335,7 @@ class View {
     }
     render() {
         const opt = this._options;
-        const nodes = this._nodes;
+        const nodes = this.nodes;
         if (opt.hasRange) {
             nodes.track.appendChild(nodes.range);
         }
@@ -12356,14 +12353,14 @@ class View {
     setHandlers() {
         window.removeEventListener('mousemove', this.drag);
         window.removeEventListener('mouseup', this.finishDragging);
-        this._nodes.track.addEventListener('mousedown', this.startDragging);
+        this.nodes.track.addEventListener('mousedown', this.startDragging);
     }
     calcRange() {
         if (!this._options.hasRange) {
             return;
         }
         const opt = this._options;
-        const nodes = this._nodes;
+        const nodes = this.nodes;
         const baseStart = opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
         const baseSize = opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'top' : 'right';
         if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start']) {
@@ -12381,7 +12378,7 @@ class View {
     }
     setNodes() {
         const opt = this._options;
-        const nodes = this._nodes;
+        const nodes = this.nodes;
         nodes.track.setAttribute('class', `vanilla-slider vanilla-slider_${opt.type} vanilla-slider_${opt.orientation}`);
         nodes.range.setAttribute('class', `vanilla-slider__range vanilla-slider__range_${opt.type}`);
         nodes.range.removeAttribute('style');
@@ -12393,7 +12390,7 @@ class View {
         nodes.to.removeAttribute('style');
     }
     startDragging(event) {
-        const nodes = this._nodes;
+        const nodes = this.nodes;
         this.handle = this.chooseHandle(event);
         if (this.handle) {
             nodes.from.classList.remove('vanilla-slider__handle_last-type');
@@ -12403,13 +12400,13 @@ class View {
             this.drag(event);
             window.addEventListener('mousemove', this.drag);
             window.addEventListener('mouseup', this.finishDragging);
-            this.viewEvents.slideStart.notify({ handle: this.handle });
+            this._events.slideStart.notify({ handle: this.handle });
         }
     }
     drag(event) {
         const coords = this.getRelativeCoords(event);
         if (this.handle) {
-            this.viewEvents.slide.notify({ handle: this.handle, pixels: coords });
+            this._events.slide.notify({ handle: this.handle, pixels: coords });
         }
     }
     finishDragging() {
@@ -12418,54 +12415,71 @@ class View {
         }
         window.removeEventListener('mousemove', this.drag);
         window.removeEventListener('mouseup', this.finishDragging);
-        this._nodes[this.handle].classList.remove('vanilla-slider__handle_active');
-        this.viewEvents.slideFinish.notify({ handle: this.handle });
+        this.nodes[this.handle].classList.remove('vanilla-slider__handle_active');
+        this._events.slideFinish.notify({ handle: this.handle });
         this.handle = null;
     }
     chooseHandle(event) {
         const opt = this._options;
-        const nodes = this._nodes;
+        const nodes = this.nodes;
         const target = event.target;
         if (opt.isFromFixed && opt.isToFixed) {
             return null;
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start'] && opt.isFromFixed) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start']) {
+            if (!opt.isFromFixed) {
+                return 'from';
+            }
             return null;
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end'] && opt.isToFixed) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end']) {
+            if (!opt.isToFixed) {
+                return 'to';
+            }
             return null;
         }
-        if (target === nodes.from) {
-            return 'from';
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
+            if (target === nodes.from && !opt.isFromFixed) {
+                return 'from';
+            }
+            if (target === nodes.from && opt.isFromFixed) {
+                return null;
+            }
+            if (target === nodes.to && !opt.isToFixed) {
+                return 'to';
+            }
+            if (target === nodes.to && opt.isToFixed) {
+                return null;
+            }
+            if (target === nodes.range || target === nodes.track) {
+                if (opt.isFromFixed) {
+                    return 'to';
+                }
+                if (opt.isToFixed) {
+                    return 'from';
+                }
+                const fromCoords = this.getHandleCoords(nodes.from);
+                const toCoords = this.getHandleCoords(nodes.to);
+                const mouseCoords = this.getRelativeCoords(event);
+                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords < fromCoords)) {
+                    return 'from';
+                }
+                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords > toCoords)) {
+                    return 'to';
+                }
+                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords > fromCoords)) {
+                    return 'from';
+                }
+                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords < toCoords)) {
+                    return 'to';
+                }
+                return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
+            }
         }
-        if (target === nodes.to) {
-            return 'to';
-        }
-        if (opt.isFromFixed) {
-            return 'to';
-        }
-        if (opt.isToFixed) {
-            return 'from';
-        }
-        const fromCoords = this.getHandleCoords(nodes.from);
-        const toCoords = this.getHandleCoords(nodes.to);
-        const mouseCoords = this.getRelativeCoords(event);
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords < fromCoords)) {
-            return 'from';
-        }
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords > toCoords)) {
-            return 'to';
-        }
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords > fromCoords)) {
-            return 'from';
-        }
-        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords < toCoords)) {
-            return 'to';
-        }
-        return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
+        return null;
     }
     getRelativeCoords(event) {
-        const nodes = this._nodes;
+        const nodes = this.nodes;
         const axis = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'pageX' : 'pageY';
         const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
         return event[axis] - nodes.track[offset];
@@ -12477,8 +12491,8 @@ class View {
     }
     getSliderSize() {
         return {
-            width: this._nodes.track.clientWidth,
-            height: this._nodes.track.clientHeight,
+            width: this.nodes.track.clientWidth,
+            height: this.nodes.track.clientHeight,
         };
     }
 }

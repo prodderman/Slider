@@ -8,14 +8,14 @@ import { initialOptions } from './initial';
 
 class View implements IView {
   private handle: THandleType | null = null;
-  private viewEvents: IEvents  = {
+  private _events: IEvents  = {
     slideStart: new IEvent(),
     slideFinish: new IEvent(),
     slide: new IEvent(),
   };
 
   private _options: IOptions = { ...initialOptions };
-  private _nodes!: INodes;
+  private nodes!: INodes;
 
   constructor(root: TRoot) {
     this.init(root);
@@ -23,29 +23,29 @@ class View implements IView {
 
   get options(): IOptions { return { ...this._options }; }
   get sliderSize(): ISliderSize { return this.getSliderSize(); }
-  get events(): IEvents { return { ...this.viewEvents }; }
+  get events(): IEvents { return { ...this._events }; }
 
   public updateOptions(viewOptions: IOptions) {
     this.setOptions(viewOptions);
-    this._nodes.track.innerHTML = '';
+    this.nodes.track.innerHTML = '';
     this.setNodes();
     this.render();
   }
 
   public emitCustomEvent(event: CustomEvent, target: keyof INodes) {
-    this._nodes[target].dispatchEvent(event);
+    this.nodes[target].dispatchEvent(event);
   }
 
   public changeHandlePosition(handle: THandleType, position: number) {
     const orientation = this._options.orientation;
-    const handleNode = this._nodes[handle];
+    const handleNode = this.nodes[handle];
     const base: keyof CSSStyleDeclaration = orientation === TOrientation.vertical ? 'bottom' : 'left';
     handleNode.style[base] = `${position}%`;
     this.calcRange();
   }
 
   private init(root: TRoot) {
-    this._nodes = {
+    this.nodes = {
       root,
       track: document.createElement('div'),
       from: document.createElement('span'),
@@ -53,8 +53,8 @@ class View implements IView {
       range: document.createElement('div'),
     };
 
-    this._nodes.root.innerHTML = '';
-    this._nodes.root.appendChild(this._nodes.track);
+    this.nodes.root.innerHTML = '';
+    this.nodes.root.appendChild(this.nodes.track);
     this.setNodes();
     this.render();
     this.setHandlers();
@@ -66,7 +66,7 @@ class View implements IView {
 
   private render() {
     const opt = this._options;
-    const nodes = this._nodes;
+    const nodes = this.nodes;
 
     if (opt.hasRange) {
       nodes.track.appendChild(nodes.range);
@@ -89,13 +89,13 @@ class View implements IView {
   private setHandlers() {
     window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.finishDragging);
-    this._nodes.track.addEventListener('mousedown', this.startDragging);
+    this.nodes.track.addEventListener('mousedown', this.startDragging);
   }
 
   private calcRange() {
     if (!this._options.hasRange) { return; }
     const opt = this._options;
-    const nodes = this._nodes;
+    const nodes = this.nodes;
     const baseStart: keyof CSSStyleDeclaration = opt.orientation === TOrientation.vertical ? 'bottom' : 'left';
     const baseSize: keyof CSSStyleDeclaration = opt.orientation === TOrientation.vertical ? 'top' : 'right';
 
@@ -117,7 +117,7 @@ class View implements IView {
 
   private setNodes() {
     const opt = this._options;
-    const nodes = this._nodes;
+    const nodes = this.nodes;
     nodes.track.setAttribute('class', `vanilla-slider vanilla-slider_${opt.type} vanilla-slider_${opt.orientation}`);
     nodes.range.setAttribute('class', `vanilla-slider__range vanilla-slider__range_${opt.type}`);
     nodes.range.removeAttribute('style');
@@ -131,7 +131,7 @@ class View implements IView {
 
   @bind
   private startDragging(event: MouseEvent) {
-    const nodes = this._nodes;
+    const nodes = this.nodes;
     this.handle = this.chooseHandle(event);
 
     if (this.handle) {
@@ -142,7 +142,7 @@ class View implements IView {
       this.drag(event);
       window.addEventListener('mousemove', this.drag);
       window.addEventListener('mouseup', this.finishDragging);
-      this.viewEvents.slideStart.notify({ handle: this.handle });
+      this._events.slideStart.notify({ handle: this.handle });
     }
   }
 
@@ -150,7 +150,7 @@ class View implements IView {
   private drag(event: MouseEvent) {
     const coords = this.getRelativeCoords(event);
     if (this.handle) {
-      this.viewEvents.slide.notify({ handle: this.handle, pixels: coords });
+      this._events.slide.notify({ handle: this.handle, pixels: coords });
     }
   }
 
@@ -159,37 +159,54 @@ class View implements IView {
     if (!this.handle) { return; }
     window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.finishDragging);
-    this._nodes[this.handle].classList.remove('vanilla-slider__handle_active');
-    this.viewEvents.slideFinish.notify({ handle: this.handle });
+    this.nodes[this.handle].classList.remove('vanilla-slider__handle_active');
+    this._events.slideFinish.notify({ handle: this.handle });
     this.handle = null;
   }
 
   private chooseHandle(event: MouseEvent): THandleType | null {
     const opt = this._options;
-    const nodes = this._nodes;
+    const nodes = this.nodes;
     const target = event.target;
+
     if (opt.isFromFixed && opt.isToFixed) { return null; }
-    if (opt.type === TSliderType['from-start'] && opt.isFromFixed) { return null; }
-    if (opt.type === TSliderType['from-end'] && opt.isToFixed) { return null; }
 
-    if (target === nodes.from) { return 'from'; }
-    if (target === nodes.to) { return 'to'; }
-    if (opt.isFromFixed) { return 'to'; }
-    if (opt.isToFixed) { return 'from'; }
+    if (opt.type === TSliderType['from-start']) {
+      if (!opt.isFromFixed) { return 'from'; }
+      return null;
+    }
 
-    const fromCoords = this.getHandleCoords(nodes.from);
-    const toCoords = this.getHandleCoords(nodes.to);
-    const mouseCoords = this.getRelativeCoords(event);
+    if (opt.type === TSliderType['from-end']) {
+      if (!opt.isToFixed) { return 'to'; }
+      return null;
+    }
 
-    if (opt.orientation === TOrientation.horizontal && (mouseCoords < fromCoords)) { return 'from'; }
-    if (opt.orientation === TOrientation.horizontal && (mouseCoords > toCoords)) { return 'to'; }
-    if (opt.orientation === TOrientation.vertical && (mouseCoords > fromCoords)) { return 'from'; }
-    if (opt.orientation === TOrientation.vertical && (mouseCoords < toCoords)) { return 'to'; }
-    return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
+    if (opt.type === TSliderType.double) {
+      if (target === nodes.from && !opt.isFromFixed) { return 'from'; }
+      if (target === nodes.from && opt.isFromFixed) { return null; }
+      if (target === nodes.to && !opt.isToFixed) { return 'to'; }
+      if (target === nodes.to && opt.isToFixed) { return null; }
+      if (target === nodes.range || target === nodes.track) {
+        if (opt.isFromFixed) { return 'to'; }
+        if (opt.isToFixed) { return 'from'; }
+
+        const fromCoords = this.getHandleCoords(nodes.from);
+        const toCoords = this.getHandleCoords(nodes.to);
+        const mouseCoords = this.getRelativeCoords(event);
+
+        if (opt.orientation === TOrientation.horizontal && (mouseCoords < fromCoords)) { return 'from'; }
+        if (opt.orientation === TOrientation.horizontal && (mouseCoords > toCoords)) { return 'to'; }
+        if (opt.orientation === TOrientation.vertical && (mouseCoords > fromCoords)) { return 'from'; }
+        if (opt.orientation === TOrientation.vertical && (mouseCoords < toCoords)) { return 'to'; }
+        return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
+      }
+    }
+
+    return null;
   }
 
   private getRelativeCoords(event: MouseEvent): number {
-    const nodes = this._nodes;
+    const nodes = this.nodes;
     const axis = this._options.orientation === TOrientation.horizontal ? 'pageX' : 'pageY';
     const offset = this._options.orientation === TOrientation.horizontal ? 'offsetLeft' : 'offsetTop';
     return event[axis] - nodes.track[offset];
@@ -203,8 +220,8 @@ class View implements IView {
 
   private getSliderSize(): ISliderSize {
     return {
-      width: this._nodes.track.clientWidth,
-      height: this._nodes.track.clientHeight,
+      width: this.nodes.track.clientWidth,
+      height: this.nodes.track.clientHeight,
     };
   }
 }

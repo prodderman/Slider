@@ -3,7 +3,7 @@ import { IModel, IOptions, IEvents, Partial, IState } from './namespace';
 import { initialOptions } from './initial';
 
 class Model implements IModel {
-  private modelEvents: IEvents = {
+  private _events: IEvents = {
     stateChanged: new IEvent(),
   };
 
@@ -12,7 +12,7 @@ class Model implements IModel {
 
   get options(): IOptions { return { ...this._options }; }
   get state(): IState { return { ...this._state }; }
-  get events(): IEvents { return { ...this.modelEvents }; }
+  get events(): IEvents { return { ...this._events }; }
 
   public updateOptions(options: IOptions) {
     this.setType(options.isDouble);
@@ -31,7 +31,7 @@ class Model implements IModel {
 
       if (fromInDiapason !== this._state.from) {
         this._state.from = fromInDiapason;
-        this.modelEvents.stateChanged.notify({ handle: 'from', value: this._state.from });
+        this._events.stateChanged.notify({ handle: 'from', value: this._state.from });
       }
     }
 
@@ -43,7 +43,7 @@ class Model implements IModel {
 
       if (toInDiapason !== this._state.to) {
         this._state.to = toInDiapason;
-        this.modelEvents.stateChanged.notify({ handle: 'to', value: this._state.to });
+        this._events.stateChanged.notify({ handle: 'to', value: this._state.to });
       }
     }
   }
