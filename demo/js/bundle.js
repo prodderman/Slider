@@ -61,7 +61,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "8b765f8997d06fb9c813"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "ecba42a69b3d26ae5dd0"; // eslint-disable-line no-unused-vars
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
@@ -11919,13 +11919,13 @@ class Controller {
     }
     updateClientsCallbacks(callbacks) {
         this.setCallbacks(callbacks);
-        this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate, this.getModelViewData());
+        this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate);
         this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
         this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
     }
     init(callbacks) {
         this.setCallbacks(callbacks);
-        this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate, this.getModelViewData());
+        this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate);
         this.attachModelEvents();
         this.attachViewEvents();
         this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
@@ -11945,10 +11945,10 @@ class Controller {
             model.updateState({ [handle]: this.convertToSliderValue(pixels) });
         });
         view.events.slideStart.attach(({ handle }) => {
-            this.emitEvent('vanillastart', handle, this.callbacks.onSlideStart, this.getModelViewData());
+            this.emitEvent('vanillastart', handle, this.callbacks.onSlideStart);
         });
         view.events.slideFinish.attach(({ handle }) => {
-            this.emitEvent('vanillafinish', handle, this.callbacks.onSlideFinish, this.getModelViewData());
+            this.emitEvent('vanillafinish', handle, this.callbacks.onSlideFinish);
         });
     }
     attachModelEvents() {
@@ -11956,7 +11956,7 @@ class Controller {
         const view = this.view;
         model.events.stateChanged.attach(({ handle, value }) => {
             view.changeHandlePosition(handle, this.convertToPercent(value));
-            this.emitEvent('vanillaslide', handle, this.callbacks.onSlide, this.getModelViewData());
+            this.emitEvent('vanillaslide', handle, this.callbacks.onSlide);
         });
     }
     convertToPercent(sliderValue) {
@@ -11972,28 +11972,22 @@ class Controller {
             Number((pixels * range / sliderSize.width + modelData.min).toFixed(10)) :
             Number(((sliderSize.height - pixels) * range / sliderSize.height + modelData.min).toFixed(10));
     }
-    emitEvent(eventName, eventSource, clientCallback, eventData) {
-        const customEvent = this.createSliderEvent(eventName, eventData);
+    emitEvent(eventName, eventSource, clientCallback) {
+        const customEvent = this.createSliderEvent(eventName);
         this.view.emitCustomEvent(customEvent, eventSource);
-        this.callClientCallback(customEvent, eventData, clientCallback);
+        this.callClientCallback(customEvent, clientCallback);
     }
-    callClientCallback(event, data, callback) {
+    callClientCallback(event, callback) {
         if (callback) {
-            callback(event, data);
+            callback(event, Object.assign({}, this.model.state));
         }
     }
-    createSliderEvent(eventName, data) {
+    createSliderEvent(eventName) {
         return new CustomEvent(eventName, {
-            detail: data,
+            detail: Object.assign({}, this.model.state),
             bubbles: true,
             cancelable: true,
         });
-    }
-    getModelViewData() {
-        return {
-            from: this.model.state.from,
-            to: this.model.state.to,
-        };
     }
 }
 /* harmony default export */ __webpack_exports__["a"] = (Controller);
@@ -12059,37 +12053,45 @@ class Model {
         this.setType(options.isDouble);
         this.setStep(options.step);
         this.setRange(options.min, options.max);
-        this.setValues(options.from, options.to);
+        this.setHandleValues(options.from, options.to);
     }
     updateState(nextState) {
-        const opt = this.options;
+        const opt = this._options;
         if (nextState.from !== void (0)) {
-            const fromWithStep = this.calcValueWithStep(nextState.from, opt.min, opt.step);
-            const fromInDiapason = opt.isDouble
-                ? this.correctDiapason(fromWithStep, opt.min, this._state.to)
-                : this.correctDiapason(fromWithStep, opt.min, opt.max);
-            if (fromInDiapason !== this._state.from) {
-                this._state.from = fromInDiapason;
-                this._events.stateChanged.notify({ handle: 'from', value: this._state.from });
-            }
+            this.updateFromHandleValue(opt, nextState.from);
         }
         if (nextState.to !== void (0)) {
-            const toWithStep = this.calcValueWithStep(nextState.to, opt.min, opt.step);
-            const toInDiapason = opt.isDouble
-                ? this.correctDiapason(toWithStep, this._state.from, opt.max)
-                : this.correctDiapason(toWithStep, opt.min, opt.max);
-            if (toInDiapason !== this._state.to) {
-                this._state.to = toInDiapason;
-                this._events.stateChanged.notify({ handle: 'to', value: this._state.to });
-            }
+            this.updateToHandleValue(opt, nextState.to);
         }
+    }
+    updateFromHandleValue(options, fromValue) {
+        const fromWithStep = this.calcValueWithStep(fromValue, options.min, options.step);
+        const fromInDiapason = options.isDouble
+            ? this.correctDiapason(fromWithStep, options.min, this._state.to)
+            : this.correctDiapason(fromWithStep, options.min, options.max);
+        if (fromInDiapason !== this._state.from) {
+            this.setState('from', fromInDiapason);
+        }
+    }
+    updateToHandleValue(options, toValue) {
+        const toWithStep = this.calcValueWithStep(toValue, options.min, options.step);
+        const toInDiapason = options.isDouble
+            ? this.correctDiapason(toWithStep, this._state.from, options.max)
+            : this.correctDiapason(toWithStep, options.min, options.max);
+        if (toInDiapason !== this._state.to) {
+            this.setState('to', toInDiapason);
+        }
+    }
+    setState(handle, newValue) {
+        this._state[handle] = newValue;
+        this._events.stateChanged.notify({ handle, value: newValue });
     }
     setRange(min = this._options.min, max = this._options.max) {
         this._options.min = min > max ? max : min;
         this._options.max = max;
         this.correctFromTo();
     }
-    setValues(from = this._options.from, to = this._options.to) {
+    setHandleValues(from = this._options.from, to = this._options.to) {
         this._options.from = from;
         this._options.to = to;
         this.correctFromTo();
@@ -12270,15 +12272,15 @@ if(true) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_tslib__ = __webpack_require__("../node_modules/tslib/tslib.es6.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__view_scss__ = __webpack_require__("./components/view/view.scss");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__view_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__view_scss__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__theme_scss__ = __webpack_require__("./components/view/theme.scss");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__theme_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__theme_scss__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_decko__ = __webpack_require__("../node_modules/decko/dist/decko.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_decko___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_decko__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__observer_observer__ = __webpack_require__("./components/observer/observer.ts");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__namespace__ = __webpack_require__("./components/view/namespace.ts");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__initial__ = __webpack_require__("./components/view/initial.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_decko__ = __webpack_require__("../node_modules/decko/dist/decko.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_decko___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_decko__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__observer_observer__ = __webpack_require__("./components/observer/observer.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__namespace__ = __webpack_require__("./components/view/namespace.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__initial__ = __webpack_require__("./components/view/initial.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__view_scss__ = __webpack_require__("./components/view/view.scss");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__view_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__view_scss__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__theme_scss__ = __webpack_require__("./components/view/theme.scss");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__theme_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__theme_scss__);
 
 
 
@@ -12290,11 +12292,11 @@ class View {
     constructor(root) {
         this.handle = null;
         this._events = {
-            slideStart: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
-            slideFinish: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
-            slide: new __WEBPACK_IMPORTED_MODULE_4__observer_observer__["a" /* default */](),
+            slideStart: new __WEBPACK_IMPORTED_MODULE_2__observer_observer__["a" /* default */](),
+            slideFinish: new __WEBPACK_IMPORTED_MODULE_2__observer_observer__["a" /* default */](),
+            slide: new __WEBPACK_IMPORTED_MODULE_2__observer_observer__["a" /* default */](),
         };
-        this._options = Object.assign({}, __WEBPACK_IMPORTED_MODULE_6__initial__["a" /* initialOptions */]);
+        this._options = Object.assign({}, __WEBPACK_IMPORTED_MODULE_4__initial__["a" /* initialOptions */]);
         this.init(root);
     }
     get options() { return Object.assign({}, this._options); }
@@ -12302,8 +12304,6 @@ class View {
     get events() { return Object.assign({}, this._events); }
     updateOptions(viewOptions) {
         this.setOptions(viewOptions);
-        this.nodes.track.innerHTML = '';
-        this.setNodes();
         this.render();
     }
     emitCustomEvent(event, target) {
@@ -12312,7 +12312,7 @@ class View {
     changeHandlePosition(handle, position) {
         const orientation = this._options.orientation;
         const handleNode = this.nodes[handle];
-        const base = orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
+        const base = orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
         handleNode.style[base] = `${position}%`;
         this.calcRange();
     }
@@ -12324,11 +12324,8 @@ class View {
             to: document.createElement('span'),
             range: document.createElement('div'),
         };
-        this.nodes.root.innerHTML = '';
-        this.nodes.root.appendChild(this.nodes.track);
-        this.setNodes();
         this.render();
-        this.setHandlers();
+        this.initDragHandlers();
     }
     setOptions(options) {
         this._options = Object.assign({}, options);
@@ -12336,21 +12333,25 @@ class View {
     render() {
         const opt = this._options;
         const nodes = this.nodes;
+        this.stylizeNodes();
+        nodes.root.innerHTML = '';
+        nodes.track.innerHTML = '';
+        nodes.root.appendChild(nodes.track);
         if (opt.hasRange) {
             nodes.track.appendChild(nodes.range);
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start']) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-start']) {
             nodes.track.appendChild(nodes.from);
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end']) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-end']) {
             nodes.track.appendChild(nodes.to);
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */].double) {
             nodes.track.appendChild(nodes.from);
             nodes.track.appendChild(nodes.to);
         }
     }
-    setHandlers() {
+    initDragHandlers() {
         window.removeEventListener('mousemove', this.drag);
         window.removeEventListener('mouseup', this.finishDragging);
         this.nodes.track.addEventListener('mousedown', this.startDragging);
@@ -12361,22 +12362,22 @@ class View {
         }
         const opt = this._options;
         const nodes = this.nodes;
-        const baseStart = opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
-        const baseSize = opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical ? 'top' : 'right';
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start']) {
+        const baseStart = opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
+        const baseSize = opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical ? 'top' : 'right';
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-start']) {
             nodes.range.style[baseStart] = '0';
             nodes.range.style[baseSize] = `${100 - parseFloat(nodes.from.style[baseStart])}%`;
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end']) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-end']) {
             nodes.range.style[baseStart] = nodes.to.style[baseStart];
             nodes.range.style[baseSize] = '0';
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */].double) {
             nodes.range.style[baseStart] = nodes.from.style[baseStart];
             nodes.range.style[baseSize] = `${100 - parseFloat(nodes.to.style[baseStart])}%`;
         }
     }
-    setNodes() {
+    stylizeNodes() {
         const opt = this._options;
         const nodes = this.nodes;
         nodes.track.setAttribute('class', `vanilla-slider vanilla-slider_${opt.type} vanilla-slider_${opt.orientation}`);
@@ -12404,89 +12405,86 @@ class View {
         }
     }
     drag(event) {
-        const coords = this.getRelativeCoords(event);
         if (this.handle) {
+            const coords = this.getRelativeCoords(event);
             this._events.slide.notify({ handle: this.handle, pixels: coords });
         }
     }
     finishDragging() {
-        if (!this.handle) {
-            return;
+        if (this.handle) {
+            window.removeEventListener('mousemove', this.drag);
+            window.removeEventListener('mouseup', this.finishDragging);
+            this.nodes[this.handle].classList.remove('vanilla-slider__handle_active');
+            this._events.slideFinish.notify({ handle: this.handle });
+            this.handle = null;
         }
-        window.removeEventListener('mousemove', this.drag);
-        window.removeEventListener('mouseup', this.finishDragging);
-        this.nodes[this.handle].classList.remove('vanilla-slider__handle_active');
-        this._events.slideFinish.notify({ handle: this.handle });
-        this.handle = null;
     }
     chooseHandle(event) {
         const opt = this._options;
-        const nodes = this.nodes;
-        const target = event.target;
         if (opt.isFromFixed && opt.isToFixed) {
             return null;
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-start']) {
-            if (!opt.isFromFixed) {
-                return 'from';
-            }
-            return null;
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-start']) {
+            return opt.isFromFixed ? null : 'from';
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */]['from-end']) {
-            if (!opt.isToFixed) {
-                return 'to';
-            }
-            return null;
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-end']) {
+            return opt.isToFixed ? null : 'to';
         }
-        if (opt.type === __WEBPACK_IMPORTED_MODULE_5__namespace__["b" /* TSliderType */].double) {
-            if (target === nodes.from && !opt.isFromFixed) {
-                return 'from';
-            }
-            if (target === nodes.from && opt.isFromFixed) {
-                return null;
-            }
-            if (target === nodes.to && !opt.isToFixed) {
-                return 'to';
-            }
-            if (target === nodes.to && opt.isToFixed) {
-                return null;
-            }
-            if (target === nodes.range || target === nodes.track) {
-                if (opt.isFromFixed) {
-                    return 'to';
-                }
-                if (opt.isToFixed) {
-                    return 'from';
-                }
-                const fromCoords = this.getHandleCoords(nodes.from);
-                const toCoords = this.getHandleCoords(nodes.to);
-                const mouseCoords = this.getRelativeCoords(event);
-                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords < fromCoords)) {
-                    return 'from';
-                }
-                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal && (mouseCoords > toCoords)) {
-                    return 'to';
-                }
-                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords > fromCoords)) {
-                    return 'from';
-                }
-                if (opt.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].vertical && (mouseCoords < toCoords)) {
-                    return 'to';
-                }
-                return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
-            }
+        if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */].double) {
+            return this.chooseDoubleSliderHandle(event);
         }
         return null;
     }
+    chooseDoubleSliderHandle(event) {
+        const opt = this._options;
+        const nodes = this.nodes;
+        const target = event.target;
+        if (target === nodes.from) {
+            return opt.isFromFixed ? null : 'from';
+        }
+        if (target === nodes.to) {
+            return opt.isToFixed ? null : 'to';
+        }
+        if (target === nodes.range || target === nodes.track) {
+            if (opt.isFromFixed) {
+                return 'to';
+            }
+            if (opt.isToFixed) {
+                return 'from';
+            }
+            return this.chooseHandleByCoords(event);
+        }
+        return null;
+    }
+    chooseHandleByCoords(event) {
+        const opt = this._options;
+        const nodes = this.nodes;
+        const fromCoords = this.getHandleCoords(nodes.from);
+        const toCoords = this.getHandleCoords(nodes.to);
+        const mouseCoords = this.getRelativeCoords(event);
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal && (mouseCoords < fromCoords)) {
+            return 'from';
+        }
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal && (mouseCoords > toCoords)) {
+            return 'to';
+        }
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical && (mouseCoords > fromCoords)) {
+            return 'from';
+        }
+        if (opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical && (mouseCoords < toCoords)) {
+            return 'to';
+        }
+        return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
+    }
     getRelativeCoords(event) {
         const nodes = this.nodes;
-        const axis = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'pageX' : 'pageY';
-        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
+        const axis = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'pageX' : 'pageY';
+        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
         return event[axis] - nodes.track[offset];
     }
     getHandleCoords(handle) {
-        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
-        const size = this._options.orientation === __WEBPACK_IMPORTED_MODULE_5__namespace__["a" /* TOrientation */].horizontal ? 'offsetWidth' : 'offsetHeight';
+        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
+        const size = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetWidth' : 'offsetHeight';
         return handle[offset] + handle[size] / 2;
     }
     getSliderSize() {
@@ -12497,13 +12495,13 @@ class View {
     }
 }
 __WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
-    __WEBPACK_IMPORTED_MODULE_3_decko__["bind"]
+    __WEBPACK_IMPORTED_MODULE_1_decko__["bind"]
 ], View.prototype, "startDragging", null);
 __WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
-    __WEBPACK_IMPORTED_MODULE_3_decko__["bind"]
+    __WEBPACK_IMPORTED_MODULE_1_decko__["bind"]
 ], View.prototype, "drag", null);
 __WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
-    __WEBPACK_IMPORTED_MODULE_3_decko__["bind"]
+    __WEBPACK_IMPORTED_MODULE_1_decko__["bind"]
 ], View.prototype, "finishDragging", null);
 /* harmony default export */ __webpack_exports__["a"] = (View);
 

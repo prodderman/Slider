@@ -1,6 +1,6 @@
 import { IModel } from './../model/namespace';
 import { IView, TEvent, INodes, TOrientation } from '../view/namespace';
-import { ICallbacks, TCallback, TCustomEvents, IClientData, IController } from './namespace';
+import { ICallbacks, TCallback, TCustomEvents, IController } from './namespace';
 import { initialOptions } from './initial';
 
 class Controller implements IController {
@@ -13,14 +13,14 @@ class Controller implements IController {
 
   public updateClientsCallbacks(callbacks: ICallbacks) {
     this.setCallbacks(callbacks);
-    this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate, this.getModelViewData());
+    this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate);
     this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
     this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
   }
 
   private init(callbacks: ICallbacks) {
     this.setCallbacks(callbacks);
-    this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate, this.getModelViewData());
+    this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate);
     this.attachModelEvents();
     this.attachViewEvents();
     this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
@@ -35,29 +35,30 @@ class Controller implements IController {
     this.callbacks.onUpdate = callbacks.onUpdate;
   }
 
-  private attachViewEvents() {
+  private attachViewEvents(): void {
     const model = this.model;
     const view = this.view;
 
     view.events.slide.attach(({ handle, pixels }) => {
-      model.updateState({[handle]: this.convertToSliderValue(pixels)});
+      model.updateState({ [handle]: this.convertToSliderValue(pixels) });
     });
 
     view.events.slideStart.attach(({ handle }) => {
-      this.emitEvent('vanillastart', handle, this.callbacks.onSlideStart, this.getModelViewData());
+      this.emitEvent('vanillastart', handle, this.callbacks.onSlideStart);
     });
+
     view.events.slideFinish.attach(({ handle }) => {
-      this.emitEvent('vanillafinish', handle, this.callbacks.onSlideFinish, this.getModelViewData());
+      this.emitEvent('vanillafinish', handle, this.callbacks.onSlideFinish);
     });
   }
 
-  private attachModelEvents() {
+  private attachModelEvents(): void {
     const model = this.model;
     const view = this.view;
 
     model.events.stateChanged.attach(({ handle, value }) => {
       view.changeHandlePosition(handle, this.convertToPercent(value));
-      this.emitEvent('vanillaslide', handle, this.callbacks.onSlide, this.getModelViewData());
+      this.emitEvent('vanillaslide', handle, this.callbacks.onSlide);
     });
   }
 
@@ -76,31 +77,24 @@ class Controller implements IController {
       Number(((sliderSize.height - pixels) * range / sliderSize.height + modelData.min).toFixed(10));
   }
 
-  private emitEvent(eventName: TCustomEvents, eventSource: keyof INodes, clientCallback: TCallback | null, eventData: IClientData) {
-    const customEvent = this.createSliderEvent(eventName, eventData);
+  private emitEvent(eventName: TCustomEvents, eventSource: keyof INodes, clientCallback: TCallback | null): void {
+    const customEvent = this.createSliderEvent(eventName);
     this.view.emitCustomEvent(customEvent, eventSource);
-    this.callClientCallback(customEvent, eventData, clientCallback);
+    this.callClientCallback(customEvent, clientCallback);
   }
 
-  private callClientCallback(event: TEvent, data: IClientData, callback: TCallback | null) {
+  private callClientCallback(event: TEvent, callback: TCallback | null): void {
     if (callback) {
-      callback(event, data);
+      callback(event, { ...this.model.state });
     }
   }
 
-  private createSliderEvent(eventName: TCustomEvents, data: IClientData) {
+  private createSliderEvent(eventName: TCustomEvents): CustomEvent {
     return new CustomEvent(eventName, {
-      detail: data,
+      detail: { ...this.model.state },
       bubbles: true,
       cancelable: true,
     });
-  }
-
-  private getModelViewData(): IClientData {
-    return {
-      from: this.model.state.from,
-      to: this.model.state.to,
-    };
   }
 }
 

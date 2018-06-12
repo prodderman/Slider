@@ -1,10 +1,11 @@
-import './view.scss';
-import './theme.scss';
 import { bind } from 'decko';
 
 import IEvent from './../observer/observer';
 import { IOptions, IEvents, INodes, TRoot, IView, THandleType, ISliderSize, TSliderType, TOrientation } from './namespace';
 import { initialOptions } from './initial';
+
+import './view.scss';
+import './theme.scss';
 
 class View implements IView {
   private handle: THandleType | null = null;
@@ -27,8 +28,6 @@ class View implements IView {
 
   public updateOptions(viewOptions: IOptions) {
     this.setOptions(viewOptions);
-    this.nodes.track.innerHTML = '';
-    this.setNodes();
     this.render();
   }
 
@@ -53,11 +52,8 @@ class View implements IView {
       range: document.createElement('div'),
     };
 
-    this.nodes.root.innerHTML = '';
-    this.nodes.root.appendChild(this.nodes.track);
-    this.setNodes();
     this.render();
-    this.setHandlers();
+    this.initDragHandlers();
   }
 
   private setOptions(options: IOptions) {
@@ -67,6 +63,11 @@ class View implements IView {
   private render() {
     const opt = this._options;
     const nodes = this.nodes;
+
+    this.stylizeNodes();
+    nodes.root.innerHTML = '';
+    nodes.track.innerHTML = '';
+    nodes.root.appendChild(nodes.track);
 
     if (opt.hasRange) {
       nodes.track.appendChild(nodes.range);
@@ -86,7 +87,7 @@ class View implements IView {
     }
   }
 
-  private setHandlers() {
+  private initDragHandlers() {
     window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.finishDragging);
     this.nodes.track.addEventListener('mousedown', this.startDragging);
@@ -115,7 +116,7 @@ class View implements IView {
     }
   }
 
-  private setNodes() {
+  private stylizeNodes() {
     const opt = this._options;
     const nodes = this.nodes;
     nodes.track.setAttribute('class', `vanilla-slider vanilla-slider_${opt.type} vanilla-slider_${opt.orientation}`);
@@ -148,61 +149,71 @@ class View implements IView {
 
   @bind
   private drag(event: MouseEvent) {
-    const coords = this.getRelativeCoords(event);
     if (this.handle) {
+      const coords = this.getRelativeCoords(event);
       this._events.slide.notify({ handle: this.handle, pixels: coords });
     }
   }
 
   @bind
   private finishDragging() {
-    if (!this.handle) { return; }
-    window.removeEventListener('mousemove', this.drag);
-    window.removeEventListener('mouseup', this.finishDragging);
-    this.nodes[this.handle].classList.remove('vanilla-slider__handle_active');
-    this._events.slideFinish.notify({ handle: this.handle });
-    this.handle = null;
+    if (this.handle) {
+      window.removeEventListener('mousemove', this.drag);
+      window.removeEventListener('mouseup', this.finishDragging);
+      this.nodes[this.handle].classList.remove('vanilla-slider__handle_active');
+      this._events.slideFinish.notify({ handle: this.handle });
+      this.handle = null;
+    }
   }
 
   private chooseHandle(event: MouseEvent): THandleType | null {
     const opt = this._options;
-    const nodes = this.nodes;
-    const target = event.target;
 
     if (opt.isFromFixed && opt.isToFixed) { return null; }
 
     if (opt.type === TSliderType['from-start']) {
-      if (!opt.isFromFixed) { return 'from'; }
-      return null;
+      return opt.isFromFixed ? null : 'from';
     }
 
     if (opt.type === TSliderType['from-end']) {
-      if (!opt.isToFixed) { return 'to'; }
-      return null;
+      return opt.isToFixed ? null : 'to';
     }
 
     if (opt.type === TSliderType.double) {
-      if (target === nodes.from && !opt.isFromFixed) { return 'from'; }
-      if (target === nodes.from && opt.isFromFixed) { return null; }
-      if (target === nodes.to && !opt.isToFixed) { return 'to'; }
-      if (target === nodes.to && opt.isToFixed) { return null; }
-      if (target === nodes.range || target === nodes.track) {
-        if (opt.isFromFixed) { return 'to'; }
-        if (opt.isToFixed) { return 'from'; }
-
-        const fromCoords = this.getHandleCoords(nodes.from);
-        const toCoords = this.getHandleCoords(nodes.to);
-        const mouseCoords = this.getRelativeCoords(event);
-
-        if (opt.orientation === TOrientation.horizontal && (mouseCoords < fromCoords)) { return 'from'; }
-        if (opt.orientation === TOrientation.horizontal && (mouseCoords > toCoords)) { return 'to'; }
-        if (opt.orientation === TOrientation.vertical && (mouseCoords > fromCoords)) { return 'from'; }
-        if (opt.orientation === TOrientation.vertical && (mouseCoords < toCoords)) { return 'to'; }
-        return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
-      }
+      return this.chooseDoubleSliderHandle(event);
     }
 
     return null;
+  }
+
+  private chooseDoubleSliderHandle(event: MouseEvent): THandleType | null {
+    const opt = this._options;
+    const nodes = this.nodes;
+    const target = event.target;
+
+    if (target === nodes.from) { return opt.isFromFixed ? null : 'from'; }
+    if (target === nodes.to) { return opt.isToFixed ? null : 'to'; }
+
+    if (target === nodes.range || target === nodes.track) {
+      if (opt.isFromFixed) { return 'to'; }
+      if (opt.isToFixed) { return 'from'; }
+      return this.chooseHandleByCoords(event);
+    }
+    return null;
+  }
+
+  private chooseHandleByCoords(event: MouseEvent): THandleType | null {
+    const opt = this._options;
+    const nodes = this.nodes;
+    const fromCoords = this.getHandleCoords(nodes.from);
+    const toCoords = this.getHandleCoords(nodes.to);
+    const mouseCoords = this.getRelativeCoords(event);
+
+    if (opt.orientation === TOrientation.horizontal && (mouseCoords < fromCoords)) { return 'from'; }
+    if (opt.orientation === TOrientation.horizontal && (mouseCoords > toCoords)) { return 'to'; }
+    if (opt.orientation === TOrientation.vertical && (mouseCoords > fromCoords)) { return 'from'; }
+    if (opt.orientation === TOrientation.vertical && (mouseCoords < toCoords)) { return 'to'; }
+    return Math.abs(fromCoords - mouseCoords) < Math.abs(toCoords - mouseCoords) ? 'from' : 'to';
   }
 
   private getRelativeCoords(event: MouseEvent): number {

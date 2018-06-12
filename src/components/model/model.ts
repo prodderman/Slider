@@ -1,5 +1,5 @@
 import IEvent from './../observer/observer';
-import { IModel, IOptions, IEvents, Partial, IState } from './namespace';
+import { IModel, IOptions, IEvents, Partial, IState, THandleType } from './namespace';
 import { initialOptions } from './initial';
 
 class Model implements IModel {
@@ -18,34 +18,45 @@ class Model implements IModel {
     this.setType(options.isDouble);
     this.setStep(options.step);
     this.setRange(options.min, options.max);
-    this.setValues(options.from, options.to);
+    this.setHandleValues(options.from, options.to);
   }
 
   public updateState(nextState: Partial<IState>) {
-    const opt = this.options;
+    const opt = this._options;
     if (nextState.from !== void(0)) {
-      const fromWithStep =  this.calcValueWithStep(nextState.from, opt.min, opt.step);
-      const fromInDiapason = opt.isDouble
-        ? this.correctDiapason(fromWithStep, opt.min, this._state.to)
-        : this.correctDiapason(fromWithStep, opt.min, opt.max);
-
-      if (fromInDiapason !== this._state.from) {
-        this._state.from = fromInDiapason;
-        this._events.stateChanged.notify({ handle: 'from', value: this._state.from });
-      }
+      this.updateFromHandleValue(opt, nextState.from);
     }
 
     if (nextState.to !== void(0)) {
-      const toWithStep = this.calcValueWithStep(nextState.to, opt.min, opt.step);
-      const toInDiapason = opt.isDouble
-        ? this.correctDiapason(toWithStep, this._state.from, opt.max)
-        : this.correctDiapason(toWithStep, opt.min, opt.max);
-
-      if (toInDiapason !== this._state.to) {
-        this._state.to = toInDiapason;
-        this._events.stateChanged.notify({ handle: 'to', value: this._state.to });
-      }
+      this.updateToHandleValue(opt, nextState.to);
     }
+  }
+
+  private updateFromHandleValue(options: IOptions, fromValue: number) {
+    const fromWithStep =  this.calcValueWithStep(fromValue, options.min, options.step);
+    const fromInDiapason = options.isDouble
+      ? this.correctDiapason(fromWithStep, options.min, this._state.to)
+      : this.correctDiapason(fromWithStep, options.min, options.max);
+
+    if (fromInDiapason !== this._state.from) {
+      this.setState('from', fromInDiapason);
+    }
+  }
+
+  private updateToHandleValue(options: IOptions, toValue: number) {
+    const toWithStep = this.calcValueWithStep(toValue, options.min, options.step);
+    const toInDiapason = options.isDouble
+      ? this.correctDiapason(toWithStep, this._state.from, options.max)
+      : this.correctDiapason(toWithStep, options.min, options.max);
+
+    if (toInDiapason !== this._state.to) {
+      this.setState('to', toInDiapason);
+    }
+  }
+
+  private setState(handle: THandleType, newValue: number) {
+    this._state[handle] = newValue;
+    this._events.stateChanged.notify({ handle, value: newValue });
   }
 
   private setRange(min = this._options.min, max = this._options.max) {
@@ -54,7 +65,7 @@ class Model implements IModel {
     this.correctFromTo();
   }
 
-  private setValues(from = this._options.from, to = this._options.to) {
+  private setHandleValues(from = this._options.from, to = this._options.to) {
     this._options.from = from;
     this._options.to = to;
     this.correctFromTo();
