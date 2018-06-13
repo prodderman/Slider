@@ -61,7 +61,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "ecba42a69b3d26ae5dd0"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "7ea2adb351ca89758164"; // eslint-disable-line no-unused-vars
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
@@ -735,7 +735,7 @@ exports = module.exports = __webpack_require__("../node_modules/css-loader/lib/c
 
 
 // module
-exports.push([module.i, ".vanilla-slider {\n  border-radius: 0.3em;\n  background-color: #f6f6f6; }\n  .vanilla-slider__range {\n    border-radius: 0.3em;\n    background-color: #ed5565; }\n  .vanilla-slider_horizontal {\n    height: 0.6em; }\n    .vanilla-slider_horizontal .vanilla-slider__range {\n      height: 100%; }\n  .vanilla-slider_vertical {\n    width: 0.6em; }\n    .vanilla-slider_vertical .vanilla-slider__range {\n      width: 100%; }\n  .vanilla-slider__handle {\n    width: 1.2em;\n    height: 1.2em;\n    outline: none;\n    border: 1px solid #ed5565;\n    border-radius: 0.3em;\n    background-color: #f6f6f6;\n    cursor: pointer; }\n    .vanilla-slider__handle:hover {\n      border-color: #c71528; }\n    .vanilla-slider__handle:focus {\n      border-color: #c71528;\n      box-shadow: 0 0 2px 0 blue; }\n    .vanilla-slider__handle-active {\n      background-color: #c71528; }\n", ""]);
+exports.push([module.i, ".vanilla-slider {\n  border-radius: 0.3em;\n  background-color: #f6f6f6; }\n  .vanilla-slider__range {\n    border-radius: 0.3em;\n    background-color: #ed5565; }\n  .vanilla-slider_horizontal {\n    height: 0.6em; }\n    .vanilla-slider_horizontal .vanilla-slider__range {\n      height: 100%; }\n  .vanilla-slider_vertical {\n    width: 0.6em; }\n    .vanilla-slider_vertical .vanilla-slider__range {\n      width: 100%; }\n  .vanilla-slider__handle {\n    width: 1.2em;\n    height: 1.2em;\n    outline: none;\n    border: 1px solid #ed5565;\n    border-radius: 0.3em;\n    background-color: #f6f6f6;\n    cursor: pointer; }\n    .vanilla-slider__handle:hover {\n      border-color: #c71528; }\n    .vanilla-slider__handle:focus {\n      border-color: #c71528;\n      box-shadow: 0 0 2px 0 blue; }\n    .vanilla-slider__handle_active {\n      background-color: #c3c3c3; }\n", ""]);
 
 // exports
 
@@ -11920,16 +11920,14 @@ class Controller {
     updateClientsCallbacks(callbacks) {
         this.setCallbacks(callbacks);
         this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate);
-        this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
-        this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
+        this.updateViewHandlesPosition();
     }
     init(callbacks) {
         this.setCallbacks(callbacks);
         this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate);
         this.attachModelEvents();
         this.attachViewEvents();
-        this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
-        this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
+        this.updateViewHandlesPosition();
     }
     setCallbacks(callbacks) {
         this.callbacks.onCreate = callbacks.onCreate;
@@ -11976,6 +11974,10 @@ class Controller {
         const customEvent = this.createSliderEvent(eventName);
         this.view.emitCustomEvent(customEvent, eventSource);
         this.callClientCallback(customEvent, clientCallback);
+    }
+    updateViewHandlesPosition() {
+        this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
+        this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
     }
     callClientCallback(event, callback) {
         if (callback) {
@@ -12070,7 +12072,7 @@ class Model {
             ? this.correctDiapason(fromWithStep, options.min, this._state.to)
             : this.correctDiapason(fromWithStep, options.min, options.max);
         if (fromInDiapason !== this._state.from) {
-            this.setState('from', fromInDiapason);
+            this.updateStateHandleValue('from', fromInDiapason);
         }
     }
     updateToHandleValue(options, toValue) {
@@ -12079,10 +12081,10 @@ class Model {
             ? this.correctDiapason(toWithStep, this._state.from, options.max)
             : this.correctDiapason(toWithStep, options.min, options.max);
         if (toInDiapason !== this._state.to) {
-            this.setState('to', toInDiapason);
+            this.updateStateHandleValue('to', toInDiapason);
         }
     }
-    setState(handle, newValue) {
+    updateStateHandleValue(handle, newValue) {
         this._state[handle] = newValue;
         this._events.stateChanged.notify({ handle, value: newValue });
     }
@@ -12290,7 +12292,7 @@ if(true) {
 
 class View {
     constructor(root) {
-        this.handle = null;
+        this.draggingHandle = null;
         this._events = {
             slideStart: new __WEBPACK_IMPORTED_MODULE_2__observer_observer__["a" /* default */](),
             slideFinish: new __WEBPACK_IMPORTED_MODULE_2__observer_observer__["a" /* default */](),
@@ -12363,18 +12365,18 @@ class View {
         const opt = this._options;
         const nodes = this.nodes;
         const baseStart = opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical ? 'bottom' : 'left';
-        const baseSize = opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical ? 'top' : 'right';
+        const baseEnd = opt.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].vertical ? 'top' : 'right';
         if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-start']) {
             nodes.range.style[baseStart] = '0';
-            nodes.range.style[baseSize] = `${100 - parseFloat(nodes.from.style[baseStart])}%`;
+            nodes.range.style[baseEnd] = `${100 - parseFloat(nodes.from.style[baseStart])}%`;
         }
         if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */]['from-end']) {
             nodes.range.style[baseStart] = nodes.to.style[baseStart];
-            nodes.range.style[baseSize] = '0';
+            nodes.range.style[baseEnd] = '0';
         }
         if (opt.type === __WEBPACK_IMPORTED_MODULE_3__namespace__["b" /* TSliderType */].double) {
             nodes.range.style[baseStart] = nodes.from.style[baseStart];
-            nodes.range.style[baseSize] = `${100 - parseFloat(nodes.to.style[baseStart])}%`;
+            nodes.range.style[baseEnd] = `${100 - parseFloat(nodes.to.style[baseStart])}%`;
         }
     }
     stylizeNodes() {
@@ -12392,31 +12394,31 @@ class View {
     }
     startDragging(event) {
         const nodes = this.nodes;
-        this.handle = this.chooseHandle(event);
-        if (this.handle) {
+        this.draggingHandle = this.chooseHandle(event);
+        if (this.draggingHandle) {
             nodes.from.classList.remove('vanilla-slider__handle_last-type');
             nodes.to.classList.remove('vanilla-slider__handle_last-type');
-            nodes[this.handle].classList.add('vanilla-slider__handle_active');
-            nodes[this.handle].classList.add('vanilla-slider__handle_last-type');
+            nodes[this.draggingHandle].classList.add('vanilla-slider__handle_active');
+            nodes[this.draggingHandle].classList.add('vanilla-slider__handle_last-type');
             this.drag(event);
             window.addEventListener('mousemove', this.drag);
             window.addEventListener('mouseup', this.finishDragging);
-            this._events.slideStart.notify({ handle: this.handle });
+            this._events.slideStart.notify({ handle: this.draggingHandle });
         }
     }
     drag(event) {
-        if (this.handle) {
+        if (this.draggingHandle) {
             const coords = this.getRelativeCoords(event);
-            this._events.slide.notify({ handle: this.handle, pixels: coords });
+            this._events.slide.notify({ handle: this.draggingHandle, pixels: coords });
         }
     }
     finishDragging() {
-        if (this.handle) {
+        if (this.draggingHandle) {
             window.removeEventListener('mousemove', this.drag);
             window.removeEventListener('mouseup', this.finishDragging);
-            this.nodes[this.handle].classList.remove('vanilla-slider__handle_active');
-            this._events.slideFinish.notify({ handle: this.handle });
-            this.handle = null;
+            this.nodes[this.draggingHandle].classList.remove('vanilla-slider__handle_active');
+            this._events.slideFinish.notify({ handle: this.draggingHandle });
+            this.draggingHandle = null;
         }
     }
     chooseHandle(event) {
@@ -12479,13 +12481,13 @@ class View {
     getRelativeCoords(event) {
         const nodes = this.nodes;
         const axis = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'pageX' : 'pageY';
-        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
-        return event[axis] - nodes.track[offset];
+        const offsetType = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
+        return event[axis] - nodes.track[offsetType];
     }
     getHandleCoords(handle) {
-        const offset = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
-        const size = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetWidth' : 'offsetHeight';
-        return handle[offset] + handle[size] / 2;
+        const offsetType = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetLeft' : 'offsetTop';
+        const sizeType = this._options.orientation === __WEBPACK_IMPORTED_MODULE_3__namespace__["a" /* TOrientation */].horizontal ? 'offsetWidth' : 'offsetHeight';
+        return handle[offsetType] + handle[sizeType] / 2;
     }
     getSliderSize() {
         return {

@@ -39,7 +39,7 @@ class Model implements IModel {
       : this.correctDiapason(fromWithStep, options.min, options.max);
 
     if (fromInDiapason !== this._state.from) {
-      this.setState('from', fromInDiapason);
+      this.updateStateHandleValue('from', fromInDiapason);
     }
   }
 
@@ -50,11 +50,11 @@ class Model implements IModel {
       : this.correctDiapason(toWithStep, options.min, options.max);
 
     if (toInDiapason !== this._state.to) {
-      this.setState('to', toInDiapason);
+      this.updateStateHandleValue('to', toInDiapason);
     }
   }
 
-  private setState(handle: THandleType, newValue: number) {
+  private updateStateHandleValue(handle: THandleType, newValue: number) {
     this._state[handle] = newValue;
     this._events.stateChanged.notify({ handle, value: newValue });
   }

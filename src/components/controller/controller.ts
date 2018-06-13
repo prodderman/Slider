@@ -14,8 +14,7 @@ class Controller implements IController {
   public updateClientsCallbacks(callbacks: ICallbacks) {
     this.setCallbacks(callbacks);
     this.emitEvent('vanillaupdate', 'root', this.callbacks.onUpdate);
-    this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
-    this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
+    this.updateViewHandlesPosition();
   }
 
   private init(callbacks: ICallbacks) {
@@ -23,8 +22,7 @@ class Controller implements IController {
     this.emitEvent('vanillacreate', 'root', this.callbacks.onCreate);
     this.attachModelEvents();
     this.attachViewEvents();
-    this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
-    this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
+    this.updateViewHandlesPosition();
   }
 
   private setCallbacks(callbacks: ICallbacks) {
@@ -81,6 +79,11 @@ class Controller implements IController {
     const customEvent = this.createSliderEvent(eventName);
     this.view.emitCustomEvent(customEvent, eventSource);
     this.callClientCallback(customEvent, clientCallback);
+  }
+
+  private updateViewHandlesPosition() {
+    this.view.changeHandlePosition('from', this.convertToPercent(this.model.state.from));
+    this.view.changeHandlePosition('to', this.convertToPercent(this.model.state.to));
   }
 
   private callClientCallback(event: TEvent, callback: TCallback | null): void {

@@ -44,8 +44,8 @@ $back-color: #f6f6f6;
       box-shadow: 0 0 2px 0 blue;
     }
 
-    &-active {
-      background-color: darken($main-color, 20%);
+    &_active {
+      background-color: darken($back-color, 20%);
     }
   }
 }

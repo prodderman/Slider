@@ -25,5 +25,5 @@
     .vanilla-slider__handle:focus {
       border-color: #c71528;
       box-shadow: 0 0 2px 0 blue; }
-    .vanilla-slider__handle-active {
-      background-color: #c71528; }
+    .vanilla-slider__handle_active {
+      background-color: #c3c3c3; }
