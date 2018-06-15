@@ -6,7 +6,7 @@ module.exports = {
   devtool: 'inline-source-map',
   context: path.resolve(__dirname, '..', 'src'),
   entry: {
-    test: './../test.index.js'
+    test: '../test.index.js'
   },
   resolve: {
     modules: [
@@ -23,6 +23,7 @@ module.exports = {
             loader: 'awesome-typescript-loader',
             options: {
               logLevel: 'debug',
+              target: 'es5',
               compilerOptions: {
                 inlineSourceMap: true,
               }

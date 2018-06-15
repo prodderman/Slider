@@ -83,7 +83,7 @@
   "devDependencies": {
     "decko": "^1.2.0",
     "istanbul-instrumenter-loader": "^3.0.0",
-    "karma": "^1.7.1",
+    "karma": "^2.0.2",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.1",
@@ -96,7 +96,7 @@
     "karma-source-map-support": "^1.2.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.4",
-    "phantomjs-prebuilt": "^2.1.15",
+    "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.0.6",
     "sass-loader": "^6.0.6",
     "sinon": "^4.0.0",

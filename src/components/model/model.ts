@@ -33,7 +33,7 @@ class Model implements IModel {
   }
 
   private updateFromHandleValue(options: IOptions, fromValue: number) {
-    const fromWithStep =  this.calcValueWithStep(fromValue, options.min, options.step);
+    const fromWithStep = this.calcValueWithStep(fromValue, options.min, options.step);
     const fromInDiapason = options.isDouble
       ? this.correctDiapason(fromWithStep, options.min, this._state.to)
       : this.correctDiapason(fromWithStep, options.min, options.max);
@@ -59,13 +59,13 @@ class Model implements IModel {
     this._events.stateChanged.notify({ handle, value: newValue });
   }
 
-  private setRange(min = this._options.min, max = this._options.max) {
+  private setRange(min: number, max: number) {
     this._options.min = min > max ? max : min;
     this._options.max = max;
     this.correctFromTo();
   }
 
-  private setHandleValues(from = this._options.from, to = this._options.to) {
+  private setHandleValues(from: number, to: number) {
     this._options.from = from;
     this._options.to = to;
     this.correctFromTo();
@@ -85,7 +85,9 @@ class Model implements IModel {
   private correctFromTo() {
     const opt = this._options;
     opt.from = this.correctDiapason(opt.from, opt.min, opt.max);
-    opt.to = opt.isDouble ? this.correctDiapason(opt.to, opt.from, opt.max) : opt.to;
+    opt.to = opt.isDouble
+      ? this.correctDiapason(opt.to, opt.from, opt.max)
+      : this.correctDiapason(opt.to, opt.min, opt.max);
     this._state = { from: opt.from, to: opt.to };
   }
 

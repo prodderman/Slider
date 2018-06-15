@@ -1,4 +1,4 @@
-import { TSliderType, TOrientation  } from './components/view/namespace';
+import { TSliderType, TOrientation } from './components/view/namespace';
 import { TCallback  } from './components/controller/namespace';
 
 export interface IOptions {

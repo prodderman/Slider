@@ -54,7 +54,6 @@ describe('Test Model', () => {
   describe(`Model updateState when type is Double with options: ${JSON.stringify(modelOptionsWithDouble)}`, () => {
     const modelForData = new Model();
     modelForData.updateOptions(modelOptionsWithDouble);
-    console.log(modelForData.options);
     const data = getStateWhenSliderDouble(modelForData.options, modelForData.state);
     data.forEach((expectedState, state) => {
       it(`update state with ${JSON.stringify(state)} must return ${JSON.stringify(expectedState)}`, () => {

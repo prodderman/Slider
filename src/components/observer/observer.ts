@@ -7,18 +7,19 @@ class Observer<A> implements IObserver<A> {
     this.listeners = new Set();
   }
 
-  public attach(listener: (args: A) => void): void {
+  public attach(listener: (args: A) => void): () => void {
     this.listeners.add(listener);
-  }
-
-  public remove(listener: (...args: A[]) => void) {
-    this.listeners.delete(listener);
+    return () => this.remove(listener);
   }
 
   public notify(args: A): void {
     this.listeners.forEach((listener) => {
       listener(args);
     });
+  }
+
+  private remove(listener: (args: A) => void): void {
+    this.listeners.delete(listener);
   }
 }
 
